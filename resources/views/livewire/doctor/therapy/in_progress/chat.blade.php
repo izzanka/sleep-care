@@ -31,7 +31,7 @@ new class extends Component {
     <x-therapies.on-going-layout>
         <div class="h-[440px] rounded-lg flex flex-col">
             <!-- Header -->
-            <div class="bg-zinc-100 dark:bg-zinc-700 p-4 flex items-center gap-3 rounded-t-lg">
+            <div class="dark:bg-zinc-700 p-4 flex items-center gap-3 rounded-t-lg bg-white border dark:border-transparent">
                 <div class="flex items-center gap-2" wire:poll.5s.visible="checkPatientOnlineStatus">
                     @if($isOnline)
                         <flux:avatar badge badge:circle badge:color="green" name="{{$therapy->patient->name}}" />
@@ -43,7 +43,7 @@ new class extends Component {
             </div>
 
             <!-- Chat Body (Scrollable) -->
-            <div class="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar">
+            <div class="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar border dark:border-transparent">
                 <!-- Incoming message -->
                 <div class="flex items-start space-x-2">
                     <div class="bg-gray-200 p-3 rounded-lg max-w-xs">
@@ -90,7 +90,7 @@ new class extends Component {
             </div>
 
             <!-- Input Field -->
-            <div class="p-3 flex items-center gap-2 bg-zinc-100 dark:bg-zinc-700 rounded-b-lg">
+            <div class="p-3 flex items-center gap-2 bg-white border dark:bg-zinc-700 dark:border-transparent rounded-b-lg">
                 <input type="text"
                        class="flex-1 p-2 border rounded-lg text-sm outline-none focus:ring"
                        placeholder="Tulis sebuah pesan...">

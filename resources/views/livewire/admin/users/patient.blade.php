@@ -71,7 +71,20 @@ new class extends Component {
                 <flux:input icon="magnifying-glass" placeholder="Cari pasien" wire:model.live="search"/>
                 {{--                <flux:button class="ml-2" variant="primary">Cari</flux:button>--}}
             </div>
-            <flux:button @click="showFilter = !showFilter" class="mt-4 w-full">Filter</flux:button>
+            <flux:button @click="showFilter = !showFilter" class="mt-4 w-full">
+                Filter
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-4 h-4 transition-transform duration-300"
+                    :class="showFilter ? 'rotate-180' : ''"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+            </flux:button>
             <flux:separator class="mt-4 mb-4"/>
             <div x-show="showFilter" x-transition>
                 <form wire:submit="filter">

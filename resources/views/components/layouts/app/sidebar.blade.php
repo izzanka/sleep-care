@@ -18,7 +18,7 @@
                     <flux:navlist.item icon="banknotes" :href="route('income')" :current="request()->routeIs('income')" wire:navigate>Pendapatan</flux:navlist.item>
                     @can('isDoctor', auth()->user())
                         <flux:navlist.group expandable heading="Terapi">
-                            <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" badge="{{auth()->user()->doctor->therapies->where('status', \App\Enum\TherapyStatus::IN_PROGRESS->value)->count()}}" :current="request()->routeIs('doctor.therapies.in_progress.index') || request()->routeIs('doctor.therapies.in_progress.chat')" wire:navigate>Berlangsung</flux:navlist.item>
+                            <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" badge="{{auth()->user()->doctor->therapies->where('status', \App\Enum\TherapyStatus::IN_PROGRESS->value)->count()}}" :current="request()->routeIs('doctor.therapies.in_progress.index') || request()->routeIs('doctor.therapies.in_progress.chat') || request()->routeIs('doctor.therapies.in_progress.schedule')" wire:navigate>Berlangsung</flux:navlist.item>
                             <flux:navlist.item href="#" badge="{{auth()->user()->doctor->therapies->where('status', \App\Enum\TherapyStatus::COMPLETED->value)->count()}}">Selesai</flux:navlist.item>
                         </flux:navlist.group>
                     @endcan

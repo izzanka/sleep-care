@@ -34,6 +34,7 @@ new class extends Component {
         $query = Question::query();
 
         if ($this->search != '') {
+            $this->resetPage();
             $query = Question::search($this->search);
         }
 
@@ -192,7 +193,8 @@ new class extends Component {
                     </div>
 
                     <div class="mt-4">
-                        <flux:input readonly variant="filled" value="{{$ID}}" label="ID" class="mb-4"></flux:input>
+                        <flux:heading>ID</flux:heading>
+                        <flux:text class="mb-4">{{$ID}}</flux:text>
                         <flux:textarea wire:model="question" label="Pertanyaan"></flux:textarea>
                     </div>
 
@@ -254,7 +256,24 @@ new class extends Component {
                             wire:model.live="search"/>
                 {{--                <flux:button class="ml-2" variant="primary">Cari</flux:button>--}}
             </div>
-            <flux:button @click="showFilter = !showFilter" class="mt-4 w-full">Filter</flux:button>
+            <div>
+                <flux:button @click="showFilter = !showFilter" class="mt-4 w-full">
+                    Filter
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-4 h-4 transition-transform duration-300"
+                        :class="showFilter ? 'rotate-180' : ''"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </flux:button>
+
+            </div>
+
             <flux:separator class="mt-4 mb-4"/>
             <div x-show="showFilter" x-transition>
                 <form wire:submit="filter">
@@ -315,11 +334,10 @@ new class extends Component {
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
                 @forelse($questions as $question)
-                    <tr>
+                    <tr wire:key="{{$question->id}}">
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" icon="pencil-square" class="me-1"
-                                             wire:click="editQuestion({{$question->id}})"></flux:button>
+                                <flux:button size="xs" icon="pencil-square" class="me-1" wire:click="editQuestion({{$question->id}})"></flux:button>
                                 <flux:button size="xs" variant="danger" icon="trash" wire:click="deleteQuestion({{$question->id}})"></flux:button>
                             </div>
                         </td>

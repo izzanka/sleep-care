@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('note')->nullable();
             $table->string('link')->nullable();
-            $table->string('status')->nullable();
+            $table->boolean('is_completed')->default(false);
             $table->datetime('date');
             $table->timestamps();
         });
