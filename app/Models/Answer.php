@@ -6,19 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Answer extends Model
 {
-    public function sleepDiaries()
-    {
-        return $this->belongsToMany(SleepDiary::class, 'sleep_diary_question_answer')
-            ->withPivot('question_id')
-            ->withTimestamps();
-    }
-
-    public function sleepDiaryQuestions()
-    {
-        return $this->belongsToMany(Question::class, 'sleep_diary_question_answer')
-            ->withPivot('sleep_diary_id')
-            ->withTimestamps();
-    }
+//    public function sleepDiaries()
+//    {
+//        return $this->belongsToMany(SleepDiary::class, 'sleep_diary_question_answer')
+//            ->withPivot('question_id')
+//            ->withTimestamps();
+//    }
+//
+//    public function sleepDiaryQuestions()
+//    {
+//        return $this->belongsToMany(Question::class, 'sleep_diary_question_answer')
+//            ->withPivot('sleep_diary_id')
+//            ->withTimestamps();
+//    }
 
     public function identifyValues()
     {

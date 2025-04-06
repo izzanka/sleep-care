@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('therapies/in-progress', 'doctor.therapy.in_progress.index')->name('therapies.in_progress.index');
             Volt::route('therapies/in-progress/chat', 'doctor.therapy.in_progress.chat')->name('therapies.in_progress.chat');
             Volt::route('therapies/in-progress/schedule', 'doctor.therapy.in_progress.schedule')->name('therapies.in_progress.schedule');
+
+            Volt::route('therapies/in-progress/records/sleep-diary', 'doctor.therapy.sleep_diary.index')->name('therapies.sleep_diary.index');
         });
     });
 

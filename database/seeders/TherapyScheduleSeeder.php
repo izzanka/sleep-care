@@ -17,38 +17,40 @@ class TherapyScheduleSeeder extends Seeder
 
         $therapyScheduleDescriptions = [
             [
-                'Psikolog menjelaskan gambaran terapi, insomnia, sleep hygiene dan ACT-I',
-                'Menyusun kesepakatan bersama dan meminta pasien untuk mengisi sleep diary setiap hari selama terapi',
-                'Psikolog meminta pasien untuk menyampaikan masalah insomnia yang dialami',
+                'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan pendekatan ACT-I.',
+                'Psikolog menyusun kesepakatan bersama dengan pasien',
+                'Psikolog meminta pasien untuk mengisi sleep diary setiap hari selama sesi terapi.',
+                'Psikolog meminta pasien untuk menyampaikan permasalahan insomnia yang dialami.',
             ],
             [
-                'Psikolog meminta pasien untuk mengisi identify value yang terdampak dengan adanya insomnia',
-                'Psikolog mengajari pasien berlatih teknik pernapasan',
+                'Psikolog meminta pasien untuk mengisi identify value.',
+                'Psikolog mengajarkan teknik pernapasan kepada pasien dan membimbing latihan praktiknya.',
             ],
             [
-                'Psikolog menjelaskan bentuk-bentuk pikiran yang mengganggu',
-                'Psikolog meminta pasien untuk mulai mengisi emotion record dan thought record',
-                'Psikolog meminta pasien untuk mempraktikkan cara-cara mengatasi pikiran mengganggu',
-                'Psikolog meminta pasien untuk latihan observasi diri sebagai konteks (self-as-context)',
+                'Psikolog menjelaskan berbagai bentuk pikiran yang mengganggu.',
+                'Psikolog meminta pasien untuk mulai mengisi emotion record dan thought record.',
+                'Psikolog membimbing pasien untuk mempraktikkan cara-cara mengatasi pikiran yang mengganggu.',
+                'Psikolog mengarahkan pasien untuk melakukan latihan observasi diri sebagai konteks (self-as-context).',
             ],
             [
-                'Psikolog menjelaskan penerapan mindfulness di kehidupan sehari-hari',
-                'Psikolog mengajari pasien untuk mempraktikkan teknik acceptance dan mindfulness',
+                'Psikolog menjelaskan penerapan mindfulness dalam kehidupan sehari-hari.',
+                'Psikolog membimbing pasien dalam mempraktikkan teknik acceptance dan mindfulness.',
             ],
             [
-                'Psikolog menjelaskan konsep committed action',
-                'Psikolog meminta pasien untuk mengisi committed action sesuai value yang dimiliki',
+                'Psikolog menjelaskan konsep committed action.',
+                'Psikolog meminta pasien untuk mengisi form committed action berdasarkan nilai-nilai (value) yang dimiliki.',
             ],
             [
-                'Psikolog dan pasien membahas committed action',
-                'Pasien merangkum keseluruhan sesi dan memberikan feedback kepada psikolog dan sesi terapi',
+                'Psikolog dan pasien mendiskusikan hasil dari committed action yang telah dilakukan.',
+                'Psikolog meminta pasien untuk merangkum keseluruhan sesi terapi',
+                'Psikolog meminta pasien untuk memberikan umpan balik kepada psikolog dan terhadap proses terapi.',
             ],
         ];
 
         foreach ($therapyScheduleDescriptions as $index => $therapyScheduleDescription) {
             TherapySchedule::create([
                 'therapy_id' => $therapy->id,
-                'title' => 'Pertemuan sesi terapi ke-'.($index + 1),
+                'title' => 'Pertemuan Sesi Terapi Ke-'.($index + 1),
                 'description' => json_encode($therapyScheduleDescription),
                 'date' => fake()->dateTime(),
                 'created_at' => now(),

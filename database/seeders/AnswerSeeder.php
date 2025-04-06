@@ -10,6 +10,7 @@ use App\Models\IdentifyValue;
 use App\Models\SleepDiary;
 use App\Models\Therapy;
 use App\Models\ThoughtRecord;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -148,22 +149,36 @@ class AnswerSeeder extends Seeder
 
         DB::table('committed_action_question_answer')->insert($committedRecords);
 
+        $startDate = Carbon::now()->startOfWeek();
+
         for ($week = 1; $week <= 6; $week++) {
             for ($day = 1; $day <= 7; $day++) {
+                $currentDate = (clone $startDate)->addDays((($week - 1) * 7) + ($day - 1));
+                $timestamp = now();
+
                 $sleepDiary = SleepDiary::create([
                     'therapy_id' => $therapy->id,
                     'week' => $week,
                     'day' => $day,
-                    'date' => fake()->date(),
+                    'date' => $currentDate->toDateString(),
+                    'title' => 'Sleep Diary Minggu ke-' . $week,
                 ]);
 
                 $sleepDiaryQuestions = [
-                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => 0, 'note' => 'Siang'],
-                    ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time(), 'note' => 'Malam'],
-                    ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time(), 'note' => 'Malam'],
+                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 8, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 9, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 10, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 11, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 12, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 2, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 13, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
+                    ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
                     ['id' => 16, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 10), 'note' => 'Malam'],
+                    ['id' => 17, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 5), 'note' => 'Malam'],
                     ['id' => 18, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(1, 5), 'note' => 'Malam'],
-                    ['id' => 19, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text(), 'note' => 'Malam'],
+                    ['id' => 19, 'type' => QuestionType::TEXT->value, 'answer' => 'Lumayan', 'note' => 'Malam'],
                 ];
 
                 $sleepDiaryRecords = [];

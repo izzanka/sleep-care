@@ -20,19 +20,19 @@ class Question extends Model
         ];
     }
 
-    public function sleepDiaries()
-    {
-        return $this->belongsToMany(SleepDiary::class, 'sleep_diary_question_answer')
-            ->withPivot('answer_id')
-            ->withTimestamps();
-    }
-
-    public function sleepDiaryAnswers()
-    {
-        return $this->belongsToMany(Answer::class, 'sleep_diary_question_answer')
-            ->withPivot('sleep_diary_id')
-            ->withTimestamps();
-    }
+//    public function sleepDiaries()
+//    {
+//        return $this->belongsToMany(SleepDiary::class, 'sleep_diary_question_answer')
+//            ->withPivot('answer_id')
+//            ->withTimestamps();
+//    }
+//
+//    public function sleepDiaryAnswers()
+//    {
+//        return $this->belongsToMany(Answer::class, 'sleep_diary_question_answer')
+//            ->withPivot('sleep_diary_id')
+//            ->withTimestamps();
+//    }
 
     public function identifyValues()
     {

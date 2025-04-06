@@ -122,7 +122,11 @@ new class extends Component {
                     <flux:button size="xs" icon="pencil-square" wire:click="editSchedule({{$schedule->id}})"></flux:button>
                 </div>
                 <div class="mt-5">
-                    <flux:input icon="link" value="{{$schedule->link ?? '-'}}" readonly copyable/>
+                    @if($schedule->link)
+                        <flux:input icon="link" value="{{$schedule->link}}" readonly copyable/>
+                    @else
+                        <flux:input icon="link" value="-" disabled/>
+                    @endif
                 </div>
                 <div class="flex items-center gap-2 mt-4">
                     <flux:icon.clock variant="mini"></flux:icon.clock>

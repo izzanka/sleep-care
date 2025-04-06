@@ -9,7 +9,8 @@ new class extends Component {
 
     public function with()
     {
-        $therapy = Therapy::with('patient')->where('status', TherapyStatus::IN_PROGRESS->value)->first();
+        $doctorID = auth()->user()->load('doctor')->doctor->id;
+        $therapy = Therapy::where('doctor_id', $doctorID)->with('patient')->where('status', TherapyStatus::IN_PROGRESS->value)->first();
         $problems = collect(json_decode($therapy->patient->problems))->map(fn($problem) => Problem::tryFrom($problem)->label())->implode(', ');
 
         return [
