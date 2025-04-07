@@ -13,11 +13,11 @@ enum RecordType: string
     public function label(): string
     {
         return match ($this) {
-            self::SLEEP_DIARY => 'Sleep Diary',
-            self::IDENTIFY_VALUE => 'Identify Value',
-            self::THOUGHT_RECORD => 'Thought Record',
-            self::EMOTION_RECORD => 'Emotion Record',
-            self::COMMITTED_ACTION => 'Committed Action',
+            self::SLEEP_DIARY => 'Catatan Tidur',
+            self::IDENTIFY_VALUE => 'Identifikasi Nilai',
+            self::THOUGHT_RECORD => 'Catatan Pikiran',
+            self::EMOTION_RECORD => 'Catatan Emosi',
+            self::COMMITTED_ACTION => 'Tindakan Berkomitmen',
         };
     }
 }

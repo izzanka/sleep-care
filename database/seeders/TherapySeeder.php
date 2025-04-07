@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enum\OrderStatus;
 use App\Enum\TherapyStatus;
+use App\Enum\UserRole;
 use App\Models\Doctor;
 use App\Models\Order;
 use App\Models\Therapy;
@@ -21,7 +22,7 @@ class TherapySeeder extends Seeder
             $query->where('name', 'psikolog');
         })->with('user')->first();
 
-        $patient = User::select('id')->first();
+        $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->first();
 
         $therapy = Therapy::factory()->create([
             'doctor_id' => $doctor->id,

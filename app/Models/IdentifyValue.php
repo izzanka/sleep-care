@@ -11,17 +11,8 @@ class IdentifyValue extends Model
         return $this->belongsTo(Therapy::class);
     }
 
-    public function questions()
+    public function questionAnswers()
     {
-        return $this->belongsToMany(Question::class, 'identify_value_question_answer')
-            ->withPivot('answer_id')
-            ->withTimestamps();
-    }
-
-    public function answers()
-    {
-        return $this->belongsToMany(Answer::class, 'identify_value_question_answer')
-            ->withPivot('question_id')
-            ->withTimestamps();
+        return $this->hasMany(IdentifyValueQuestionAnswer::class);
     }
 }

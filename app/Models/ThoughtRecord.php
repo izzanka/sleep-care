@@ -11,17 +11,8 @@ class ThoughtRecord extends Model
         return $this->belongsTo(Therapy::class);
     }
 
-    public function questions()
+    public function questionAnswers()
     {
-        return $this->belongsToMany(Question::class, 'thought_record_question_answer')
-            ->withPivot('answer_id')
-            ->withTimestamps();
-    }
-
-    public function answers()
-    {
-        return $this->belongsToMany(Answer::class, 'thought_record_question_answer')
-            ->withPivot('question_id')
-            ->withTimestamps();
+        return $this->hasMany(ThoughtRecordQuestionAnswer::class)->orderBy('created_at');
     }
 }

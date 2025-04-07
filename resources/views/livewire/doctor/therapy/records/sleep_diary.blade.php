@@ -39,7 +39,7 @@ new class extends Component {
             <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
                  x-data="{showTable: false}">
                 <div class="flex items-center w-full">
-                    <flux:icon.calendar>
+                    <flux:icon.calendar class="mr-2"/>
                     <flux:button variant="ghost" class="w-full" @click="showTable = !showTable">
                         <div class="flex items-center justify-between w-full">
                             Sleep Diary Minggu Ke-{{$index}}
@@ -61,16 +61,16 @@ new class extends Component {
                     <div class="overflow-x-auto">
                         <table class="table-auto w-full text-sm border">
                             <thead>
-                            <tr>
-                                <th class="border p-2 text-center">Hari</th>
-                                <th class="border p-2 text-center">Senin</th>
-                                <th class="border p-2 text-center">Selasa</th>
-                                <th class="border p-2 text-center">Rabu</th>
-                                <th class="border p-2 text-center">Kamis</th>
-                                <th class="border p-2 text-center">Jumat</th>
-                                <th class="border p-2 text-center">Sabtu</th>
-                                <th class="border p-2 text-center">Minggu</th>
-                            </tr>
+                                <tr>
+                                    <th class="border p-2 text-center">Hari</th>
+                                    <th class="border p-2 text-center">Senin</th>
+                                    <th class="border p-2 text-center">Selasa</th>
+                                    <th class="border p-2 text-center">Rabu</th>
+                                    <th class="border p-2 text-center">Kamis</th>
+                                    <th class="border p-2 text-center">Jumat</th>
+                                    <th class="border p-2 text-center">Sabtu</th>
+                                    <th class="border p-2 text-center">Minggu</th>
+                                </tr>
                             </thead>
                             <tbody>
                             <tr>
@@ -80,7 +80,7 @@ new class extends Component {
                                 @endforeach
                             </tr>
                             <tr>
-                                <td class="p-2 text-center" colspan="8">Siang Hari</td>
+                                <td class="p-2 text-center font-bold" colspan="8">Siang Hari</td>
                             </tr>
                             @foreach($questions as $question)
                                 <tr>
@@ -89,19 +89,25 @@ new class extends Component {
                                         @php
                                             $entry = $diary->questionAnswers->firstWhere('question_id', $question->id);
                                         @endphp
-                                        <td class="border p-2 text-center">
-                                            @if($entry->answer->type == QuestionType::BINARY->value)
-                                                {{$entry->answer->answer ? 'Ya' : 'Tidak'}}
-                                            @else
-                                                {{$entry->answer->answer}}
-                                            @endif
+                                        <td class="border p-2">
+                                            <div class="flex justify-center items-center h-full">
+                                                @if($entry->answer->type == QuestionType::BINARY->value)
+                                                    @if($entry->answer->answer)
+                                                        <flux:icon.check-circle class="text-green-500"></flux:icon.check-circle>
+                                                    @else
+                                                        <flux:icon.x-circle class="text-red-500"></flux:icon.x-circle>
+                                                    @endif
+                                                @else
+                                                    {{$entry->answer->answer}}
+                                                @endif
+                                            </div>
                                         </td>
                                     @endforeach
 
                                 </tr>
                                 @if($question->id == 13)
                                     <tr>
-                                        <td class="p-2 text-center" colspan="8">Malam Hari</td>
+                                        <td class="p-2 text-center font-bold" colspan="8">Malam Hari</td>
                                     </tr>
                                 @endif
                             @endforeach

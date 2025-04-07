@@ -106,7 +106,7 @@ class QuestionSeeder extends Seeder
             'Berapa total jam kamu tidur? (dalam jam)' => QuestionType::NUMBER->value,
             'Berapa kali kamu terbangun di malam hari?' => QuestionType::NUMBER->value,
             'Isilah skala kualitas tidurmu (dalam skala 1-5, 1 sangat tidak berkualitas, 5 sangat berkualitas)' => QuestionType::NUMBER->value,
-            'Apakah kamu merasa tidurmu cukup?' => QuestionType::TEXT->value,
+            'Apakah kamu merasa tidurmu cukup?' => QuestionType::BINARY->value,
         ];
 
         foreach ($sleepDiaryOpenQuestions as $question => $type) {
@@ -140,7 +140,8 @@ class QuestionSeeder extends Seeder
         }
 
         $thoughtRecordQuestions = [
-            'Tanggal dan Jam' => QuestionType::DATE_TIME->value,
+            'Tanggal' => QuestionType::DATE->value,
+            'Jam' => QuestionType::TIME->value,
             'Kejadian atau situasi' => QuestionType::TEXT->value,
             'Pemikiran yang muncul' => QuestionType::TEXT->value,
         ];
