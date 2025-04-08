@@ -6,9 +6,7 @@ enum QuestionType: string
 {
     case TEXT = 'text';
     case BINARY = 'binary';
-
     case DATE = 'date';
-    case DATE_TIME = 'date_time';
     case TIME = 'time';
     case NUMBER = 'number';
 
@@ -18,7 +16,6 @@ enum QuestionType: string
             self::TEXT => 'Text',
             self::BINARY => 'Binary',
             self::DATE => 'Date',
-            self::DATE_TIME => 'Date Time',
             self::TIME => 'Time',
             self::NUMBER => 'Number',
         };

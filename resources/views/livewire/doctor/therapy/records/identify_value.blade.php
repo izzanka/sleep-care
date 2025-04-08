@@ -59,7 +59,7 @@ new class extends Component {
             </div>
             <flux:separator class="mt-4 mb-4"></flux:separator>
             <div class="overflow-x-auto">
-                <table class="table-auto w-full text-sm border">
+                <table class="table-auto w-full text-sm border mb-2 mt-2">
                     <thead>
                         <tr>
                             <th class="border p-2 text-center">No</th>
@@ -71,8 +71,8 @@ new class extends Component {
                         @foreach($labels as $index => $label)
                             <tr>
                                 <td class="border p-2 text-center">{{$loop->iteration}}</td>
-                                <td class="border p-2 text-center">{{$label}}</td>
-                                <td class="border p-2 text-center">{{$textAnswers[$datasetLabels[1]][$index]}}</td>
+                                <td class="border p-2">{{$label}}</td>
+                                <td class="border p-2">{{$textAnswers[$datasetLabels[1]][$index]}}</td>
                             </tr>
                         @endforeach
                     </tbody>

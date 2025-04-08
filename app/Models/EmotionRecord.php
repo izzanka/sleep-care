@@ -11,17 +11,8 @@ class EmotionRecord extends Model
         return $this->belongsTo(Therapy::class);
     }
 
-    public function questions()
+    public function questionAnswers()
     {
-        return $this->belongsToMany(Question::class, 'emotion_record_question_answer')
-            ->withPivot('answer_id')
-            ->withTimestamps();
-    }
-
-    public function answers()
-    {
-        return $this->belongsToMany(Answer::class, 'emotion_record_question_answer')
-            ->withPivot('question_id')
-            ->withTimestamps();
+        return $this->hasMany(EmotionRecordQuestionAnswer::class)->orderBy('created_at');
     }
 }

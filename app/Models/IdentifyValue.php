@@ -13,6 +13,6 @@ class IdentifyValue extends Model
 
     public function questionAnswers()
     {
-        return $this->hasMany(IdentifyValueQuestionAnswer::class);
+        return $this->hasMany(IdentifyValueQuestionAnswer::class)->orderBy('created_at');
     }
 }

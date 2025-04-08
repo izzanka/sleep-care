@@ -36,7 +36,7 @@ new class extends Component {
     <x-therapies.on-going-layout>
         <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
             <div class="overflow-x-auto">
-                <table class="table-auto w-full text-sm border">
+                <table class="table-auto w-full text-sm border mb-2 mt-2">
                     <thead>
                         <tr>
                             <th class="border p-2 text-center">No</th>
@@ -53,7 +53,7 @@ new class extends Component {
                                 @php
                                     $answer = $chunk->firstWhere('question.question', $header);
                                 @endphp
-                                <td class="border p-2 text-center">
+                                <td class="border p-2">
                                     @if($answer->answer->type == QuestionType::DATE->value)
                                         {{Carbon::parse($answer->answer->answer)->format('d/m/Y')}}
                                     @else

@@ -42,6 +42,8 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('therapies/in-progress/records/sleep-diary', 'doctor.therapy.records.sleep_diary')->name('therapies.records.sleep_diary');
             Volt::route('therapies/in-progress/records/identify-value', 'doctor.therapy.records.identify_value')->name('therapies.records.identify_value');
             Volt::route('therapies/in-progress/records/thought-record', 'doctor.therapy.records.thought_record')->name('therapies.records.thought_record');
+            Volt::route('therapies/in-progress/records/emotion-record', 'doctor.therapy.records.emotion_record')->name('therapies.records.emotion_record');
+            Volt::route('therapies/in-progress/records/committed-action', 'doctor.therapy.records.committed_action')->name('therapies.records.committed_action');
 
         });
     });

@@ -31,7 +31,7 @@ class AnswerSeeder extends Seeder
 
         $questions = [
             ['id' => 20, 'type' => QuestionType::NUMBER->value, 'answer' => 4],
-            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => fake()->realTextBetween(25, 100)],
+            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => 'aku ingin jadi orang yang menguasai bidang pekerjaan'],
             ['id' => 22, 'type' => QuestionType::NUMBER->value, 'answer' => 9],
         ];
 
@@ -65,8 +65,8 @@ class AnswerSeeder extends Seeder
         $thoughtQuestions1 = [
             ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => fake()->date()],
             ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-            ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text().'1'],
-            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text().'1'],
+            ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbangun tengah malam'],
+            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku merasa tidak akan lancar saat presentasi besok'],
         ];
 
         $thoughtRecords1 = [];
@@ -91,8 +91,8 @@ class AnswerSeeder extends Seeder
         $thoughtQuestions2 = [
             ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => fake()->date()],
             ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-            ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text().'2'],
-            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text().'2'],
+            ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbagun tengah malam'],
+            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku merasa temen-temenku membicarakan aku di belakang'],
         ];
 
         $thoughtRecords2 = [];
@@ -117,12 +117,13 @@ class AnswerSeeder extends Seeder
         $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id]);
 
         $emotionQuestions = [
-            ['id' => 26, 'type' => QuestionType::DATE_TIME->value, 'answer' => fake()->dateTime()],
-            ['id' => 27, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 28, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
+            ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => fake()->date()],
+            ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
+            ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
+            ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
+            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi (7)'],
+            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
+            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi (5)'],
         ];
 
         $emotionRecords = [];
@@ -147,13 +148,13 @@ class AnswerSeeder extends Seeder
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
         $committedQuestions = [
-            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
-            ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => fake()->text()],
+            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => 'Kesehatan'],
+            ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga rutin'],
+            ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga tiap seminggu sekali'],
+            ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => 'Setiap hari minggu jam 8 pagi'],
+            ['id' => 38, 'type' => QuestionType::BINARY->value, 'answer' => true],
+            ['id' => 39, 'type' => QuestionType::TEXT->value, 'answer' => 'Rasa malas'],
+            ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => 'Ingat value'],
         ];
 
         $committedRecords = [];

@@ -14,8 +14,6 @@ class QuestionSeeder extends Seeder
      */
     public function run(): void
     {
-        $timestamp = now();
-
         $sleepDiaryTitleParents = [
             'Apakah kamu tidur siang?',
             'Apakah kamu mengkonsumsi obat tidur?',
@@ -31,7 +29,7 @@ class QuestionSeeder extends Seeder
                 'note' => 'Siang',
                 'is_parent' => true,
                 'parent_id' => null,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ]);
         }
 
@@ -39,7 +37,7 @@ class QuestionSeeder extends Seeder
         $secondParent = $parentQuestions[1] ?? null;
 
         $firstSleepDiaryTitleChilds = [
-            'Berapa lama? (dalam menit)' => QuestionType::NUMBER->value,
+            'Berapa lama? (dalam jam)' => QuestionType::NUMBER->value,
             'Pukul berapa?' => QuestionType::TIME->value,
         ];
 
@@ -54,7 +52,7 @@ class QuestionSeeder extends Seeder
                     'parent_id' => $firstParent->id,
                     'is_parent' => false,
                     'note' => 'Siang',
-                    'created_at' => $timestamp,
+                    'created_at' => now(),
                 ];
             }
         }
@@ -74,15 +72,15 @@ class QuestionSeeder extends Seeder
                     'parent_id' => $secondParent->id,
                     'is_parent' => false,
                     'note' => 'Siang',
-                    'created_at' => $timestamp,
+                    'created_at' => now(),
                 ];
             }
         }
 
         $sleepDiaryBinaryQuestions = [
-            'Apakah kamu mengkonsumsi kafein (contoh: kopi, teh, soda, coklat, minuman berenergi) setelah pukul 18.00?',
+            'Apakah kamu mengkonsumsi kafein setelah pukul 18.00?',
             'Apakah kamu mengkonsumsi alkohol setelah pukul 18.00?',
-            'Apakah kamu menggunakan nikotin (contoh: rokok) setelah pukul 18.00?',
+            'Apakah kamu menggunakan nikotin setelah pukul 18.00?',
             'Apakah kamu berolahraga?',
             'Apakah kamu mengkonsumsi makanan berat atau snack setelah pukul 18.00?',
             'Apakah kamu mengantuk sepanjang hari?',
@@ -96,7 +94,7 @@ class QuestionSeeder extends Seeder
                 'note' => 'Siang',
                 'parent_id' => null,
                 'is_parent' => false,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ];
         }
 
@@ -105,7 +103,7 @@ class QuestionSeeder extends Seeder
             'Pukul berapa kamu bangun tidur?' => QuestionType::TIME->value,
             'Berapa total jam kamu tidur? (dalam jam)' => QuestionType::NUMBER->value,
             'Berapa kali kamu terbangun di malam hari?' => QuestionType::NUMBER->value,
-            'Isilah skala kualitas tidurmu (dalam skala 1-5, 1 sangat tidak berkualitas, 5 sangat berkualitas)' => QuestionType::NUMBER->value,
+            'Isilah skala kualitas tidurmu? Skala 1-5 (1 = Sangat tidak berkualitas, 5 = Sangat berkualitas)' => QuestionType::NUMBER->value,
             'Apakah kamu merasa tidurmu cukup?' => QuestionType::BINARY->value,
         ];
 
@@ -117,14 +115,14 @@ class QuestionSeeder extends Seeder
                 'note' => 'Malam',
                 'parent_id' => null,
                 'is_parent' => false,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ];
         }
 
         $identifyValueTitleParents = [
-            'Skala Kepentingan, Seberapa penting area ini untuk Anda? Skala 1 - 10 (1 = Sangat tidak penting, 10 = Sangat penting)' => QuestionType::NUMBER->value,
-            'Aku ingin jadi pribadi yang, Contoh: Pengisian di area karir: aku ingin jadi orang yang menguasai bidang pekerjaan' => QuestionType::TEXT->value,
-            'Skor Kesuaian, Seberapa sesuai kondisi Anda saat ini dengan pribadi yang Anda inginkan? Skala 1 - 10 (1 = Sangat tidak sesuai, 10 = Sangat sesuai)' => QuestionType::NUMBER->value,
+            'Skala Kepentingan, Seberapa penting area ini untuk anda? Skala 1-10 (1 = Sangat tidak penting, 10 = Sangat penting)' => QuestionType::NUMBER->value,
+            'Aku ingin jadi pribadi yang?' => QuestionType::TEXT->value,
+            'Skor Kesuaian, Seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? Skala 1-10 (1 = Sangat tidak sesuai, 10 = Sangat sesuai)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($identifyValueTitleParents as $question => $type) {
@@ -135,14 +133,14 @@ class QuestionSeeder extends Seeder
                 'note' => null,
                 'is_parent' => true,
                 'parent_id' => null,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ];
         }
 
         $thoughtRecordQuestions = [
             'Tanggal' => QuestionType::DATE->value,
             'Jam' => QuestionType::TIME->value,
-            'Kejadian atau situasi' => QuestionType::TEXT->value,
+            'Kejadian' => QuestionType::TEXT->value,
             'Pemikiran yang muncul' => QuestionType::TEXT->value,
         ];
 
@@ -154,13 +152,14 @@ class QuestionSeeder extends Seeder
                 'note' => null,
                 'parent_id' => null,
                 'is_parent' => false,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ];
         }
 
         $emotionRecordQuestions = [
-            'Tanggal dan Jam' => QuestionType::DATE_TIME->value,
-            'Kejadian atau situasi' => QuestionType::TEXT->value,
+            'Tanggal' => QuestionType::DATE->value,
+            'Jam' => QuestionType::TIME->value,
+            'Kejadian' => QuestionType::TEXT->value,
             'Pemikiran yang muncul' => QuestionType::TEXT->value,
             'Emosi dan intensitas (1-10)' => QuestionType::TEXT->value,
             'Cara yang dilakukan' => QuestionType::TEXT->value,
@@ -175,7 +174,7 @@ class QuestionSeeder extends Seeder
                 'note' => null,
                 'parent_id' => null,
                 'is_parent' => false,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ];
         }
 
@@ -184,7 +183,7 @@ class QuestionSeeder extends Seeder
             'Tujuan' => QuestionType::TEXT->value,
             'Rencana' => QuestionType::TEXT->value,
             'Waktu pelaksanaan' => QuestionType::TEXT->value,
-            'Terlaksana/Tidak Terlaksana' => QuestionType::BINARY->value,
+            'Terlaksana' => QuestionType::BINARY->value,
             'Hambatan' => QuestionType::TEXT->value,
             'Cara mengatasi' => QuestionType::TEXT->value,
         ];
@@ -197,7 +196,7 @@ class QuestionSeeder extends Seeder
                 'note' => null,
                 'parent_id' => null,
                 'is_parent' => false,
-                'created_at' => $timestamp,
+                'created_at' => now(),
             ];
         }
 
