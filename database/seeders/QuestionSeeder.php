@@ -82,7 +82,7 @@ class QuestionSeeder extends Seeder
             'Apakah kamu mengkonsumsi alkohol setelah pukul 18.00?',
             'Apakah kamu menggunakan nikotin setelah pukul 18.00?',
             'Apakah kamu berolahraga?',
-            'Apakah kamu mengkonsumsi makanan berat atau snack setelah pukul 18.00?',
+            'Apakah kamu mengkonsumsi makanan setelah pukul 18.00?',
             'Apakah kamu mengantuk sepanjang hari?',
         ];
 
@@ -103,7 +103,7 @@ class QuestionSeeder extends Seeder
             'Pukul berapa kamu bangun tidur?' => QuestionType::TIME->value,
             'Berapa total jam kamu tidur? (dalam jam)' => QuestionType::NUMBER->value,
             'Berapa kali kamu terbangun di malam hari?' => QuestionType::NUMBER->value,
-            'Isilah skala kualitas tidurmu? Skala 1-5 (1 = Sangat tidak berkualitas, 5 = Sangat berkualitas)' => QuestionType::NUMBER->value,
+            'Isilah skala kualitas tidurmu? (skala 1-5)' => QuestionType::NUMBER->value,
             'Apakah kamu merasa tidurmu cukup?' => QuestionType::BINARY->value,
         ];
 
@@ -120,9 +120,9 @@ class QuestionSeeder extends Seeder
         }
 
         $identifyValueTitleParents = [
-            'Skala Kepentingan, Seberapa penting area ini untuk anda? Skala 1-10 (1 = Sangat tidak penting, 10 = Sangat penting)' => QuestionType::NUMBER->value,
+            'Skala Kepentingan, Seberapa penting area ini untuk anda? (skala 1-10)' => QuestionType::NUMBER->value,
             'Aku ingin jadi pribadi yang?' => QuestionType::TEXT->value,
-            'Skor Kesuaian, Seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? Skala 1-10 (1 = Sangat tidak sesuai, 10 = Sangat sesuai)' => QuestionType::NUMBER->value,
+            'Skor Kesuaian, Seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? (skala 1-10)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($identifyValueTitleParents as $question => $type) {

@@ -9,6 +9,7 @@ use Livewire\Volt\Component;
 
 new class extends Component {
     public $date = null;
+    public $time = null;
     public ?int $ID = null;
     public ?string $title = null;
     public ?string $link = null;
@@ -38,11 +39,9 @@ new class extends Component {
             Session::flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
-        $date = Carbon::parse($schedule->date);
-        $formatDate = $date->format('Y-m-d\TH:i');
-
         $this->ID = $scheduleID;
-        $this->date = $formatDate;
+        $this->date = $schedule->date;
+        $this->time = $schedule->time;
         $this->link = $schedule->link;
         $this->title = $schedule->title;
         $this->note = $schedule->note;
@@ -55,6 +54,7 @@ new class extends Component {
     {
         $validated = $this->validate([
             'date' => ['required'],
+            'time' => ['required'],
             'link' => ['nullable', 'url:https'],
             'note' => ['nullable', 'string'],
             'is_completed' => ['required', 'boolean'],
@@ -83,18 +83,19 @@ new class extends Component {
 
 <section>
     @include('partials.main-heading', ['title' => 'Jadwal'])
-    <x-therapies.on-going-layout>
+{{--    <x-therapies.on-going-layout>--}}
         <flux:modal name="editSchedule" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
             <div class="space-y-6" x-data="{ showNote: false }" x-init="showNote = @json($is_completed)">
                 <form wire:submit="updateSchedule({{$ID}})">
                     <div>
-                        <flux:heading size="lg">Ubah Jadwal</flux:heading>
+                        <flux:heading size="lg">Ubah {{$title}}</flux:heading>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                        <flux:input readonly variant="filled" label="Judul" value="{{$title}}"></flux:input>
-                        <flux:input wire:model="date" label="Tanggal dan Waktu"
-                                    type="datetime-local"></flux:input>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                        <flux:input wire:model="date" label="Tanggal"
+                                    type="date"></flux:input>
+                        <flux:input wire:model="time" label="Waktu" type="time"></flux:input>
                     </div>
+
                     <div class="mt-5">
                         <flux:input wire:model="link" label="Link video konferensi"></flux:input>
                     </div>
@@ -131,7 +132,7 @@ new class extends Component {
                 </div>
                 <div class="flex items-center gap-2 mt-4">
                     <flux:icon.clock></flux:icon.clock>
-                    <flux:text>{{$schedule->date}}</flux:text>
+                    <flux:text>{{$schedule->date}} - {{$schedule->time}}</flux:text>
                 </div>
                 <div class="mt-4">
                     <flux:button.group>
@@ -192,5 +193,5 @@ new class extends Component {
             </div>
         @endforeach
 
-    </x-therapies.on-going-layout>
+{{--    </x-therapies.on-going-layout>--}}
 </section>

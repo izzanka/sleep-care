@@ -52,10 +52,10 @@ new class extends Component {
 
 <section>
     @include('partials.main-heading', ['title' => 'Identify Value'])
-    <x-therapies.on-going-layout>
+{{--    <x-therapies.on-going-layout>--}}
         <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-            <div class="relative w-full aspect-square max-w-md mx-auto">
-                <canvas id="radarChart" class="absolute inset-0 w-full h-full"></canvas>
+            <div class="relative w-full max-w-md mx-auto">
+                <canvas id="identifyValueChart" class="w-full h-full"></canvas>
             </div>
             <flux:separator class="mt-4 mb-4"></flux:separator>
             <div class="overflow-x-auto">
@@ -80,71 +80,92 @@ new class extends Component {
             </div>
         </div>
 
-    </x-therapies.on-going-layout>
+{{--    </x-therapies.on-going-layout>--}}
 </section>
 
 @script
 <script>
-    const ctx = document.getElementById('radarChart').getContext('2d');
-    const isDark = document.documentElement.classList.contains('dark');
+    let chartInstance;
 
-    const data = {
-        labels: @json($labels),
-        datasets: [
-            {
-                label: @json($datasetLabels[0]),
-                data: @json($numberAnswers[$datasetLabels[0]]),
-                fill: true,
-            },
-            {
-                label: @json($datasetLabels[2]),
-                data: @json($numberAnswers[$datasetLabels[2]]),
-                fill: true,
-            }
-        ]
-    };
+    function createChart() {
+        const canvas = document.getElementById('identifyValueChart');
+        if (!canvas) return;
 
-    const config = {
-        type: 'radar',
-        data: data,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
+        const ctx = canvas.getContext('2d');
+        const isDark = document.documentElement.classList.contains('dark');
+
+        const data = {
+            labels: @json($labels),
+            datasets: [
+                {
+                    label: @json($datasetLabels[0]),
+                    data: @json($numberAnswers[$datasetLabels[0]]),
+                    fill: true,
+                },
+                {
+                    label: @json($datasetLabels[2]),
+                    data: @json($numberAnswers[$datasetLabels[2]]),
+                    fill: true,
+                }
+            ]
+        };
+
+        const config = {
+            type: 'radar',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Kepentingan dan Kesesuaian',
                         color: isDark ? '#ffffff' : '#000000',
-                        font: {
-                            size: 12,
+                    },
+                    legend: {
+                        labels: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1,
+                            color: isDark ? '#ffffff' : '#000000',
+                        },
+                        grid: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        },
+                        pointLabels: {
+                            color: isDark ? '#ffffff' : '#000000',
                         }
                     }
                 }
-            },
-            scales: {
-                r: {
-                    beginAtZero: true,
-                    min: 0,
-                    max: 10,
-                    ticks: {
-                        stepSize: 1,
-                        color: '#000000',
-                        font: {
-                            size: 10
-                        }
-                    },
-                    grid: {
-                        color: isDark ? '#ffffff' : '#000000',
-                    },
-                    pointLabels: {
-                        color: isDark ? '#ffffff' : '#000000',
-                        font: {
-                            size: 11
-                        }
-                    }
-                }
             }
+        };
+
+        if (chartInstance) {
+            chartInstance.destroy();
         }
-    };
 
-    new Chart(ctx, config);
+        chartInstance = new Chart(ctx, config);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        createChart();
+    });
+
+    const observer = new MutationObserver(() => {
+        createChart();
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+    });
 </script>
+
 @endscript

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Therapy;
 use App\Models\TherapySchedule;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class TherapyScheduleSeeder extends Seeder
@@ -47,12 +48,15 @@ class TherapyScheduleSeeder extends Seeder
             ],
         ];
 
+        $startDate = Carbon::create(2025, 1, 1);
+
         foreach ($therapyScheduleDescriptions as $index => $therapyScheduleDescription) {
             TherapySchedule::create([
                 'therapy_id' => $therapy->id,
                 'title' => 'Jadwal Sesi Terapi Ke-'.($index + 1),
                 'description' => json_encode($therapyScheduleDescription),
-                'date' => fake()->dateTime(),
+                'date' => $startDate->copy()->addWeeks($index),
+                'time' => fake()->time('H:i'),
                 'created_at' => now(),
             ]);
         }

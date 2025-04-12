@@ -25,17 +25,29 @@ new class extends Component {
             ->pluck('question')
             ->unique('id');
 
+        $labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5', 'Minggu 6'];
+
         return [
             'sleepDiaries' => $sleepDiaries,
             'questions' => $questions,
+            'labels' => $labels,
         ];
     }
 }; ?>
 
 <section>
     @include('partials.main-heading', ['title' => 'Sleep Diary'])
-    <x-therapies.on-going-layout>
+{{--    <x-therapies.on-going-layout>--}}
         <div x-data="{ openIndex: null }">
+            <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+                <div class="relative w-full">
+                    <canvas id="lineChart" class="w-full h-full mb-5"></canvas>
+                    <flux:separator class="mt-4 mb-4"></flux:separator>
+                    <canvas id="barChart" class="w-full h-full mt-5"></canvas>
+                </div>
+            </div>
+
+            <flux:separator class="mt-4 mb-4"></flux:separator>
             @foreach($sleepDiaries as $index => $sleepDiary)
                 <div
                     class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
@@ -137,5 +149,165 @@ new class extends Component {
                 </div>
             @endforeach
         </div>
-    </x-therapies.on-going-layout>
+{{--    </x-therapies.on-going-layout>--}}
 </section>
+
+@script
+<script>
+    let barChartInstance;
+    let lineChartInstance;
+
+    function createCharts() {
+        const lineChartCanvas = document.getElementById('lineChart');
+        const barChartCanvas = document.getElementById('barChart');
+        if (!lineChartCanvas || !barChartCanvas) return;
+
+        const lineChartCtx = lineChartCanvas.getContext('2d');
+        const barChartCtx = barChartCanvas.getContext('2d');
+        const isDark = document.documentElement.classList.contains('dark');
+
+        const dataLineChart = {
+            labels: @json($labels),
+            datasets: [
+                {
+                    label: 'Total Jam Tidur',
+                    data: [30, 20, 36, 40, 44, 45],
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 10
+                },
+                {
+                    label: 'Total Terbangun di Malam Hari',
+                    data: [14, 28, 7, 5, 2, 1],
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 10
+                },
+                {
+                    label: 'Total Skala Kualitas Tidur',
+                    data: [20, 15, 28, 30, 32, 35],
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 10
+                },
+            ],
+        };
+
+        const dataBarChart = {
+            labels: @json($labels),
+            datasets: [
+                {
+                    label: 'Kafein',
+                    data: [7, 6, 5, 4, 3, 2],
+                },
+                {
+                    label: 'Alkohol',
+                    data: [0, 0, 0, 0, 0, 0],
+                },
+                {
+                    label: 'Nikotin',
+                    data: [1, 0, 0, 0, 0, 0],
+                },
+                {
+                    label: 'Makanan',
+                    data: [7, 7, 7, 7, 3, 1],
+                },
+            ]
+        };
+
+        const configLineChart = {
+            type: 'line',
+            data: dataLineChart,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Tren Tidur',
+                        color: isDark ? '#ffffff' : '#000000',
+                    },
+                    legend: {
+                        labels: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        }
+                    },
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        },
+                        grid: {
+                            display: true,
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 50,
+                        ticks: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        },
+                        grid: {
+                            display: true,
+                        },
+                    },
+                },
+            }
+        };
+
+        const configBarChart = {
+            type: 'bar',
+            data: dataBarChart,
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Konsumsi Setelah Pukul 18:00',
+                        color: isDark ? '#ffffff' : '#000000',
+                    },
+                    legend: {
+                        labels: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        }
+                    },
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        },
+                    },
+                    y: {
+                        stacked: true,
+                        max: 25,
+                        ticks: {
+                            color: isDark ? '#ffffff' : '#000000',
+                        },
+                    }
+                }
+            }
+        };
+
+        if (barChartInstance) barChartInstance.destroy();
+        if (lineChartInstance) lineChartInstance.destroy();
+
+        barChartInstance = new Chart(lineChartCtx, configLineChart);
+        lineChartInstance = new Chart(barChartCtx, configBarChart);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        createCharts();
+    });
+
+    const observer = new MutationObserver(() => {
+        createCharts();
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+    });
+</script>
+@endscript

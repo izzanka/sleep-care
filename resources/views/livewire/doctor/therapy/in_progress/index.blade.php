@@ -22,7 +22,7 @@ new class extends Component {
 
 <section>
     @include('partials.main-heading', ['title' => 'Berlangsung'])
-    <x-therapies.on-going-layout>
+{{--    <x-therapies.on-going-layout>--}}
         <div>
             <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
                 <div class="flex items-center space-x-2">
@@ -143,6 +143,6 @@ new class extends Component {
 {{--            </div>--}}
         </div>
 
-    </x-therapies.on-going-layout>
+{{--    </x-therapies.on-going-layout>--}}
 </section>
 

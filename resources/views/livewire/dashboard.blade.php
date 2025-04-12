@@ -72,6 +72,7 @@ new class extends Component {
                         <flux:heading size="xl" class="mb-2">{{$therapies->total()}}</flux:heading>
                     </div>
                 </div>
+                <livewire:calendar></livewire:calendar>
 {{--                <flux:heading>Terapi</flux:heading>--}}
 {{--                <flux:separator class="mt-4 mb-4"/>--}}
 {{--                <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">--}}
@@ -133,65 +134,65 @@ new class extends Component {
                         <flux:heading size="xl" class="mb-2">{{$total_patient}}</flux:heading>
                     </div>
                 </div>
-{{--                <flux:heading>Transaksi</flux:heading>--}}
-{{--                <flux:separator class="mt-4 mb-4"/>--}}
+                <flux:heading>Transaksi</flux:heading>
+                <flux:separator class="mt-4 mb-4"/>
 
-{{--                <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">--}}
-{{--                    <table class="min-w-full table-auto text-sm text-gray-900 dark:text-gray-100">--}}
-{{--                        <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">--}}
-{{--                        <tr class="border-b">--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">No</th>--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">Psikolog</th>--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">Pasien</th>--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">Metode Pembayaran</th>--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">Status Pembayaran</th>--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">Total Harga</th>--}}
-{{--                            <th class="px-6 py-3 text-left font-medium">Status</th>--}}
-{{--                            <th class="px-6 py-3 text-left"></th>--}}
-{{--                        </tr>--}}
-{{--                        </thead>--}}
-{{--                        <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">--}}
-{{--                        @forelse($orders as $order)--}}
-{{--                            <tr>--}}
-{{--                                <td class="px-6 py-4">{{$loop->iteration}}</td>--}}
-{{--                                <td class="px-6 py-4">--}}
-{{--                                    <flux:link wire:navigate href="#">--}}
-{{--                                        {{$order->therapy->doctor->user->name}}--}}
-{{--                                    </flux:link>--}}
-{{--                                </td>--}}
-{{--                                <td class="px-6 py-4">--}}
-{{--                                    <flux:link wire:navigate href="#">--}}
-{{--                                        {{$order->therapy->patient->name}}--}}
-{{--                                    </flux:link>--}}
-{{--                                </td>--}}
-{{--                                <td class="px-6 py-4">{{$order->payment_method}}</td>--}}
-{{--                                <td class="px-6 py-4">{{$order->payment_status->label()}}</td>--}}
-{{--                                <td class="px-6 py-4">@currency($order->total_price)</td>--}}
-{{--                                <td class="px-6 py-4">{{$order->status->label()}}</td>--}}
-{{--                                <td class="items-center">--}}
-{{--                                    <flux:dropdown position="bottom" align="end" offset="-15">--}}
-{{--                                        <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"--}}
-{{--                                                     inset="top bottom"></flux:button>--}}
-{{--                                        <flux:menu>--}}
-{{--                                            <flux:menu.item icon="document-text">Detail</flux:menu.item>--}}
-{{--                                            <flux:menu.item icon="archive-box" variant="danger">Hapus</flux:menu.item>--}}
-{{--                                        </flux:menu>--}}
-{{--                                    </flux:dropdown>--}}
-{{--                                </td>--}}
-{{--                            </tr>--}}
-{{--                        @empty--}}
-{{--                            <tr class="text-center">--}}
-{{--                                <td colspan="6" class="px-6 py-4 text-gray-500 dark:text-gray-400">--}}
-{{--                                    Belum ada transaksi--}}
-{{--                                </td>--}}
-{{--                            </tr>--}}
-{{--                        @endforelse--}}
-{{--                        </tbody>--}}
-{{--                    </table>--}}
-{{--                </div>--}}
-{{--                <div class="mt-auto">--}}
-{{--                    {{$orders->links()}}--}}
-{{--                </div>--}}
+                <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">
+                    <table class="min-w-full table-auto text-sm text-gray-900 dark:text-gray-100">
+                        <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
+                        <tr class="border-b">
+                            <th class="px-6 py-3 text-left font-medium">No</th>
+                            <th class="px-6 py-3 text-left font-medium">Psikolog</th>
+                            <th class="px-6 py-3 text-left font-medium">Pasien</th>
+                            <th class="px-6 py-3 text-left font-medium">Metode Pembayaran</th>
+                            <th class="px-6 py-3 text-left font-medium">Status Pembayaran</th>
+                            <th class="px-6 py-3 text-left font-medium">Total Harga</th>
+                            <th class="px-6 py-3 text-left font-medium">Status</th>
+                            <th class="px-6 py-3 text-left"></th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
+                        @forelse($orders as $order)
+                            <tr>
+                                <td class="px-6 py-4">{{$loop->iteration}}</td>
+                                <td class="px-6 py-4">
+                                    <flux:link wire:navigate href="#">
+                                        {{$order->therapy->doctor->user->name}}
+                                    </flux:link>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <flux:link wire:navigate href="#">
+                                        {{$order->therapy->patient->name}}
+                                    </flux:link>
+                                </td>
+                                <td class="px-6 py-4">{{$order->payment_method}}</td>
+                                <td class="px-6 py-4">{{$order->payment_status->label()}}</td>
+                                <td class="px-6 py-4">@currency($order->total_price)</td>
+                                <td class="px-6 py-4">{{$order->status->label()}}</td>
+                                <td class="items-center">
+                                    <flux:dropdown position="bottom" align="end" offset="-15">
+                                        <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
+                                                     inset="top bottom"></flux:button>
+                                        <flux:menu>
+                                            <flux:menu.item icon="document-text">Detail</flux:menu.item>
+                                            <flux:menu.item icon="archive-box" variant="danger">Hapus</flux:menu.item>
+                                        </flux:menu>
+                                    </flux:dropdown>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr class="text-center">
+                                <td colspan="6" class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                                    Belum ada transaksi
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-auto">
+                    {{$orders->links()}}
+                </div>
             @endcan
         </section>
 
