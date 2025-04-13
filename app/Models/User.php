@@ -7,6 +7,7 @@ use Bavix\Wallet\Interfaces\Wallet;
 use Bavix\Wallet\Traits\HasWallet;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ use Laravel\Scout\Searchable;
 class User extends Authenticatable implements MustVerifyEmail, Wallet
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasWallet, Notifiable, Searchable;
+    use HasApiTokens, HasFactory, HasWallet, Notifiable, Searchable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

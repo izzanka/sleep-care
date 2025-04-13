@@ -150,12 +150,6 @@ new class extends Component {
         );
     }
 
-    public function deleteQuestion(int $questionID)
-    {
-        $this->ID = $questionID;
-        $this->modal('deleteQuestion')->show();
-    }
-
     public function destroyQuestion(int $questionID)
     {
         $question = Question::find($questionID);
@@ -184,7 +178,7 @@ new class extends Component {
     <section class="w-full">
         @include('partials.main-heading', ['title' => 'Pertanyaan Catatan Terapi'])
 
-        <flux:modal name="editQuestion" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6" @close="resetEdit">
+        <flux:modal name="editQuestion" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
             <div class="space-y-6">
                 <form wire:submit="updateQuestion({{$ID}})">
                     <!-- Modal Header -->
@@ -338,7 +332,7 @@ new class extends Component {
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
                                 <flux:button size="xs" icon="pencil-square" class="me-1" wire:click="editQuestion({{$question->id}})"></flux:button>
-                                <flux:button size="xs" variant="danger" icon="trash" wire:click="deleteQuestion({{$question->id}})"></flux:button>
+                                <flux:button size="xs" variant="danger" icon="trash" wire:click="destroyQuestion({{$question->id}})" wire:confirm="Apa anda yakin ingin menghapus pertanyaan ini?"></flux:button>
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>

@@ -3,6 +3,7 @@
 use App\Enum\UserGender;
 use App\Enum\UserRole;
 use App\Models\User;
+use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
@@ -70,8 +71,28 @@ new class extends Component {
 
     public function resetFilter()
     {
-        $this->reset(['filterMinAge','filterMaxAge','filterGender','filterIsActive']);
-        $this->resetValidation(['filterMinAge','filterMaxAge','filterGender','filterIsActive']);
+        $this->reset(['filterMinAge', 'filterMaxAge', 'filterGender', 'filterIsActive']);
+        $this->resetValidation(['filterMinAge', 'filterMaxAge', 'filterGender', 'filterIsActive']);
+    }
+
+    public function destroyDoctor(int $doctorID)
+    {
+        $doctor = User::find($doctorID);
+
+        if (!$doctor) {
+            Session::flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
+        }
+
+        $doctor->delete();
+
+        Session::flash('status', ['message' => 'Psikolog berhasil dihapus.', 'success' => true]);
+
+        $this->js(
+            "window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });"
+        );
     }
 
 }; ?>
@@ -96,7 +117,7 @@ new class extends Component {
                     class="w-4 h-4 transition-transform duration-300"
                     :class="showFilter ? 'rotate-180' : ''"
                 >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                 </svg>
             </flux:button>
             <flux:separator class="mt-4 mb-4"/>
@@ -147,11 +168,10 @@ new class extends Component {
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
                 @forelse($users as $user)
-                    <tr>
+                    <tr wire:key="{{$user->id}}">
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" icon="pencil-square"></flux:button>
-                                <flux:button size="xs" icon="trash" variant="danger"></flux:button>
+                                <flux:button size="xs" icon="trash" variant="danger" wire:click="destroyDoctor({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus psikolog ini?"></flux:button>
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
@@ -160,7 +180,10 @@ new class extends Component {
                         <td class="px-6 py-4">{{$user->doctor->phone}}</td>
                         <td class="px-6 py-4">{{$user->age}}</td>
                         <td class="px-6 py-4">{{$user->gender->label()}}</td>
-                        <td class="px-6 py-4">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
+                        <td class="px-6 py-4">
+                            <livewire:status :id="$user->id" :is_active="$user->is_active"
+                                             :key="$user->id"></livewire:status>
+                        </td>
                     </tr>
                 @empty
                     <tr class="text-center">

@@ -263,7 +263,7 @@ new class extends Component {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Konsumsi Setelah Pukul 18:00',
+                        text: 'Total Konsumsi Setelah Pukul 18:00',
                         color: isDark ? '#ffffff' : '#000000',
                     },
                     legend: {

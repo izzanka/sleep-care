@@ -14,6 +14,7 @@
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
+            height: 540,
             timeZone: 'UTC',
             events: @json($schedules),
             eventClick: function(info) {

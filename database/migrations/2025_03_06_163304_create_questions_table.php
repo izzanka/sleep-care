@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('record_type');
             $table->string('note')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->fullText('question');
         });

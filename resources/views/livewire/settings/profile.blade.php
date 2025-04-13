@@ -78,7 +78,7 @@ new class extends Component {
 
         $user->save();
 
-        Session::flash('status', 'Profile berhasil diubah.');
+        Session::flash('status', ['message' => 'Profile berhasil diubah.', 'success' => true]);
 
         $this->js(
             "window.scrollTo({

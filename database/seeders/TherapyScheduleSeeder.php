@@ -20,7 +20,7 @@ class TherapyScheduleSeeder extends Seeder
             [
                 'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan pendekatan ACT-I.',
                 'Psikolog menyusun kesepakatan bersama dengan pasien',
-                'Psikolog meminta pasien untuk mengisi sleep diary setiap hari selama sesi terapi.',
+                'Psikolog meminta pasien untuk mengisi sleep diary setiap hari selama terapi berlangsung.',
                 'Psikolog meminta pasien untuk menyampaikan permasalahan insomnia yang dialami.',
             ],
             [

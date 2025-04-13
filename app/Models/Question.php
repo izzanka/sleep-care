@@ -5,12 +5,13 @@ namespace App\Models;
 use App\Enum\QuestionType;
 use App\Enum\RecordType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Attributes\SearchUsingFullText;
 use Laravel\Scout\Searchable;
 
 class Question extends Model
 {
-    use Searchable;
+    use Searchable, SoftDeletes;
 
     protected function casts(): array
     {

@@ -81,8 +81,8 @@ class QuestionSeeder extends Seeder
             'Apakah kamu mengkonsumsi kafein setelah pukul 18.00?',
             'Apakah kamu mengkonsumsi alkohol setelah pukul 18.00?',
             'Apakah kamu menggunakan nikotin setelah pukul 18.00?',
-            'Apakah kamu berolahraga?',
             'Apakah kamu mengkonsumsi makanan setelah pukul 18.00?',
+            'Apakah kamu berolahraga?',
             'Apakah kamu mengantuk sepanjang hari?',
         ];
 

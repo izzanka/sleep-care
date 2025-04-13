@@ -27,8 +27,8 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Berlangsung'])
-    <x-therapies.on-going-layout>
+    @include('partials.main-heading', ['title' => 'Chat dengan pasien'])
+{{--    <x-therapies.on-going-layout>--}}
         <div class="h-[440px] rounded-lg flex flex-col">
             <!-- Header -->
             <div class="dark:bg-zinc-700 p-4 flex items-center gap-3 rounded-t-lg bg-white border dark:border-transparent">
@@ -96,5 +96,5 @@ new class extends Component {
                        placeholder="Tulis sebuah pesan...">
             </div>
         </div>
-    </x-therapies.on-going-layout>
+{{--    </x-therapies.on-going-layout>--}}
 </section>

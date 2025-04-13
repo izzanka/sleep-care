@@ -5,6 +5,7 @@ use App\Enum\UserGender;
 use App\Enum\UserRole;
 use App\Models\Doctor;
 use App\Models\User;
+use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
@@ -57,8 +58,28 @@ new class extends Component {
 
     public function resetFilter()
     {
-        $this->reset(['filterMinAge','filterMaxAge','filterGender']);
-        $this->resetValidation(['filterMinAge','filterMaxAge','filterGender']);
+        $this->reset(['filterMinAge', 'filterMaxAge', 'filterGender']);
+        $this->resetValidation(['filterMinAge', 'filterMaxAge', 'filterGender']);
+    }
+
+    public function destroyPatient(int $patientID)
+    {
+        $patient = User::find($patientID);
+
+        if (!$patient) {
+            Session::flash('status', ['message' => 'Pasien tidak dapat ditemukan.', 'success' => false]);
+        }
+
+        $patient->delete();
+
+        Session::flash('status', ['message' => 'Pasien berhasil dihapus.', 'success' => true]);
+
+        $this->js(
+            "window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });"
+        );
     }
 }; ?>
 
@@ -82,7 +103,7 @@ new class extends Component {
                     class="w-4 h-4 transition-transform duration-300"
                     :class="showFilter ? 'rotate-180' : ''"
                 >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                 </svg>
             </flux:button>
             <flux:separator class="mt-4 mb-4"/>
@@ -131,8 +152,7 @@ new class extends Component {
                     <tr>
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" icon="pencil-square"></flux:button>
-                                <flux:button size="xs" icon="trash" variant="danger"></flux:button>
+                                <flux:button size="xs" icon="trash" variant="danger" wire:click="destroyPatient({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus pasien ini?"></flux:button>
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
