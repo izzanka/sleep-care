@@ -78,12 +78,12 @@ class QuestionSeeder extends Seeder
         }
 
         $sleepDiaryBinaryQuestions = [
+            'Apakah kamu berolahraga?',
+            'Apakah kamu mengantuk sepanjang hari?',
             'Apakah kamu mengkonsumsi kafein setelah pukul 18.00?',
             'Apakah kamu mengkonsumsi alkohol setelah pukul 18.00?',
             'Apakah kamu menggunakan nikotin setelah pukul 18.00?',
             'Apakah kamu mengkonsumsi makanan setelah pukul 18.00?',
-            'Apakah kamu berolahraga?',
-            'Apakah kamu mengantuk sepanjang hari?',
         ];
 
         foreach ($sleepDiaryBinaryQuestions as $question) {

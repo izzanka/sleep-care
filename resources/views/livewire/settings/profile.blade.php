@@ -2,6 +2,7 @@
 
 use App\Enum\UserGender;
 use App\Models\User;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -22,32 +23,19 @@ new class extends Component {
     public $avatar;
     public $avatar_url;
 
-
-    /**
-     * Mount the component.
-     */
     public function mount(): void
     {
-        Auth::user()->load('doctor');
+        $user = Auth::user()->load('doctor');
 
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
-        $this->gender = Auth::user()->gender->value;
-        $this->age = Auth::user()->age;
-        $this->avatar_url = Auth::user()->avatar;
-        $this->phone = Auth::user()->doctor->phone;
-        $this->registered_year = Auth::user()->doctor->registered_year;
-        $this->name_title = Auth::user()->doctor->name_title;
+        $this->fillUserFields($user);
+        $this->fillDoctorFields($user);
     }
 
-    /**
-     * Update the profile information for the currently authenticated user.
-     */
-    public function updateProfileInformation(): void
+    public function updateProfileInformation()
     {
         $user = Auth::user();
 
-        if ($this->name_title != '' || $this->phone != '') {
+        if ($this->shouldUpdateDoctorInfo()) {
             $this->updateDoctorInformation($user);
         }
 
@@ -62,11 +50,11 @@ new class extends Component {
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($user->id)
+                Rule::unique(User::class)->ignore(Auth::id()),
             ],
         ]);
 
-        if ($validated['avatar'] != null) {
+        if ($this->avatar) {
             $validated['avatar'] = $this->avatar->store('img/avatars', 'public');
         }
 
@@ -80,17 +68,36 @@ new class extends Component {
 
         Session::flash('status', ['message' => 'Profile berhasil diubah.', 'success' => true]);
 
-        $this->js(
-            "window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });"
-        );
-
-//        $this->dispatch('profile-updated', name: $user->name);
+        $this->js("
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        ");
     }
 
-    public function updateDoctorInformation($user): void
+    protected function fillUserFields($user)
+    {
+        $this->name = $user->name;
+        $this->email = $user->email;
+        $this->gender = $user->gender->value;
+        $this->age = $user->age;
+        $this->avatar_url = $user->avatar;
+    }
+
+    protected function fillDoctorFields($user)
+    {
+        $this->phone = $user->doctor->phone;
+        $this->registered_year = $user->doctor->registered_year;
+        $this->name_title = $user->doctor->name_title;
+    }
+
+    protected function shouldUpdateDoctorInfo()
+    {
+        return $this->name_title !== '' || $this->phone !== '';
+    }
+
+    public function updateDoctorInformation($user)
     {
         $validated = $this->validate([
             'name_title' => ['nullable', 'string', 'max:225'],
@@ -100,9 +107,6 @@ new class extends Component {
         $user->doctor->update($validated);
     }
 
-    /**
-     * Send an email verification notification to the current user.
-     */
     public function resendVerificationNotification(): void
     {
         $user = Auth::user();
@@ -131,26 +135,26 @@ new class extends Component {
                 <flux:input wire:model="email" label="{{ __('Email') }}" type="email" name="email" required
                             autocomplete="email"/>
 
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())
-                    <div>
-                        <p class="mt-2 text-sm text-red-800">
-                            {{ __('Email anda belum diverifikasi') }}
+{{--                @if (auth()->user() instanceof MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())--}}
+{{--                    <div>--}}
+{{--                        <p class="mt-2 text-sm text-red-800">--}}
+{{--                            {{ __('Email anda belum diverifikasi') }}--}}
 
-                            <button
-                                    wire:click.prevent="resendVerificationNotification"
-                                    class="rounded-md text-sm text-blue-600 underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                {{ __('Klik disini untuk mengirim ulang email verifikasi.') }}
-                            </button>
-                        </p>
+{{--                            <button--}}
+{{--                                wire:click.prevent="resendVerificationNotification"--}}
+{{--                                class="rounded-md text-sm text-blue-600 underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"--}}
+{{--                            >--}}
+{{--                                {{ __('Klik disini untuk mengirim ulang email verifikasi.') }}--}}
+{{--                            </button>--}}
+{{--                        </p>--}}
 
-                        @if (session('status') === 'verification-link-sent')
-                            <p class="mt-2 text-sm font-medium text-green-600">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </p>
-                        @endif
-                    </div>
-                @endif
+{{--                        @if (session('status') === 'verification-link-sent')--}}
+{{--                            <p class="mt-2 text-sm font-medium text-green-600">--}}
+{{--                                {{ __('A new verification link has been sent to your email address.') }}--}}
+{{--                            </p>--}}
+{{--                        @endif--}}
+{{--                    </div>--}}
+{{--                @endif--}}
             </div>
 
             <flux:input type="number" label="Usia" name="age" wire:model="age"></flux:input>
@@ -166,15 +170,15 @@ new class extends Component {
             @if($avatar_url || $avatar)
                 <div class="flex justify-center items-center">
                     <img
-                            src="{{ $avatar ? $avatar->temporaryUrl() : ($avatar_url ? asset('storage/' . $avatar_url) : '') }}"
-                            alt="{{ $avatar ? 'preview-avatar' : 'avatar' }}" class="w-20 h-20 object-cover rounded-md">
+                        src="{{ $avatar ? $avatar->temporaryUrl() : ($avatar_url ? asset('storage/' . $avatar_url) : '') }}"
+                        alt="{{ $avatar ? 'preview-avatar' : 'avatar' }}" class="w-20 h-20 object-cover rounded-md">
                 </div>
             @endif
 
-            <flux:input type="text" name="name_title" wire:model="name_title" label="Gelar"></flux:input>
+            <flux:input type="text" name="name_title" wire:model="name_title" label="Gelar" placeholder="-"></flux:input>
 
             <flux:input type="text" name="phone" wire:model="phone" mask="9999 9999 9999"
-                        label="Telepon"></flux:input>
+                        label="Telepon" placeholder="-"></flux:input>
 
             <flux:input readonly variant="filled" wire:model="registered_year"
                         label="Tahun terdaftar HIMPSI"></flux:input>

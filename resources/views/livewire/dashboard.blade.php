@@ -15,38 +15,63 @@ new class extends Component {
     public int $total_income = 0;
     public int $total_doctor = 0;
     public int $total_patient = 0;
-    public $total_rating = 0;
+    public int $total_rating = 0;
 
     public function mount()
     {
-        $this->total_income = Auth::user()->balanceInt;
+        $user = Auth::user();
+        $this->total_income = $user->balanceInt;
 
-        if (Gate::allows('isAdmin', Auth::user())) {
-            $this->total_doctor = User::where('role', UserRole::DOCTOR->value)->count();
-            $this->total_patient = User::where('role', UserRole::PATIENT->value)->count();
-        } elseif (Gate::allows('isDoctor', Auth::user())) {
-            Auth::user()->load('doctor');
-            $this->total_rating = Auth::user()->doctor->averageRating ?? 0;
+        if (Gate::allows('isAdmin', $user)) {
+            $this->loadAdminStats();
+        } elseif (Gate::allows('isDoctor', $user)) {
+            $this->loadDoctorStats($user);
         }
+    }
+
+    protected function loadAdminStats()
+    {
+        $this->total_doctor = User::where('role', UserRole::DOCTOR->value)->count();
+        $this->total_patient = User::where('role', UserRole::PATIENT->value)->count();
+    }
+
+    protected function loadDoctorStats($user)
+    {
+        $user->load('doctor');
+        $this->total_rating = $user->doctor->averageRating ?? 0;
     }
 
     public function with()
     {
-        if (Gate::allows('isAdmin', Auth::user())) {
-            return [
-                'orders' => Order::with([
-                    'therapy.doctor.user',
-                    'therapy.patient'
-                ])->latest()->paginate(15),
-            ];
-        } elseif (Gate::allows('isDoctor', Auth::user())) {
-            return [
-                'therapies' => Therapy::where('doctor_id', Auth::user()->doctor->id)
-                    ->latest()->paginate(15),
-            ];
-        } else {
-            return [];
+        $user = Auth::user();
+
+        if (Gate::allows('isAdmin', $user)) {
+            return $this->getAdminData();
         }
+
+        if (Gate::allows('isDoctor', $user)) {
+            return $this->getDoctorData($user);
+        }
+
+        return [];
+    }
+
+    protected function getAdminData(): array
+    {
+        return [
+            'orders' => Order::with([
+                'therapy.doctor.user',
+                'therapy.patient',
+            ])->latest()->paginate(15),
+        ];
+    }
+
+    protected function getDoctorData($user): array
+    {
+        return [
+            'therapies' => Therapy::where('doctor_id', $user->doctor->id)
+                ->latest()->paginate(15),
+        ];
     }
 }; ?>
 

@@ -20,29 +20,23 @@ new class extends Component {
     public ?int $filterMaxAge = null;
     public ?string $filterGender = null;
 
-    public function with()
+    public function getPatients()
     {
-        $query = User::query()->where('role', UserRole::PATIENT->value);
+        $query = $this->search !== ''
+            ? User::search($this->search)->where('role', UserRole::PATIENT->value)
+            : User::query()->where('role', UserRole::PATIENT->value);
 
-        if ($this->search != '') {
-            $query = User::search($this->search)->where('role', UserRole::PATIENT->value);
-        }
+        $query = $this->applyFilters($query);
 
-        if ($this->filterMinAge) {
-            $query->where('age', '>=', $this->filterMinAge);
-        }
+        return $query->latest()->paginate(15);
+    }
 
-        if ($this->filterMaxAge) {
-            $query->where('age', '<=', $this->filterMaxAge);
-        }
-
-        if ($this->filterGender) {
-            $query->where('gender', $this->filterGender);
-        }
-
-        return [
-            'users' => $query->latest()->paginate(15),
-        ];
+    protected function applyFilters($query)
+    {
+        return $query
+            ->when($this->filterMinAge, fn($q) => $q->where('age', '>=', $this->filterMinAge))
+            ->when($this->filterMaxAge, fn($q) => $q->where('age', '<=', $this->filterMaxAge))
+            ->when($this->filterGender, fn($q) => $q->where('gender', $this->filterGender));
     }
 
     public function filter()
@@ -68,6 +62,7 @@ new class extends Component {
 
         if (!$patient) {
             Session::flash('status', ['message' => 'Pasien tidak dapat ditemukan.', 'success' => false]);
+            return;
         }
 
         $patient->delete();
@@ -81,6 +76,14 @@ new class extends Component {
                 });"
         );
     }
+
+    public function with()
+    {
+        return [
+            'users' => $this->getPatients(),
+        ];
+    }
+
 }; ?>
 
 <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">

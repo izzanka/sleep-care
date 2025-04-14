@@ -192,13 +192,18 @@ class AnswerSeeder extends Seeder
                 ]);
 
                 $sleepDiaryQuestions = [
-                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 2, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 3, 'type' => QuestionType::NUMBER->value, 'answer' => 2, 'note' => 'Siang'],
+                    ['id' => 4, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
+                    ['id' => 5, 'type' => QuestionType::BINARY->value, 'answer' => 'Penenang', 'note' => 'Siang'],
+                    ['id' => 6, 'type' => QuestionType::NUMBER->value, 'answer' => 1, 'note' => 'Siang'],
+                    ['id' => 7, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
                     ['id' => 8, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
                     ['id' => 9, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
                     ['id' => 10, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
                     ['id' => 11, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
                     ['id' => 12, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 2, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
                     ['id' => 13, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
                     ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
                     ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],

@@ -14,28 +14,50 @@ new class extends Component {
 
     public function mount()
     {
-        $this->total_income = Auth::user()->balanceInt;
+        $user = Auth::user();
+        $this->total_income = $user->balanceInt;
 
-        if (Gate::allows('isDoctor', Auth::user())) {
-            Auth::user()->load('doctor');
+        if (Gate::allows('isDoctor', $user)) {
+            $user->load('doctor');
         }
     }
 
-    public function with()
+    public function with(): array
     {
-        if (Gate::allows('isAdmin', Auth::user())) {
-            return [
-                'orders' => Order::with('therapy')->where('status', OrderStatus::SUCCESS->value)->latest()->paginate(15),
-            ];
-        } elseif (Gate::allows('isDoctor', Auth::user())) {
-            return [
-                'orders' => Order::with('therapy')->where('status', OrderStatus::SUCCESS->value)
-                    ->whereHas('therapy', fn($query) => $query->where('doctor_id', Auth::user()->doctor->id))
-                    ->latest()->paginate(15),
-            ];
-        } else {
-            return [];
+        $user = Auth::user();
+
+        if (Gate::allows('isAdmin', $user)) {
+            return $this->getAdminOrders();
         }
+
+        if (Gate::allows('isDoctor', $user)) {
+            return $this->getDoctorOrders($user);
+        }
+
+        return [];
+    }
+
+    protected function getAdminOrders()
+    {
+        return [
+            'orders' => Order::with('therapy')
+                ->where('status', OrderStatus::SUCCESS->value)
+                ->latest()
+                ->paginate(15),
+        ];
+    }
+
+    protected function getDoctorOrders($user)
+    {
+        return [
+            'orders' => Order::with('therapy')
+                ->where('status', OrderStatus::SUCCESS->value)
+                ->whereHas('therapy', fn($query) =>
+                $query->where('doctor_id', $user->doctor->id)
+                )
+                ->latest()
+                ->paginate(15),
+        ];
     }
 }; ?>
 

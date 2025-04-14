@@ -9,20 +9,29 @@ new class extends Component {
     public bool $isOnline = false;
     public ?int $patientID = null;
 
-    public function checkPatientOnlineStatus()
-    {
-        $this->isOnline = User::select('id','is_online')->where('id', $this->patientID)->value('is_online');
-
-    }
-
     public function with()
     {
-        $therapy = Therapy::with('patient')->where('status', TherapyStatus::IN_PROGRESS->value)->first();
-        $this->patientID = $therapy->patient->id;
+        $therapy = $this->getOngoingTherapy();
+
+        if ($therapy && $therapy->patient) {
+            $this->patientID = $therapy->patient->id;
+        }
 
         return [
             'therapy' => $therapy,
         ];
+    }
+
+    public function checkPatientOnlineStatus()
+    {
+        $this->isOnline = User::where('id', $this->patientID)->value('is_online') ?? false;
+    }
+
+    protected function getOngoingTherapy()
+    {
+        return Therapy::with('patient')
+            ->where('status', TherapyStatus::IN_PROGRESS->value)
+            ->first();
     }
 }; ?>
 

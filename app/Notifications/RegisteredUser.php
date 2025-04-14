@@ -17,6 +17,11 @@ class RegisteredUser extends Notification
         $this->user = $user;
     }
 
+    public function databaseType(object $notifiable): string
+    {
+        return 'registered-user';
+    }
+
     /**
      * Get the notification's delivery channels.
      *
@@ -38,6 +43,7 @@ class RegisteredUser extends Notification
             'name' => $this->user->name,
             'email' => $this->user->email,
             'role' => $this->user->role,
+            'message' => 'baru saja melakukan registrasi.',
         ];
     }
 }

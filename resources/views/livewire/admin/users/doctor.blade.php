@@ -20,48 +20,43 @@ new class extends Component {
     public ?string $filterGender = null;
     public ?bool $filterIsActive = null;
 
-    public function with()
+    public function getDoctors()
     {
-        $query = User::query()->where('role', UserRole::DOCTOR->value);
+        $query = $this->search !== ''
+            ? User::search($this->search)->where('role', UserRole::DOCTOR->value)
+            : User::query()->where('role', UserRole::DOCTOR->value);
 
-        if ($this->search != '') {
-            $query = User::search($this->search)->where('role', UserRole::DOCTOR->value);
-        }
-
-        if ($this->filterMinAge) {
-            $query->where('age', '>=', $this->filterMinAge);
-        }
-
-        if ($this->filterMaxAge) {
-            $query->where('age', '<=', $this->filterMaxAge);
-        }
-
-        if ($this->filterGender) {
-            $query->where('gender', $this->filterGender);
-        }
-
-        if (is_bool($this->filterIsActive)) {
-            $query->where('is_active', $this->filterIsActive);
-        }
+        $query = $this->applyFilters($query);
 
         $users = $query->latest()->paginate(15);
         $users->load('doctor');
 
-        return [
-            'users' => $users,
-        ];
+        return $users;
+    }
+
+    protected function applyFilters($query)
+    {
+        return $query
+            ->when($this->filterMinAge, fn ($q) => $q->where('age', '>=', $this->filterMinAge))
+            ->when($this->filterMaxAge, fn ($q) => $q->where('age', '<=', $this->filterMaxAge))
+            ->when($this->filterGender, fn ($q) => $q->where('gender', $this->filterGender))
+            ->when(is_bool($this->filterIsActive), fn ($q) => $q->where('is_active', $this->filterIsActive));
     }
 
     public function updatedFilterIsActive($value)
     {
-        $this->filterIsActive = $value === "true" ? true : ($value === "false" ? false : null);
+        $this->filterIsActive = match ($value) {
+            'true' => true,
+            'false' => false,
+            default => null,
+        };
     }
 
     public function filter()
     {
         $this->validate([
-            'filterMinAge' => ['nullable', 'min:1', 'max:100', 'int'],
-            'filterMaxAge' => ['nullable', 'min:1', 'max:100', 'int'],
+            'filterMinAge' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'filterMaxAge' => ['nullable', 'integer', 'min:1', 'max:100'],
             'filterGender' => ['nullable', 'string'],
             'filterIsActive' => ['nullable', 'boolean'],
         ]);
@@ -81,18 +76,21 @@ new class extends Component {
 
         if (!$doctor) {
             Session::flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
+            return;
         }
 
         $doctor->delete();
 
         Session::flash('status', ['message' => 'Psikolog berhasil dihapus.', 'success' => true]);
 
-        $this->js(
-            "window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });"
-        );
+        $this->redirectRoute('admin.users.doctor');
+    }
+
+    public function with()
+    {
+        return [
+            'users' => $this->getDoctors(),
+        ];
     }
 
 }; ?>

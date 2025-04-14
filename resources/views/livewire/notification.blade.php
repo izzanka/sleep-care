@@ -5,9 +5,18 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    public function mark($notification_id)
+    public function mark(string $notification_id): void
     {
-        DB::table('notifications')->where('id', $notification_id)->update(['read_at' => now()]);
+        DB::table('notifications')
+            ->where('id', $notification_id)
+            ->update(['read_at' => now()]);
+    }
+
+    public function with()
+    {
+        return [
+            'notifications' => auth()->user()->notifications()->paginate(15),
+        ];
     }
 
 }; ?>
@@ -16,20 +25,24 @@ new class extends Component {
     <section class="w-full">
         @include('partials.main-heading', ['title' => 'Notifikasi'])
 
-        @forelse(auth()->user()->notifications()->paginate(15) as $notification)
-            <div class="flex justify-between p-2">
+        @forelse ($notifications as $notification)
+            <div class="flex justify-between p-2 {{$notification->read_at ? '' : 'bg-zinc-500'}} rounded-lg mt-4">
                 <flux:heading>
-                    [{{$notification->created_at}}]
-                    @if($notification->data['role'] == UserRole::DOCTOR->value)
-                        Psikolog
-                    @elseif($notification->data['role'] == UserRole::PATIENT->value)
-                        Pasien
-                    @endif {{$notification->data['name']}} ({{$notification->data['email']}}) baru saja melakukan
-                    registrasi.
+                    [{{ $notification->created_at }}]
+                    @switch($notification->data['role'])
+                        @case(UserRole::DOCTOR->value)
+                            Psikolog
+                            @break
+                        @case(UserRole::PATIENT->value)
+                            Pasien
+                            @break
+                    @endswitch
+                    {{ $notification->data['name'] }} ({{ $notification->data['email'] }}) {{ $notification->data['message'] }}
                 </flux:heading>
-                @if($notification->read_at == null)
+
+                @if (is_null($notification->read_at))
                     <flux:button size="sm" icon="x-mark" variant="ghost" inset
-                                 wire:click="mark('{{$notification->id}}')"/>
+                                 wire:click="mark('{{ $notification->id }}')" />
                 @endif
             </div>
         @empty
@@ -39,22 +52,7 @@ new class extends Component {
         @endforelse
 
         <div class="mt-auto">
-            {{auth()->user()->notifications()->paginate(15)->links()}}
+            {{ $notifications->links() }}
         </div>
     </section>
-
-    {{--        <div class="grid auto-rows-min gap-4 md:grid-cols-3">--}}
-    {{--            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">--}}
-    {{--                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />--}}
-    {{--            </div>--}}
-    {{--            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">--}}
-    {{--                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />--}}
-    {{--            </div>--}}
-    {{--            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">--}}
-    {{--                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />--}}
-    {{--            </div>--}}
-    {{--        </div>--}}
-    {{--        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">--}}
-    {{--            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />--}}
-    {{--        </div>--}}
 </div>

@@ -1,7 +1,11 @@
 <?php
 
+use App\Enum\UserGender;
+use App\Enum\UserRole;
 use App\Models\Doctor;
 use App\Models\User;
+use App\Notifications\RegisteredUser;
+use App\Service\HimpsiService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,10 +22,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $gender = '';
     public int $age;
 
-
-    /**
-     * Handle an incoming registration request.
-     */
     public function register(): void
     {
         $validated = $this->validate([
@@ -32,41 +32,68 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'age' => ['required', 'int', 'min:1'],
         ]);
 
-//        $himpsiService = New \App\Service\HimpsiService();
-//        $result = $himpsiService->search($this->name, $this->email);
-//
-//        if ($result === false) {
-//            throw ValidationException::withMessages([
-//                'email' => __('Proses verifikasi akun HIMPSI gagal, Silahkan coba ulangi lagi nanti.'),
-//            ]);
-//        }
-//
-//        if (empty($result)) {
-//            throw ValidationException::withMessages([
-//                'email' => __('Akun HIMPSI tidak ditemukan'),
-//            ]);
-//        }
+//        $himpsiData = $this->verifyHimpsiAccount($validated['name'], $validated['email']);
+        $himpsiData = [
+            'registered_year' => '2000',
+            'name_title' => null,
+            'phone' => null,
+        ];
 
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['role'] = 2;
+        $user = $this->createUser($validated);
+        $this->createDoctorProfile($user->id, $himpsiData);
+        $this->notifyAdmin($user);
 
-        $user = User::create($validated);
-
-//        Doctor::create([
-//            'user_id' => $user->id,
-//            'registered_year' => $result['registered_year'],
-//            'name_title' => $result['name_title'],
-//            'phone' => $result['phone'],
-//        ]);
-
-//        event(new Registered(($user)));
-
-        $admin = User::find(1);
-        $admin->notify(new \App\Notifications\RegisteredUser($user));
-
+//        event(new Registered($user));
         Auth::login($user);
 
         $this->redirect(route('dashboard', absolute: false), navigate: true);
+    }
+
+    protected function verifyHimpsiAccount(string $name, string $email)
+    {
+        $himpsiService = new HimpsiService();
+        $result = $himpsiService->search($name, $email);
+
+        if ($result === false) {
+            throw ValidationException::withMessages([
+                'email' => __('Proses verifikasi akun HIMPSI gagal, Silahkan coba ulangi lagi nanti.'),
+            ]);
+        }
+
+        if (empty($result)) {
+            throw ValidationException::withMessages([
+                'email' => __('Akun HIMPSI tidak ditemukan'),
+            ]);
+        }
+
+        return $result;
+    }
+
+    protected function createUser(array $validated)
+    {
+        $validated['password'] = Hash::make($validated['password']);
+        $validated['role'] = UserRole::DOCTOR->value;
+
+        return User::create($validated);
+    }
+
+    protected function createDoctorProfile(int $userID, array $himpsiData)
+    {
+        Doctor::create([
+            'user_id' => $userID,
+            'registered_year' => $himpsiData['registered_year'],
+            'name_title' => $himpsiData['name_title'],
+            'phone' => $himpsiData['phone'],
+        ]);
+    }
+
+    protected function notifyAdmin(User $user)
+    {
+        $admin = User::where('role', UserRole::ADMIN->value)->first();
+
+        if ($admin) {
+            $admin->notify(new RegisteredUser($user));
+        }
     }
 }; ?>
 
@@ -78,29 +105,29 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <form wire:submit="register" class="flex flex-col gap-6">
 
-            <!-- Name -->
-            <flux:input
-                wire:model="name"
-                id="name"
-                label="{{ __('Nama') }}"
-                type="text"
-                name="name"
-                required
-                autofocus
-                autocomplete="name"
-                placeholder="Nama lengkap"
-            />
-            <!-- Email Address -->
-            <flux:input
-                wire:model="email"
-                id="email"
-                label="{{ __('Email') }}"
-                type="email"
-                name="email"
-                required
-                autocomplete="email"
-                placeholder="Email@example.com"
-            />
+        <!-- Name -->
+        <flux:input
+            wire:model="name"
+            id="name"
+            label="{{ __('Nama') }}"
+            type="text"
+            name="name"
+            required
+            autofocus
+            autocomplete="name"
+            placeholder="Nama lengkap"
+        />
+        <!-- Email Address -->
+        <flux:input
+            wire:model="email"
+            id="email"
+            label="{{ __('Email') }}"
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="Email@example.com"
+        />
 
         <flux:description>Pastikan nama dan email anda sudah terdaftar di
             <flux:link href="https://himpsi.or.id/" target="_blank">HIMPSI</flux:link>
@@ -135,8 +162,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <flux:input type="number" label="Usia" name="age" wire:model="age" placeholder="Usia" min="1"></flux:input>
 
         <flux:select wire:model="gender" placeholder="Pilih gender..." label="Gender">
-            <flux:select.option>Pria</flux:select.option>
-            <flux:select.option>Perempuan</flux:select.option>
+            @foreach(UserGender::cases() as $gender)
+                <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
+            @endforeach
         </flux:select>
 
         <div class="flex items-center justify-end">
