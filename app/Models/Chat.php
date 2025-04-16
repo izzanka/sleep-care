@@ -6,9 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Chat extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public function room()
     {
         return $this->belongsTo(ChatRoom::class);
+    }
+
+    public function therapy()
+    {
+        return $this->belongsTo(Therapy::class);
     }
 
     public function sender()

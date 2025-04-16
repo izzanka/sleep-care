@@ -10,7 +10,6 @@ enum Problem: string
     case DEPRESI = 'depresi';
     case TRAUMA = 'trauma';
     case GANGGUAN_KEPRIBADIAN = 'gangguan_kepribadian';
-    case GANGGUAN_MOOD = 'gangguan_mood';
 
     public function label(): string
     {

@@ -122,16 +122,16 @@ new class extends Component {
                         <flux:heading>Gangguan Lainnya</flux:heading>
                         <flux:text>{{$problems}}</flux:text>
                     </div>
-                    <div class="mt-4">
-                        <flux:button
-                            href="{{route('doctor.therapies.in_progress.chat')}}"
-                            icon:trailing="arrow-up-right"
-                            class="w-full"
-                            wire:navigate
-                        >
-                            Chat dengan pasien
-                        </flux:button>
-                    </div>
+{{--                    <div class="mt-4">--}}
+{{--                        <flux:button--}}
+{{--                            href="{{route('doctor.therapies.in_progress.chat')}}"--}}
+{{--                            icon:trailing="arrow-up-right"--}}
+{{--                            class="w-full"--}}
+{{--                            wire:navigate--}}
+{{--                        >--}}
+{{--                            Chat dengan pasien--}}
+{{--                        </flux:button>--}}
+{{--                    </div>--}}
                 </div>
             @else
                 <flux:heading>

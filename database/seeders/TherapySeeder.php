@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enum\OrderStatus;
 use App\Enum\TherapyStatus;
 use App\Enum\UserRole;
+use App\Models\Chat;
 use App\Models\Doctor;
 use App\Models\Order;
 use App\Models\Therapy;
@@ -33,6 +34,13 @@ class TherapySeeder extends Seeder
         Order::factory()->create([
             'therapy_id' => $therapy->id,
             'status' => OrderStatus::SUCCESS->value,
+        ]);
+
+        Chat::create([
+            'therapy_id' => $therapy->id,
+            'sender_id' => $patient->id,
+            'receiver_id' => $doctor->user->id,
+            'message' => 'Halo salam kenal',
         ]);
     }
 }

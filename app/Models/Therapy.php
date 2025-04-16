@@ -39,6 +39,11 @@ class Therapy extends Model
         return $this->hasOne(Order::class);
     }
 
+    public function chat()
+    {
+        return $this->hasOne(Chat::class);
+    }
+
     public function sleepDiaries()
     {
         return $this->hasMany(SleepDiary::class);

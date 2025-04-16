@@ -19,7 +19,7 @@
                     @can('isDoctor', auth()->user())
                         <flux:navlist.group expandable heading="Terapi">
                             <flux:navlist.group expandable heading="Berlangsung">
-                                <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" :current="request()->routeIs('doctor.therapies.in_progress.index') || request()->routeIs('doctor.therapies.in_progress.chat')" wire:navigate>Halaman Utama</flux:navlist.item>
+                                <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" :current="request()->routeIs('doctor.therapies.in_progress.index')" wire:navigate>Halaman Utama</flux:navlist.item>
                                 @if(auth()->user()
                                     ->doctor()
                                     ->whereHas('therapies', function ($query) {
@@ -27,6 +27,7 @@
                                     })
                                     ->exists())
                                     <flux:navlist.item :href="route('doctor.therapies.in_progress.schedule')" :current="request()->routeIs('doctor.therapies.in_progress.schedule')" wire:navigate>Jadwal</flux:navlist.item>
+                                    <flux:navlist.item :href="route('doctor.therapies.in_progress.chat')" :current="request()->routeIs('doctor.therapies.in_progress.chat')" wire:navigate>Percakapan</flux:navlist.item>
                                     <flux:navlist.group expandable heading="Catatan">
                                         <flux:navlist.item :href="route('doctor.therapies.records.sleep_diary')" :current="request()->routeIs('doctor.therapies.records.sleep_diary')" wire:navigate>Sleep Diary</flux:navlist.item>
                                         <flux:navlist.item :href="route('doctor.therapies.records.identify_value')" :current="request()->routeIs('doctor.therapies.records.identify_value')" wire:navigate>Identify Value</flux:navlist.item>

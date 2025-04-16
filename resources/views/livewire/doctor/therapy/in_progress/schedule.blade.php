@@ -69,8 +69,8 @@ new class extends Component {
     protected function fillScheduleData(TherapySchedule $schedule)
     {
         $this->ID = $schedule->id;
-        $this->date = $schedule->date;
-        $this->time = $schedule->time;
+        $this->date = $schedule->date->toDateString();
+        $this->time = $schedule->time->format('H:i');
         $this->link = $schedule->link;
         $this->title = $schedule->title;
         $this->note = $schedule->note;
@@ -113,8 +113,7 @@ new class extends Component {
                         <flux:heading size="lg">Ubah {{$title}}</flux:heading>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                        <flux:input wire:model="date" label="Tanggal"
-                                    type="date"></flux:input>
+                        <flux:input wire:model="date" label="Tanggal" type="date"></flux:input>
                         <flux:input wire:model="time" label="Waktu" type="time"></flux:input>
                     </div>
 
@@ -154,7 +153,7 @@ new class extends Component {
                 </div>
                 <div class="flex items-center gap-2 mt-4">
                     <flux:icon.clock></flux:icon.clock>
-                    <flux:text>{{$schedule->date}} - {{$schedule->time}}</flux:text>
+                    <flux:text>{{$schedule->date->format('d M Y')}} - {{$schedule->time->format('H:i')}}</flux:text>
                 </div>
                 <div class="mt-4">
                     <flux:button.group>

@@ -19,6 +19,7 @@ new class extends Component {
     public ?int $filterMinAge = null;
     public ?int $filterMaxAge = null;
     public ?string $filterGender = null;
+    public ?string $filterProblem = null;
 
     public function getPatients()
     {
@@ -112,12 +113,21 @@ new class extends Component {
             <flux:separator class="mt-4 mb-4"/>
             <div x-show="showFilter" x-transition>
                 <form wire:submit="filter">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
                         <div>
                             <flux:input label="Usia Minimal" wire:model="filterMinAge" placeholder="1"/>
                         </div>
                         <div>
                             <flux:input label="Usia Maksimal" wire:model="filterMaxAge" placeholder="100"/>
+                        </div>
+
+                        <div>
+                            <flux:select label="Gender" wire:model="filterGender">
+                                <flux:select.option value="">Semua</flux:select.option>
+                                @foreach(UserGender::cases() as $gender)
+                                    <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
+                                @endforeach
+                            </flux:select>
                         </div>
 
                         <div>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('chat_room_id')->constrained();
+            $table->foreignId('therapy_id')->constrained();
             $table->foreignId('sender_id')->constrained('users');
             $table->foreignId('receiver_id')->constrained('users');
             $table->text('message');
