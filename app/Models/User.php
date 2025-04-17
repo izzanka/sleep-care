@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enum\UserGender;
 use Bavix\Wallet\Interfaces\Wallet;
 use Bavix\Wallet\Traits\HasWallet;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,6 +59,11 @@ class User extends Authenticatable implements MustVerifyEmail, Wallet
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify((new VerifyEmail)->onQueue('emails'));
     }
 
     public function doctor()

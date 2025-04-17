@@ -69,11 +69,13 @@ new class extends Component {
                             @endphp
                             <td class="border p-2 text-center">
                                 @if($answer?->answer->type === QuestionType::BINARY->value)
-                                    @if($answer->answer->answer)
-                                        <flux:icon.check-circle class="text-green-500" />
-                                    @else
-                                        <flux:icon.x-circle class="text-red-500" />
-                                    @endif
+                                    <div class="flex justify-center items-center h-full">
+                                        @if($answer->answer->answer)
+                                            <flux:icon.check-circle class="text-green-500" />
+                                        @else
+                                            <flux:icon.x-circle class="text-red-500" />
+                                        @endif
+                                    </div>
                                 @else
                                     {{ $answer->answer->answer ?? '-' }}
                                 @endif
