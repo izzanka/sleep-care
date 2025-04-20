@@ -67,16 +67,16 @@ new class extends Component {
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border mb-2 mt-2">
                 <thead>
-                <tr>
-                    <th class="border p-2 text-center">No</th>
-                    <th class="border p-2 text-center">Area</th>
-                    <th class="border p-2 text-center">{{ $datasetLabels[1] ?? '-' }}</th>
+                <tr class="text-center">
+                    <th class="border p-2">No</th>
+                    <th class="border p-2">Area</th>
+                    <th class="border p-2">{{ $datasetLabels[1] ?? '-' }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($labels as $index => $label)
-                    <tr>
-                        <td class="border p-2 text-center">{{ $loop->iteration }}</td>
+                    <tr class="text-center">
+                        <td class="border p-2">{{ $loop->iteration }}</td>
                         <td class="border p-2">{{ $label }}</td>
                         <td class="border p-2">
                             {{ $textAnswers[$datasetLabels[1]][$index] ?? '-' }}

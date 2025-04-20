@@ -23,9 +23,19 @@ new class extends Component {
 
     public function getPatients()
     {
-        $query = $this->search !== ''
-            ? User::search($this->search)->where('role', UserRole::PATIENT->value)
-            : User::query()->where('role', UserRole::PATIENT->value);
+
+//        $query = $this->search !== ''
+//            ? User::search($this->search)->where('role', UserRole::PATIENT->value)
+//            : User::query()->where('role', UserRole::PATIENT->value);
+
+        $query = User::query();
+
+        if ($this->search !== ''){
+            $this->resetPage();
+            $query = User::search($this->search)->where('role', UserRole::PATIENT->value);
+        }else{
+            $query->where('role', UserRole::PATIENT->value);
+        }
 
         $query = $this->applyFilters($query);
 

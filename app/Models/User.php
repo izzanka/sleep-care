@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\UserGender;
+use App\Notifications\ResetPasswordQueue;
 use App\Notifications\VerifyEmailQueue;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,6 +63,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerifyEmailQueue);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordQueue($token));
     }
 
     public function doctor()

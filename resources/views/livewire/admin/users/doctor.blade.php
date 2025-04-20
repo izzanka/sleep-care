@@ -22,9 +22,18 @@ new class extends Component {
 
     public function getDoctors()
     {
-        $query = $this->search !== ''
-            ? User::search($this->search)->where('role', UserRole::DOCTOR->value)
-            : User::query()->where('role', UserRole::DOCTOR->value);
+//        $query = $this->search !== ''
+//            ? User::search($this->search)->where('role', UserRole::DOCTOR->value)
+//            : User::query()->where('role', UserRole::DOCTOR->value);
+
+        $query = User::query();
+
+        if ($this->search !== ''){
+            $this->resetPage();
+            $query = User::search($this->search)->where('role', UserRole::DOCTOR->value);
+        }else{
+            $query->where('role', UserRole::DOCTOR->value);
+        }
 
         $query = $this->applyFilters($query);
 
@@ -156,12 +165,12 @@ new class extends Component {
                 <tr class="border-b">
                     <th class="px-6 py-3 text-left font-medium">Aksi</th>
                     <th class="px-6 py-3 text-left font-medium">No</th>
+                    <th class="px-6 py-3 text-left font-medium">Aktif</th>
                     <th class="px-6 py-3 text-left font-medium">Nama</th>
                     <th class="px-6 py-3 text-left font-medium">Email</th>
                     <th class="px-6 py-3 text-left font-medium">Telepon</th>
                     <th class="px-6 py-3 text-left font-medium">Usia</th>
                     <th class="px-6 py-3 text-left font-medium">Gender</th>
-                    <th class="px-6 py-3 text-left font-medium">Aktif</th>
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
@@ -173,15 +182,15 @@ new class extends Component {
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
+                        <td class="px-6 py-4">
+                            <livewire:status :id="$user->id" :is_active="$user->is_active"
+                                             :key="$user->id"></livewire:status>
+                        </td>
                         <td class="px-6 py-4">{{$user->doctor->name_title ?? $user->name}}</td>
                         <td class="px-6 py-4">{{$user->email}}</td>
                         <td class="px-6 py-4">{{$user->doctor->phone}}</td>
                         <td class="px-6 py-4">{{$user->age}}</td>
                         <td class="px-6 py-4">{{$user->gender->label()}}</td>
-                        <td class="px-6 py-4">
-                            <livewire:status :id="$user->id" :is_active="$user->is_active"
-                                             :key="$user->id"></livewire:status>
-                        </td>
                     </tr>
                 @empty
                     <tr class="text-center">

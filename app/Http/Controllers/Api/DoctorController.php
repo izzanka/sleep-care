@@ -46,12 +46,12 @@ class DoctorController extends Controller
             $doctors = $this->doctorService->get($filters);
 
             if ($doctors->isEmpty()) {
-                return Response::error('Doctor not found', 404);
+                return Response::error('Doctor not found.', 404);
             }
 
             return Response::success([
                 'doctors' => DoctorResource::collection($doctors),
-            ], 'Get doctor success.');
+            ], 'Get doctor successfully.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

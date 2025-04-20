@@ -318,6 +318,7 @@ new class extends Component {
                 <tr class="border-b">
                     <th class="px-6 py-3 text-left font-medium">Aksi</th>
                     <th class="px-6 py-3 text-left font-medium">No</th>
+{{--                    <th class="px-6 py-3 text-left font-medium">Tampilkan</th>--}}
                     <th class="px-6 py-3 text-left font-medium">Pertanyaan</th>
                     <th class="px-6 py-3 text-left font-medium">Pertanyaan Induk</th>
                     <th class="px-6 py-3 text-left font-medium">ID Pertanyaan Induk</th>
@@ -330,12 +331,16 @@ new class extends Component {
                 @forelse($questions as $question)
                     <tr wire:key="{{$question->id}}">
                         <td class="px-6 py-4">
-                            <div class="flex space-x-2">
+{{--                            <div class="flex space-x-2">--}}
                                 <flux:button size="xs" icon="pencil-square" class="me-1" wire:click="editQuestion({{$question->id}})"></flux:button>
-                                <flux:button size="xs" variant="danger" icon="trash" wire:click="destroyQuestion({{$question->id}})" wire:confirm="Apa anda yakin ingin menghapus pertanyaan ini?"></flux:button>
-                            </div>
+{{--                                <flux:button size="xs" variant="danger" icon="trash" wire:click="destroyQuestion({{$question->id}})" wire:confirm="Apa anda yakin ingin menghapus pertanyaan ini?"></flux:button>--}}
+{{--                            </div>--}}
                         </td>
                         <td class="px-6 py-4">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
+{{--                        <td class="px-6 py-4">--}}
+{{--                            <livewire:show :id="$question->id" :is_show="$question->is_show"--}}
+{{--                                             :key="$question->id"></livewire:show>--}}
+{{--                        </td>--}}
                         <td class="px-6 py-4">{{$question->question}}</td>
                         <td class="px-6 py-4">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
                         <td class="px-6 py-4">

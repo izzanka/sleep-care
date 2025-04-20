@@ -52,12 +52,12 @@ class OtpController extends Controller
 
             $storeOtp = $this->otpService->storeOtp($validated['email'], $otp);
             if (! $storeOtp) {
-                return Response::error('Internal server error', 500);
+                return Response::error('Failed to store OTP.', 500);
             }
 
             Mail::to($validated['email'])->queue(new OtpMail($otp));
 
-            return Response::success(null, 'OTP sent successfully');
+            return Response::success(null, 'OTP sent successfully.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
@@ -87,15 +87,15 @@ class OtpController extends Controller
 
             $updateUser = $user->update(['email_verified_at' => now()]);
             if (! $updateUser) {
-                return Response::error('Internal server error', 500);
+                return Response::error('Failed to update user verified status.', 500);
             }
 
             $deleteToken = $this->otpService->deleteOtp($validated['otp']);
             if (! $deleteToken) {
-                return Response::error('Internal server error', 500);
+                return Response::error('Failed to delete OTP.', 500);
             }
 
-            return Response::success(null, 'OTP verified successfully');
+            return Response::success(null, 'OTP verified successfully.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

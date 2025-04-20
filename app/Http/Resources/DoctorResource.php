@@ -21,18 +21,7 @@ class DoctorResource extends JsonResource
             'phone' => $this->phone,
             'name_title' => $this->name_title,
             'created_at' => $this->created_at,
-            'user' => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'email' => $this->user->email,
-                'avatar' => $this->user->avatar,
-                'age' => $this->user->age,
-                'gender' => $this->user->gender,
-                'is_active' => $this->user->is_active,
-                'is_online' => $this->user->is_online,
-                'created_at' => $this->user->created_at,
-                'deleted_at' => $this->user->deleted_at,
-            ],
+            'user' => new UserResource($this->user),
         ];
     }
 }

@@ -58,19 +58,19 @@
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="bottom" align="start">
-                @if(auth()->user()->avatar)
-                    <flux:profile
-                        :name="auth()->user()->name"
-                        avatar="{{asset('storage/' . auth()->user()->avatar)}}"
-                        icon-trailing="chevrons-up-down"
-                    />
-                @else
+{{--                @if(auth()->user()->avatar)--}}
+{{--                    <flux:profile--}}
+{{--                        :name="auth()->user()->name"--}}
+{{--                        avatar="{{asset('storage/' . auth()->user()->avatar)}}"--}}
+{{--                        icon-trailing="chevrons-up-down"--}}
+{{--                    />--}}
+{{--                @else--}}
                     <flux:profile
                         :name="auth()->user()->name"
                         :initials="auth()->user()->initials()"
                         icon-trailing="chevrons-up-down"
                     />
-                @endif
+{{--                @endif--}}
 
                 <flux:menu class="w-[220px]">
 {{--                    <flux:menu.radio.group>--}}

@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 
 class AuthController extends Controller
@@ -53,7 +55,7 @@ class AuthController extends Controller
 
             $updateOnlineStatus = $user->update(['is_online' => true]);
             if (! $updateOnlineStatus) {
-                Log::warning('Failed to update user online status');
+                Log::warning('Failed to update user online status.');
             }
 
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -108,12 +110,78 @@ class AuthController extends Controller
 
             $updateOnlineStatus = $user->update(['is_online' => false]);
             if (! $updateOnlineStatus) {
-                Log::warning('Failed to update user online status');
+                Log::warning('Failed to update user online status.');
             }
 
             $user->currentAccessToken()->delete();
 
-            return Response::success(null, 'Logout successful.');
+            return Response::success(null, 'Logout successfully.');
+        } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:225'],
+            'token' => ['required'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'max:225'],
+        ]);
+
+        try {
+
+            $status = Password::reset($validated, function ($user) use ($validated) {
+                $user->forceFill([
+                    'password' => Hash::make($validated['password']),
+                    'remember_token' => Str::random(60),
+                ])->save();
+            });
+
+            return $status === Password::PASSWORD_RESET
+                ? Response::success(null, 'The password was reset successfully.')
+                : Response::error('Failed to reset password.', 500);
+
+        } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+        ]);
+
+        try {
+
+            $filters = [
+                [
+                    'operation' => ModelFilter::EQUAL->name,
+                    'column' => 'email',
+                    'value' => $validated['email'],
+                ],
+                [
+                    'operation' => ModelFilter::EQUAL->name,
+                    'column' => 'role',
+                    'value' => UserRole::PATIENT->value,
+                ],
+            ];
+
+            $user = $this->userService->get($filters)[0] ?? null;
+
+            if (! $user) {
+                return Response::error('Patient not found.', 404);
+            }
+
+            $status = Password::sendResetLink([
+                'email' => $validated['email'],
+            ]);
+
+            return $status === Password::RESET_LINK_SENT
+                ? Response::success(null, 'Reset password sent successfully.')
+                : Response::error('Failed to sent reset password.', 500);
+
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }

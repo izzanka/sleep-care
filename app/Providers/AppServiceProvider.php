@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::shouldBeStrict(! app()->isProduction());
+        Model::automaticallyEagerLoadRelationships();
         Date::use(CarbonImmutable::class);
         DB::prohibitDestructiveCommands(app()->isProduction());
 
