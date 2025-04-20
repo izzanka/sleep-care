@@ -43,7 +43,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->createDoctorProfile($user->id, $himpsiData);
         $this->notifyAdmin($user);
 
-//        event(new Registered($user));
+        event(new Registered($user));
         Auth::login($user);
 
         $this->redirect(route('dashboard', absolute: false), navigate: true);
@@ -132,6 +132,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <flux:description>Pastikan nama dan email anda sudah terdaftar di
             <flux:link href="https://himpsi.or.id/" target="_blank">HIMPSI</flux:link>
         </flux:description>
+
+{{--        <div class="flex items-center justify-end">--}}
+{{--            <flux:button variant="primary" class="w-full">--}}
+{{--                Cek akun HIMPSI--}}
+{{--            </flux:button>--}}
+{{--        </div>--}}
 
         <!-- Password -->
         <flux:input

@@ -27,18 +27,16 @@ class UserSeeder extends Seeder
             ]);
         });
 
-        $admin = User::factory()->admin()->create();
+        User::factory()->admin()->create();
         $userDoctor = User::factory()->doctor()->create([
             'name' => 'psikolog',
             'email' => 'psikolog@sleepcare.com',
+            'balance' => 350000,
         ]);
 
         Doctor::factory()->create([
             'user_id' => $userDoctor->id,
             'name_title' => fake()->randomElement(['Dr.', 'Prof.', 'Mr.', 'Ms.']).' '.$userDoctor->name,
         ]);
-
-        $admin->deposit(20000);
-        $userDoctor->deposit(350000);
     }
 }

@@ -56,6 +56,8 @@ class UserFactory extends Factory
             'name' => 'admin',
             'email' => 'admin@sleepcare.com',
             'role' => UserRole::ADMIN->value,
+            'email_verified_at' => now(),
+            'balance' => 20000,
         ]);
     }
 

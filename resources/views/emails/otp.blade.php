@@ -1,16 +1,16 @@
 <x-mail::message>
 # One-Time Password (OTP)
 
-Hello!
+Halo!
 
-Your OTP code is:
+Kode OTP anda adalah:
 
 <x-mail::panel>
     {{$otp}}
 </x-mail::panel>
 
-This code will expire in 5 minutes.
+Kode OTP ini akan kedaluwarsa dalam 5 menit.
 
-Thanks,<br>
+Terimakasih,<br>
 {{ config('app.name') }}
 </x-mail::message>

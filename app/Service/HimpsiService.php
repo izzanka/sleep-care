@@ -21,7 +21,7 @@ class HimpsiService
         $data = $response->json('data.data') ?? [];
 
         if (empty($data)) {
-            return false;
+            return [];
         }
 
         return collect($data)->map(function ($item) {

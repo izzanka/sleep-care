@@ -17,7 +17,7 @@ class Verified
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasVerifiedEmail()) {
+        if (! $user || ! $user->hasVerifiedEmail()) {
             return Response::error('Patient account email address is not verified.', 403);
         }
 

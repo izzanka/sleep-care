@@ -12,7 +12,7 @@ Route::get('/', function () {
 // //    ->middleware(['auth', 'verified'])
 //    ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('dashboard', 'dashboard')->name('dashboard');
     Volt::route('notifications', 'notification')->name('notification');
     Volt::route('incomes', 'income')->name('income');

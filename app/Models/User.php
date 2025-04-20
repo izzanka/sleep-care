@@ -3,9 +3,7 @@
 namespace App\Models;
 
 use App\Enum\UserGender;
-use Bavix\Wallet\Interfaces\Wallet;
-use Bavix\Wallet\Traits\HasWallet;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\VerifyEmailQueue;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,10 +13,10 @@ use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
 
-class User extends Authenticatable implements MustVerifyEmail, Wallet
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasWallet, Notifiable, Searchable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, Searchable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -63,7 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail, Wallet
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify((new VerifyEmail)->onQueue('emails'));
+        $this->notify(new VerifyEmailQueue);
     }
 
     public function doctor()

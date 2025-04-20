@@ -15,7 +15,7 @@ new class extends Component {
     public function mount()
     {
         $user = Auth::user();
-        $this->total_income = $user->balanceInt;
+        $this->total_income = $user->balance;
 
         if (Gate::allows('isDoctor', $user)) {
             $user->load('doctor');

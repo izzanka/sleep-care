@@ -20,7 +20,7 @@ new class extends Component {
     public function mount()
     {
         $user = Auth::user();
-        $this->total_income = $user->balanceInt;
+        $this->total_income = $user->balance;
 
         if (Gate::allows('isAdmin', $user)) {
             $this->loadAdminStats();

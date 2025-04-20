@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class OtpMail extends Mailable implements ShouldQueue
 {
@@ -29,7 +30,7 @@ class OtpMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Otp Mail',
+            subject: 'One-Time Password (OTP)',
         );
     }
 
@@ -51,5 +52,10 @@ class OtpMail extends Mailable implements ShouldQueue
     public function attachments(): array
     {
         return [];
+    }
+
+    public function failed(\Exception $exception)
+    {
+        Log::error('Failed to send OTP email');
     }
 }
