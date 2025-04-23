@@ -3,6 +3,7 @@
 use App\Enum\UserGender;
 use App\Enum\UserRole;
 use App\Models\Doctor;
+use App\Models\General;
 use App\Models\User;
 use App\Notifications\RegisteredUser;
 use App\Service\HimpsiService;
@@ -21,6 +22,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password_confirmation = '';
     public string $gender = '';
     public int $age;
+    public bool $is_himpsi;
+
+    public function mount()
+    {
+        $this->is_himpsi = General::value('is_himpsi');
+    }
 
     public function register(): void
     {
@@ -32,12 +39,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'age' => ['required', 'int', 'min:1'],
         ]);
 
-//        $himpsiData = $this->verifyHimpsiAccount($validated['name'], $validated['email']);
-        $himpsiData = [
-            'registered_year' => '2000',
-            'name_title' => null,
-            'phone' => null,
-        ];
+        if($this->is_himpsi){
+            $himpsiData = $this->verifyHimpsiAccount($validated['name'], $validated['email']);
+        }else{
+            $himpsiData = [
+                'registered_year' => '2000',
+                'name_title' => null,
+                'phone' => null,
+            ];
+        }
 
         $user = $this->createUser($validated);
         $this->createDoctorProfile($user->id, $himpsiData);
@@ -129,15 +139,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
             placeholder="Email@example.com"
         />
 
-        <flux:description>Pastikan nama dan email anda sudah terdaftar di
-            <flux:link href="https://himpsi.or.id/" target="_blank">HIMPSI</flux:link>
-        </flux:description>
+        @if($this->is_himpsi)
+            <flux:description>Pastikan nama dan email anda sudah terdaftar di
+                <flux:link href="https://himpsi.or.id/" target="_blank">HIMPSI</flux:link>
+            </flux:description>
+        @endif
 
-{{--        <div class="flex items-center justify-end">--}}
-{{--            <flux:button variant="primary" class="w-full">--}}
-{{--                Cek akun HIMPSI--}}
-{{--            </flux:button>--}}
-{{--        </div>--}}
+        {{--        <div class="flex items-center justify-end">--}}
+        {{--            <flux:button variant="primary" class="w-full">--}}
+        {{--                Cek akun HIMPSI--}}
+        {{--            </flux:button>--}}
+        {{--        </div>--}}
 
         <!-- Password -->
         <flux:input

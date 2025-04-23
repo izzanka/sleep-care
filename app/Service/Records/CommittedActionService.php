@@ -1,25 +1,22 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Records;
 
 use App\Enum\ModelFilter;
-use App\Models\Doctor;
+use App\Models\CommittedAction;
+use App\Models\Therapy;
 
-class DoctorService
+class CommittedActionService
 {
     public function get(?array $filters = null)
     {
-        $query = Doctor::query();
+        $query = CommittedAction::query();
 
         if ($filters) {
             foreach ($filters as $filter) {
                 switch ($filter['operation']) {
                     case ModelFilter::EQUAL->name:
                         $query->where($filter['column'], $filter['value']);
-                        break;
-
-                    case ModelFilter::ORDER_BY->name:
-                        $query->orderBy($filter['column'], $filter['value']);
                         break;
                 }
             }

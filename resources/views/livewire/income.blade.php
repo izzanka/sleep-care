@@ -16,10 +16,6 @@ new class extends Component {
     {
         $user = Auth::user();
         $this->total_income = $user->balance;
-
-        if (Gate::allows('isDoctor', $user)) {
-            $user->load('doctor');
-        }
     }
 
     public function with(): array
@@ -40,8 +36,7 @@ new class extends Component {
     protected function getAdminOrders()
     {
         return [
-            'orders' => Order::with('therapy')
-                ->where('status', OrderStatus::SUCCESS->value)
+            'orders' => Order::where('status', OrderStatus::SUCCESS->value)
                 ->latest()
                 ->paginate(15),
         ];
@@ -50,8 +45,7 @@ new class extends Component {
     protected function getDoctorOrders($user)
     {
         return [
-            'orders' => Order::with('therapy')
-                ->where('status', OrderStatus::SUCCESS->value)
+            'orders' => Order::where('status', OrderStatus::SUCCESS->value)
                 ->whereHas('therapy', fn($query) =>
                 $query->where('doctor_id', $user->doctor->id)
                 )

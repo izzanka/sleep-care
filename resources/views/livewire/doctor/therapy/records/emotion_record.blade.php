@@ -1,39 +1,147 @@
 <?php
 
+use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Models\EmotionRecord;
 use App\Models\Therapy;
+use App\Service\ChartService;
+use App\Service\Records\CommittedActionService;
+use App\Service\Records\EmotionRecordService;
+use App\Service\TherapyService;
 use Carbon\Carbon;
 use Livewire\Volt\Component;
 
 new class extends Component {
+    protected ChartService $chartService;
+    protected TherapyService $therapyService;
+    protected EmotionRecordService $emotionRecordService;
+
+    public $currentTherapy;
+    public $emotionRecord;
+
+    public function boot(ChartService         $chartService,
+                         TherapyService       $therapyService,
+                         EmotionRecordService $emotionRecordService)
+    {
+        $this->chartService = $chartService;
+        $this->emotionRecordService = $emotionRecordService;
+        $this->therapyService = $therapyService;
+    }
+
+    public function mount()
+    {
+        $doctorId = auth()->user()->doctor->id;
+        $this->currentTherapy = $this->getCurrentTherapy($doctorId);
+        if (!$this->currentTherapy) {
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
+
+        $this->emotionRecord = $this->getEmotionRecord($this->currentTherapy->id);
+        if (!$this->emotionRecord) {
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
+    }
+
+    public function getCurrentTherapy(int $doctorId)
+    {
+        $filters = [
+            [
+                'operation' => ModelFilter::EQUAL,
+                'column' => 'doctor_id',
+                'value' => $doctorId,
+            ],
+            [
+                'operation' => ModelFilter::EQUAL,
+                'column' => 'status',
+                'value' => TherapyStatus::IN_PROGRESS->value,
+            ],
+        ];
+
+        return $this->therapyService->get($filters)[0] ?? null;
+    }
+
+    public function getEmotionRecord(int $therapyId)
+    {
+        $filters[] = [
+            'operation' => ModelFilter::EQUAL,
+            'column' => 'therapy_id',
+            'value' => $therapyId,
+        ];
+
+        return $this->emotionRecordService->get($filters)[0] ?? null;
+    }
+
+    private function extractAnswerData($rows, $therapyStartDate)
+    {
+        $results = collect();
+
+        foreach ($rows as $row) {
+            $groupedAnswers = $row->keyBy(fn($qa) => $qa->question->question);
+            $date = optional($groupedAnswers['Tanggal']?->answer)->answer;
+            $emotionWithIntensity = optional($groupedAnswers['Emosi dan intensitas (1-10)']?->answer)->answer;
+
+            if ($date && $emotionWithIntensity) {
+                $weekNumber = Carbon::parse($date)->diffInWeeks($therapyStartDate) + 1;
+                $emotion = trim(preg_replace('/\s*\(\d+\)$/', '', $emotionWithIntensity));
+                $results->push([
+                    'emotion' => $emotion,
+                    'week' => min($weekNumber, 6),
+                ]);
+            }
+        }
+
+        return $results;
+    }
+
+    private function calculateWeeklyEmotionFrequencies($data)
+    {
+        return $data->groupBy('emotion')->map(function ($group) {
+            $weeklyCounts = array_fill(1, 6, 0);
+            foreach ($group as $entry) {
+                $weeklyCounts[$entry['week']]++;
+            }
+            return collect($weeklyCounts)->values();
+        });
+    }
+
+    private function buildChartDatasets($emotionCounts)
+    {
+        return $emotionCounts->map(function ($values, $label) {
+            return [
+                'label' => $label,
+                'data' => $values,
+                'borderWidth' => 1,
+            ];
+        })->values();
+    }
+
     public function with()
     {
-        $doctorId = auth()->user()->loadMissing('doctor')->doctor->id;
-
-        $therapy = Therapy::with('patient')
-            ->where('doctor_id', $doctorId)
-            ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->first();
-
-        $emotionRecords = EmotionRecord::with(['questionAnswers.question', 'questionAnswers.answer'])
-            ->where('therapy_id', $therapy->id)
-            ->first();
-
-        $questions = $emotionRecords->questionAnswers
+        $questions = $this->emotionRecord->questionAnswers
             ->pluck('question.question')
             ->unique()
             ->values();
 
-        $rows = $emotionRecords->questionAnswers->chunk($questions->count());
+        $answerRows = $this->emotionRecord->questionAnswers->chunk($questions->count());
+
+        $answerData = $this->extractAnswerData($answerRows, $this->currentTherapy->start_date);
+
+        $emotionFrequencies = $this->calculateWeeklyEmotionFrequencies($answerData);
+        $chartDatasets = $this->buildChartDatasets($emotionFrequencies);
+
+        $maxValue = $this->chartService->calculateMaxValue($emotionFrequencies->flatten());
+        $labels = $this->chartService->labels;
+        $title = 'Frekuensi';
 
         return [
-            'therapy' => $therapy,
+            'therapy' => $this->currentTherapy,
             'questions' => $questions,
-            'rows' => $rows,
-            'labels' => ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5', 'Minggu 6'],
-            'text' => 'Frekuensi',
+            'answerRows' => $answerRows,
+            'labels' => $labels,
+            'datasets' => $chartDatasets,
+            'chartTitle' => $title,
+            'maxValue' => $maxValue,
         ];
     }
 }; ?>
@@ -59,7 +167,7 @@ new class extends Component {
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($rows as $index => $row)
+                @foreach($answerRows as $index => $row)
                     <tr>
                         <td class="border p-2 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
@@ -95,33 +203,7 @@ new class extends Component {
 
         const data = {
             labels: @json($labels),
-            datasets: [
-                {
-                    label: 'Marah',
-                    data: [1, 2, 3, 4, 5, 6],
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Sedih',
-                    data: [6, 5, 4, 3, 2, 1],
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Frustasi',
-                    data: [1, 2, 3, 4, 5, 6],
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Malu',
-                    data: [1, 2, 3, 4, 5, 6],
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Depresi',
-                    data: [1, 2, 3, 4, 5, 6],
-                    borderWidth: 1,
-                },
-            ],
+            datasets: @json($datasets),
         };
 
         const config = {
@@ -132,7 +214,7 @@ new class extends Component {
                 plugins: {
                     title: {
                         display: true,
-                        text: @json($text),
+                        text: @json($chartTitle),
                         color: isDark ? '#ffffff' : '#000000',
                     },
                     legend: {
@@ -149,12 +231,12 @@ new class extends Component {
                     },
                     y: {
                         beginAtZero: true,
+                        min: 0,
+                        max: @json($maxValue),
                         ticks: {
                             precision: 0,
                             color: isDark ? '#ffffff' : '#000000',
                             stepSize: 1,
-                            min: 0,
-                            max: 10
                         }
                     }
                 }

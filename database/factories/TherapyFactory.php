@@ -17,12 +17,12 @@ class TherapyFactory extends Factory
      */
     public function definition(): array
     {
-        $start_date = fake()->date();
-        $end_date = Carbon::parse($start_date)->addWeeks(6);
+        $start_date = now();
+        $end_date = $start_date->addWeeks(6);
 
         return [
-            'start_date' => $start_date,
-            'end_date' => $end_date,
+            'start_date' => $start_date->toDateString(),
+            'end_date' => $end_date->toDateString(),
             'doctor_fee' => 350000,
             'application_fee' => 20000,
             'created_at' => now(),

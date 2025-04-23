@@ -25,7 +25,7 @@ new class extends Component {
 
     public function mount(): void
     {
-        $user = Auth::user()->load('doctor');
+        $user = Auth::user();
 
         $this->fillUserFields($user);
         $this->fillDoctorFields($user);

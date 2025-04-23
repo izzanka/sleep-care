@@ -21,7 +21,7 @@ class Calendar extends Component
     {
         $schedules = [];
 
-        $doctorID = auth()->user()->load('doctor')->doctor->id;
+        $doctorID = auth()->user()->doctor->id;
 
         $therapy = Therapy::select('id', 'doctor_id', 'status')->where([
             ['doctor_id', $doctorID],

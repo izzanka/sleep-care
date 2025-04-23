@@ -6,6 +6,8 @@ use App\Enum\ModelFilter;
 use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
 use App\Mail\OtpMail;
+use App\Models\User;
+use App\Notifications\RegisteredUser;
 use App\Service\TokenService;
 use App\Service\UserService;
 use Illuminate\Http\Request;
@@ -95,6 +97,8 @@ class OtpController extends Controller
                 return Response::error('Failed to delete OTP.', 500);
             }
 
+            $this->notifyAdmin($user);
+
             return Response::success(null, 'OTP verified successfully.');
 
         } catch (\Exception $exception) {
@@ -123,5 +127,14 @@ class OtpController extends Controller
         ];
 
         return $this->userService->get($filters)[0] ?? null;
+    }
+
+    protected function notifyAdmin(User $user)
+    {
+        $admin = User::where('role', UserRole::ADMIN->value)->first();
+
+        if ($admin) {
+            $admin->notify(new RegisteredUser($user));
+        }
     }
 }

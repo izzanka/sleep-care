@@ -9,15 +9,13 @@ use Livewire\Volt\Component;
 new class extends Component {
     public function with()
     {
-        $doctorId = auth()->user()->loadMissing('doctor')->doctor->id;
+        $doctorId = auth()->user()->doctor->id;
 
-        $therapy = Therapy::with('patient')
-            ->where('doctor_id', $doctorId)
+        $therapy = Therapy::where('doctor_id', $doctorId)
             ->where('status', TherapyStatus::IN_PROGRESS->value)
             ->first();
 
-        $identifyValues = IdentifyValue::with(['questionAnswers.question', 'questionAnswers.answer'])
-            ->where('therapy_id', $therapy->id)
+        $identifyValues = IdentifyValue::where('therapy_id', $therapy->id)
             ->first();
 
         $questions = $identifyValues->questionAnswers

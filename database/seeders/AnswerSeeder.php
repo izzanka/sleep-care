@@ -21,7 +21,7 @@ class AnswerSeeder extends Seeder
      */
     public function run(): void
     {
-        $therapy = Therapy::select('id')->first();
+        $therapy = Therapy::select('id','start_date')->first();
         $timestamp = now();
 
         $identifyValue = IdentifyValue::create([
@@ -63,7 +63,7 @@ class AnswerSeeder extends Seeder
         $thoughtRecord = ThoughtRecord::create(['therapy_id' => $therapy->id]);
 
         $thoughtQuestions1 = [
-            ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => fake()->date()],
+            ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
             ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
             ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbangun tengah malam'],
             ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku merasa tidak akan lancar saat presentasi besok'],
@@ -89,7 +89,7 @@ class AnswerSeeder extends Seeder
         DB::table('thought_record_question_answer')->insert($thoughtRecords1);
 
         $thoughtQuestions2 = [
-            ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => fake()->date()],
+            ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
             ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
             ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbagun tengah malam'],
             ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku merasa temen-temenku membicarakan aku di belakang'],
@@ -117,13 +117,23 @@ class AnswerSeeder extends Seeder
         $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id]);
 
         $emotionQuestions = [
-            ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => fake()->date()],
+            ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
             ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
             ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
             ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
             ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi (7)'],
             ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
             ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi (5)'],
+        ];
+
+        $emotionQuestions2 = [
+            ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
+            ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
+            ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
+            ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
+            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Emosi (7)'],
+            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
+            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Emosi (5)'],
         ];
 
         $emotionRecords = [];
@@ -144,6 +154,25 @@ class AnswerSeeder extends Seeder
         }
 
         DB::table('emotion_record_question_answer')->insert($emotionRecords);
+
+        $emotionRecords2 = [];
+
+        foreach ($emotionQuestions2 as $question) {
+            $answer = Answer::create([
+                'type' => $question['type'],
+                'answer' => $question['answer'],
+                'created_at' => $timestamp,
+            ]);
+
+            $emotionRecords2[] = [
+                'emotion_record_id' => $emotionRecord->id,
+                'question_id' => $question['id'],
+                'answer_id' => $answer->id,
+                'created_at' => $timestamp,
+            ];
+        }
+
+        DB::table('emotion_record_question_answer')->insert($emotionRecords2);
 
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
@@ -176,11 +205,11 @@ class AnswerSeeder extends Seeder
 
         DB::table('committed_action_question_answer')->insert($committedRecords);
 
-        $startDate = Carbon::now()->startOfWeek();
+        $startDate = Carbon::parse($therapy->start_date);
 
         for ($week = 1; $week <= 6; $week++) {
             for ($day = 1; $day <= 7; $day++) {
-                $currentDate = (clone $startDate)->addDays((($week - 1) * 7) + ($day - 1));
+                $currentDate = $startDate->addDays((($week - 1) * 7) + ($day - 1));
                 $timestamp = now();
 
                 $sleepDiary = SleepDiary::create([
@@ -189,6 +218,7 @@ class AnswerSeeder extends Seeder
                     'day' => $day,
                     'date' => $currentDate->toDateString(),
                     'title' => 'Sleep Diary Minggu ke-'.$week,
+                    'created_at' => $timestamp,
                 ]);
 
                 $sleepDiaryQuestions = [
@@ -219,8 +249,8 @@ class AnswerSeeder extends Seeder
                     $answer = Answer::create([
                         'type' => $question['type'],
                         'answer' => $question['answer'],
-                        'created_at' => $timestamp,
                         'note' => $question['note'],
+                        'created_at' => $timestamp,
                     ]);
 
                     $sleepDiaryRecords[] = [

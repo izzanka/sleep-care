@@ -4,19 +4,25 @@ use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Models\SleepDiary;
 use App\Models\Therapy;
+use App\Service\ChartService;
 use Livewire\Volt\Component;
 
 new class extends Component {
+    protected ChartService $chartService;
+
+    public function boot(ChartService $chartService)
+    {
+        $this->chartService = $chartService;
+    }
+
     public function with()
     {
-        $doctor = auth()->user()->load('doctor')->doctor;
-        $therapy = Therapy::with('patient')
-            ->where('doctor_id', $doctor->id)
+        $doctor = auth()->user()->doctor;
+        $therapy = Therapy::where('doctor_id', $doctor->id)
             ->where('status', TherapyStatus::IN_PROGRESS->value)
             ->first();
 
-        $sleepDiaries = SleepDiary::with(['questionAnswers.question', 'questionAnswers.answer'])
-            ->where('therapy_id', $therapy->id)
+        $sleepDiaries = SleepDiary::where('therapy_id', $therapy->id)
             ->orderBy('week')
             ->orderBy('day')
             ->get()
@@ -31,17 +37,66 @@ new class extends Component {
             ->values();
 
         $structuredQuestions = $allQuestions
-            ->filter(fn ($q) => is_null($q->parent_id))
+            ->filter(fn($q) => is_null($q->parent_id))
             ->map(function ($parent) use ($allQuestions) {
                 $parent->children = $allQuestions->where('parent_id', $parent->id)->values();
                 return $parent;
             })
             ->values();
 
+        $labels = $this->chartService->labels;
+
+        $totalSleepHours = [];
+        $totalAwakenings = [];
+        $totalSleepQuality = [];
+
+        $caffeine = [];
+        $alcohol = [];
+        $nicotine = [];
+        $food = [];
+
+        foreach ($sleepDiaries as $entries) {
+
+            $totalSleepHours[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 16)?->answer?->answer ?? 0;
+            });
+
+            $totalAwakenings[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 17)?->answer?->answer ?? 0;
+            });
+
+            $totalSleepQuality[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 18)?->answer?->answer ?? 0;
+            });
+
+            $caffeine[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 10)?->answer?->answer ?? 0;
+            });
+
+            $alcohol[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 11)?->answer?->answer ?? 0;
+            });
+
+            $nicotine[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 12)?->answer?->answer ?? 0;
+            });
+
+            $food[] = $entries->sum(function ($diary) {
+                return (int)$diary->questionAnswers->firstWhere('question_id', 13)?->answer?->answer ?? 0;
+            });
+        }
+
         return [
             'sleepDiaries' => $sleepDiaries,
             'structuredQuestions' => $structuredQuestions,
-            'labels' => ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5', 'Minggu 6'],
+            'labels' => $labels,
+            'dataSleepHours' => $totalSleepHours,
+            'dataAwakenings' => $totalAwakenings,
+            'dataSleepQuality' => $totalSleepQuality,
+            'dataCaffeine' => $caffeine,
+            'dataAlcohol' => $alcohol,
+            'dataNicotine' => $nicotine,
+            'dataFood' => $food,
         ];
     }
 }; ?>
@@ -50,25 +105,23 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Sleep Diary'])
 
     <div x-data="{ openIndex: null }">
-        {{-- Chart Section --}}
         <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
             <div class="relative w-full">
                 <canvas id="lineChart" class="w-full h-full mb-5"></canvas>
-                <flux:separator class="mt-4 mb-4" />
+                <flux:separator class="mt-4 mb-4"/>
                 <canvas id="barChart" class="w-full h-full mt-5"></canvas>
             </div>
         </div>
 
-        <flux:separator class="mt-4 mb-4" />
+        <flux:separator class="mt-4 mb-4"/>
 
-        {{-- Sleep Diary Cards by Week --}}
         @foreach($sleepDiaries as $index => $sleepDiary)
             <div
                 class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
                 x-ref="card{{ $index }}"
             >
                 <div class="flex items-center w-full">
-                    <flux:icon.calendar class="mr-2" />
+                    <flux:icon.calendar class="mr-2"/>
 
                     <flux:button
                         variant="ghost"
@@ -95,7 +148,7 @@ new class extends Component {
                                  class="w-4 h-4 transition-transform duration-300"
                                  :class="openIndex === {{ $index }} ? 'rotate-180' : ''">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                             </svg>
                         </div>
                     </flux:button>
@@ -126,10 +179,9 @@ new class extends Component {
                             </tr>
 
                             <tr>
-                                <td class="p-2 text-center font-bold" colspan="8">Siang Hari</td>
+                                <td class="p-2 text-center font-bold" colspan="9">Siang Hari</td>
                             </tr>
 
-                            {{-- Parent & Child Questions --}}
                             @foreach($structuredQuestions as $question)
                                 <tr>
                                     <td class="border p-2 text-center font-bold">{{ $question->question }}</td>
@@ -141,9 +193,9 @@ new class extends Component {
                                             <div class="flex justify-center items-center h-full">
                                                 @if($entry?->answer?->type == \App\Enum\QuestionType::BINARY->value)
                                                     @if($entry->answer->answer)
-                                                        <flux:icon.check-circle class="text-green-500" />
+                                                        <flux:icon.check-circle class="text-green-500"/>
                                                     @else
-                                                        <flux:icon.x-circle class="text-red-500" />
+                                                        <flux:icon.x-circle class="text-red-500"/>
                                                     @endif
                                                 @else
                                                     {{ $entry->answer->answer ?? '-' }}
@@ -167,10 +219,9 @@ new class extends Component {
                                     </tr>
                                 @endforeach
 
-                                {{-- Section Separator --}}
                                 @if($question->id == 13)
                                     <tr>
-                                        <td class="p-2 text-center font-bold" colspan="8">Malam Hari</td>
+                                        <td class="p-2 text-center font-bold" colspan="9">Malam Hari</td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -203,21 +254,21 @@ new class extends Component {
             datasets: [
                 {
                     label: 'Total Jam Tidur',
-                    data: [30, 20, 36, 40, 44, 45],
+                    data: @json($dataSleepHours),
                     fill: false,
                     pointRadius: 5,
                     pointHoverRadius: 10
                 },
                 {
                     label: 'Total Terbangun di Malam Hari',
-                    data: [14, 28, 7, 5, 2, 1],
+                    data: @json($dataAwakenings),
                     fill: false,
                     pointRadius: 5,
                     pointHoverRadius: 10
                 },
                 {
                     label: 'Total Skala Kualitas Tidur',
-                    data: [20, 15, 28, 30, 32, 35],
+                    data: @json($dataSleepQuality),
                     fill: false,
                     pointRadius: 5,
                     pointHoverRadius: 10
@@ -230,19 +281,19 @@ new class extends Component {
             datasets: [
                 {
                     label: 'Kafein',
-                    data: [7, 6, 5, 4, 3, 2],
+                    data: @json($dataCaffeine),
                 },
                 {
                     label: 'Alkohol',
-                    data: [0, 0, 0, 0, 0, 0],
+                    data: @json($dataAlcohol),
                 },
                 {
                     label: 'Nikotin',
-                    data: [1, 0, 0, 0, 0, 0],
+                    data: @json($dataNicotine),
                 },
                 {
                     label: 'Makanan',
-                    data: [7, 7, 7, 7, 3, 1],
+                    data: @json($dataFood),
                 },
             ]
         };
@@ -275,7 +326,8 @@ new class extends Component {
                     },
                     y: {
                         beginAtZero: true,
-                        max: 50,
+                        min: 1,
+                        max: 60,
                         ticks: {
                             color: isDark ? '#ffffff' : '#000000',
                         },
@@ -295,7 +347,7 @@ new class extends Component {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Total Konsumsi Setelah Pukul 18:00',
+                        text: 'Tren Konsumsi Setelah Pukul 18:00',
                         color: isDark ? '#ffffff' : '#000000',
                     },
                     legend: {
@@ -313,7 +365,8 @@ new class extends Component {
                     },
                     y: {
                         stacked: true,
-                        max: 25,
+                        min: 0,
+                        max: 30,
                         ticks: {
                             color: isDark ? '#ffffff' : '#000000',
                         },

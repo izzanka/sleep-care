@@ -21,14 +21,13 @@ new class extends Component {
 
     protected function getDoctorId()
     {
-        return auth()->user()->loadMissing('doctor')->doctor->id;
+        return auth()->user()->doctor->id;
     }
 
     protected function getActiveTherapy(int $doctorId)
     {
         return Therapy::where('doctor_id', $doctorId)
             ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->with('patient')
             ->first();
     }
 

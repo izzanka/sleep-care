@@ -38,7 +38,6 @@ new class extends Component {
         $query = $this->applyFilters($query);
 
         $users = $query->latest()->paginate(15);
-        $users->load('doctor');
 
         return $users;
     }

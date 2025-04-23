@@ -5,42 +5,77 @@ use App\Enum\TherapyStatus;
 use App\Models\IdentifyValue;
 use App\Models\Therapy;
 use App\Models\ThoughtRecord;
+use App\Service\ChartService;
 use Carbon\Carbon;
 use Livewire\Volt\Component;
 
 new class extends Component {
+
+    protected ChartService $chartService;
+
+    public function boot(ChartService $chartService)
+    {
+        $this->chartService = $chartService;
+    }
+
     public function with()
     {
-        $doctorID = auth()->user()->load('doctor')->doctor->id;
+        $doctorID = auth()->user()->doctor->id;
 
         $therapy = Therapy::where('doctor_id', $doctorID)
-            ->with('patient')
             ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->first();
+            ->firstOrFail();
 
-        $thoughtRecords = ThoughtRecord::with(['questionAnswers.question', 'questionAnswers.answer'])
-            ->where('therapy_id', $therapy->id)
-            ->first();
+        $thoughtRecords = ThoughtRecord::where('therapy_id', $therapy->id)
+            ->firstOrFail();
 
-        $thoughtRecordQuestions = $thoughtRecords->questionAnswers
-            ->pluck('question.question')
-            ->unique()
-            ->values();
-
-        $labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5', 'Minggu 6'];
-        $data = [7, 6, 2, 1, 4, 0];
-        $text = 'Frekuensi';
-
-        $chunks = $thoughtRecords->questionAnswers->chunk(count($thoughtRecordQuestions));
+        $questions = $this->extractQuestions($thoughtRecords);
+        $chunks = $thoughtRecords->questionAnswers->chunk(count($questions));
+        $dateCounts = $this->countThoughtRecordDates($chunks);
+        $weeklyData = $this->groupCountsByWeek($therapy->start_date, $dateCounts);
+        $maxValue = $this->chartService->calculateMaxValue($weeklyData);
 
         return [
             'thoughtRecords' => $thoughtRecords,
-            'thoughtRecordQuestions' => $thoughtRecordQuestions,
+            'thoughtRecordQuestions' => $questions,
             'chunks' => $chunks,
-            'labels' => $labels,
-            'data' => $data,
-            'text' => $text,
+            'labels' => $this->chartService->labels,
+            'data' => $weeklyData->values()->toArray(),
+            'maxValue' => $maxValue,
+            'text' => 'Frekuensi',
         ];
+    }
+
+    private function extractQuestions($thoughtRecords)
+    {
+        return $thoughtRecords->questionAnswers
+            ->pluck('question.question')
+            ->unique()
+            ->values();
+    }
+
+    private function countThoughtRecordDates($chunks)
+    {
+        return $chunks->map(function ($chunk) {
+            return optional($chunk->keyBy(fn($qa) => $qa->question->question)['Tanggal']?->answer)->answer;
+        })->filter()->countBy();
+    }
+
+    private function groupCountsByWeek($startDate, $counts)
+    {
+        $weeks = collect(range(1, 6))->mapWithKeys(fn($week) => ["Minggu $week" => 0]);
+
+        $counts->each(function ($count, $date) use ($startDate, &$weeks) {
+            $dayDiff = $startDate->diffInDays($date, false);
+            if ($dayDiff >= 0) {
+                $week = intdiv($dayDiff, 7) + 1;
+                if ($week >= 1 && $week <= 6) {
+                    $weeks["Minggu $week"] += $count;
+                }
+            }
+        });
+
+        return $weeks;
     }
 }; ?>
 
@@ -48,14 +83,12 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Thought Record'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-        {{-- Chart --}}
         <div class="relative w-full">
             <canvas id="thoughtRecordChart" class="w-full h-full"></canvas>
         </div>
 
         <flux:separator class="mt-4 mb-4"/>
 
-        {{-- Thought Record Table --}}
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border mb-2 mt-2">
                 <thead>
@@ -139,11 +172,11 @@ new class extends Component {
                     },
                     y: {
                         beginAtZero: true,
+                        min: 0,
+                        max: @json($maxValue),
                         ticks: {
                             precision: 0,
                             stepSize: 1,
-                            min: 0,
-                            max: 10,
                             color: isDark ? '#ffffff' : '#000000',
                         }
                     }

@@ -1,40 +1,100 @@
 <?php
 
+use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
-use App\Models\CommittedAction;
-use App\Models\Therapy;
+use App\Service\Records\CommittedActionService;
+use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    public function with()
+    protected TherapyService $therapyService;
+    protected CommittedActionService $committedActionService;
+
+    public $currentTherapy;
+    public $committedAction;
+
+    public function boot(TherapyService $therapyService, CommittedActionService $committedActionService)
     {
-        $doctorId = auth()->user()->loadMissing('doctor')->doctor->id;
+        $this->therapyService = $therapyService;
+        $this->committedActionService = $committedActionService;
+    }
 
-        $therapy = Therapy::with('patient')
-            ->where('doctor_id', $doctorId)
-            ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->first();
+    public function mount()
+    {
+        $doctorId = auth()->user()->doctor->id;
 
-        $committedActions = CommittedAction::with(['questionAnswers.question', 'questionAnswers.answer'])
-            ->where('therapy_id', $therapy->id)
-            ->first();
+        $this->currentTherapy = $this->getCurrentTherapy($doctorId);
+        if (!$this->currentTherapy) {
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
 
-        $questions = $committedActions->questionAnswers
-            ->pluck('question.question')
-            ->unique()
-            ->values();
+        $this->committedAction = $this->getCommittedAction($this->currentTherapy->id);
+        if (!$this->committedAction) {
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
+    }
 
-        $rows = $committedActions->questionAnswers->chunk($questions->count());
+    public function getCurrentTherapy(int $doctorId)
+    {
+        $filters = [
+            [
+                'operation' => ModelFilter::EQUAL,
+                'column' => 'doctor_id',
+                'value' => $doctorId,
+            ],
+            [
+                'operation' => ModelFilter::EQUAL,
+                'column' => 'status',
+                'value' => TherapyStatus::IN_PROGRESS->value,
+            ],
+        ];
+
+        return $this->therapyService->get($filters)[0] ?? null;
+    }
+
+    public function getCommittedAction(int $therapyId)
+    {
+        $filters = [
+            [
+                'operation' => ModelFilter::EQUAL,
+                'column' => 'therapy_id',
+                'value' => $therapyId,
+            ],
+        ];
+
+        return $this->committedActionService->get($filters)[0] ?? null;
+    }
+
+    public function prepareChartData()
+    {
+        $questionAnswers = $this->committedAction->questionAnswers;
+        $executionAnswers = $questionAnswers->filter(fn($qa) => $qa->question?->question === 'Terlaksana');
 
         return [
-            'therapy' => $therapy,
-            'committedActions' => $committedActions,
-            'questions' => $questions,
-            'rows' => $rows,
             'labels' => ['Terlaksana', 'Tidak Terlaksana'],
-            'data' => [9, 1],
-            'text' => 'Statistik',
+            'data' => [
+                $executionAnswers->where('answer.answer', 1)->count(),
+                $executionAnswers->where('answer.answer', 0)->count(),
+            ],
+            'title' => 'Statistik',
+        ];
+    }
+
+
+    public function with()
+    {
+        $questionAnswers = $this->committedAction->questionAnswers;
+        $questionLabels = $questionAnswers->pluck('question.question')->unique()->values();
+        $tableRows = $questionAnswers->chunk($questionLabels->count());
+        $chart = $this->prepareChartData();
+
+        return [
+            'therapy' => $this->currentTherapy,
+            'committedAction' => $this->committedAction,
+            'questions' => $questionLabels,
+            'rows' => $tableRows,
+            ...$chart,
         ];
     }
 }; ?>
@@ -71,9 +131,9 @@ new class extends Component {
                                 @if($answer?->answer->type === QuestionType::BINARY->value)
                                     <div class="flex justify-center items-center h-full">
                                         @if($answer->answer->answer)
-                                            <flux:icon.check-circle class="text-green-500" />
+                                            <flux:icon.check-circle class="text-green-500"/>
                                         @else
-                                            <flux:icon.x-circle class="text-red-500" />
+                                            <flux:icon.x-circle class="text-red-500"/>
                                         @endif
                                     </div>
                                 @else
@@ -116,7 +176,7 @@ new class extends Component {
                 plugins: {
                     title: {
                         display: true,
-                        text: @json($text),
+                        text: @json($title),
                         color: isDark ? '#ffffff' : '#000000',
                     },
                     legend: {

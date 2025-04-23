@@ -3,23 +3,20 @@
 namespace App\Service;
 
 use App\Enum\ModelFilter;
-use App\Models\Doctor;
+use App\Models\Therapy;
+use Illuminate\Support\Facades\DB;
 
-class DoctorService
+class TherapyService
 {
     public function get(?array $filters = null)
     {
-        $query = Doctor::query();
+        $query = Therapy::query();
 
         if ($filters) {
             foreach ($filters as $filter) {
                 switch ($filter['operation']) {
                     case ModelFilter::EQUAL->name:
                         $query->where($filter['column'], $filter['value']);
-                        break;
-
-                    case ModelFilter::ORDER_BY->name:
-                        $query->orderBy($filter['column'], $filter['value']);
                         break;
                 }
             }

@@ -12,12 +12,12 @@ class Therapy extends Model
 {
     use HasFactory;
 
-    protected function casts(): array
-    {
-        return [
-            'status' => TherapyStatus::class,
-        ];
-    }
+    protected $casts = [
+        'status' => TherapyStatus::class,
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'created_at' => 'datetime',
+    ];
 
     public function doctor()
     {
@@ -69,17 +69,17 @@ class Therapy extends Model
         return $this->hasMany(CommittedAction::class);
     }
 
-    protected function startDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
-        );
-    }
-
-    protected function endDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
-        );
-    }
+//    protected function startDate(): Attribute
+//    {
+//        return Attribute::make(
+//            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
+//        );
+//    }
+//
+//    protected function endDate(): Attribute
+//    {
+//        return Attribute::make(
+//            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
+//        );
+//    }
 }
