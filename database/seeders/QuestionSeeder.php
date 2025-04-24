@@ -161,9 +161,10 @@ class QuestionSeeder extends Seeder
             'Jam' => QuestionType::TIME->value,
             'Kejadian' => QuestionType::TEXT->value,
             'Pemikiran yang muncul' => QuestionType::TEXT->value,
-            'Emosi dan intensitas (1-10)' => QuestionType::TEXT->value,
+            'Emosi' => QuestionType::TEXT->value,
+            'Intensitas sebelum (1-10)' => QuestionType::NUMBER->value,
             'Cara yang dilakukan' => QuestionType::TEXT->value,
-            'Dampak pada emosi dan intensitas (1-10)' => QuestionType::TEXT->value,
+            'Intensitas sesudah (1-10)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($emotionRecordQuestions as $question => $type) {

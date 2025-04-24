@@ -4,45 +4,38 @@ use App\Enum\TherapyStatus;
 use App\Models\Chat;
 use App\Models\Therapy;
 use App\Models\User;
+use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
 new class extends Component {
+    protected TherapyService $therapyService;
+
     public bool $isOnline = false;
-    public ?int $patientID = null;
-    public ?int $therapyID = null;
     public ?string $message = '';
+
+    public $therapy;
+
+    public function boot(TherapyService $therapyService)
+    {
+        $this->therapyService = $therapyService;
+    }
 
     public function mount()
     {
         $this->dispatch('scroll-to-bottom');
-    }
-
-    public function with()
-    {
-        $therapy = $this->getOngoingTherapy();
-        $chats = Chat::where('receiver_id', $therapy->patient->id)->orWhere('sender_id', $therapy->patient->id)->orderBy('created_at')->get();
-
-        if ($therapy && $therapy->patient) {
-            $this->therapyID = $therapy->id;
-            $this->patientID = $therapy->patient->id;
-        }
-
-        return [
-            'therapy' => $therapy,
-            'chats' => $chats,
-        ];
+        $this->therapy = $this->therapyService->getCurrentTherapy(auth()->user()->doctor->id);
     }
 
     public function send()
     {
         $validated = $this->validate([
-           'message' => ['required','string']
+            'message' => ['required', 'string']
         ]);
 
         Chat::create([
-            'therapy_id' => $this->therapyID,
+            'therapy_id' => $this->therapy->id,
             'sender_id' => auth()->id(),
-            'receiver_id' => $this->patientID,
+            'receiver_id' => $this->therapy->patient_id,
             'message' => $validated['message'],
             'created_at' => now(),
         ]);
@@ -53,19 +46,22 @@ new class extends Component {
 
     public function checkPatientOnlineStatus()
     {
-        $this->isOnline = User::where('id', $this->patientID)->value('is_online') ?? false;
+        $this->isOnline = User::where('id', $this->therapy->patient_id)->value('is_online') ?? false;
     }
 
-    protected function getOngoingTherapy()
+    public function with()
     {
-        return Therapy::with('patient')
-            ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->first();
+        $chats = Chat::where('receiver_id', $this->therapy->patient->id)
+            ->orWhere('sender_id', $this->therapy->patient->id)->orderBy('created_at')->get();
+
+        return [
+            'chats' => $chats,
+        ];
     }
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Percakapan dengan pasien'])
+    @include('partials.main-heading', ['title' => 'Percakapan'])
     <div class="h-[440px] rounded-lg flex flex-col">
         <div class="dark:bg-zinc-700 p-4 flex items-center gap-3 rounded-t-lg bg-white border dark:border-transparent">
             <div class="flex items-center gap-2" wire:poll.5s.visible="checkPatientOnlineStatus">
@@ -84,14 +80,16 @@ new class extends Component {
                     <div class="flex items-start space-x-2 justify-end mt-2">
                         <div class="bg-green-500 text-white p-3 rounded-lg max-w-xs">
                             <p class="text-sm break-words">{{$chat->message}}</p>
-                            <span class="text-xs text-gray-200 block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
+                            <span
+                                class="text-xs text-gray-200 block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
                         </div>
                     </div>
                 @else
                     <div class="flex items-start space-x-2 mt-2">
                         <div class="bg-gray-200 p-3 rounded-lg max-w-xs">
                             <p class="text-sm text-black">{{$chat->message}}</p>
-                            <span class="text-xs text-gray-500 block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
+                            <span
+                                class="text-xs text-gray-500 block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
                         </div>
                     </div>
                 @endif

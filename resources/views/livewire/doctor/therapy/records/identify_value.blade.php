@@ -15,6 +15,7 @@ new class extends Component {
 
     public $currentTherapy;
     public $identifyValue;
+    public $labels;
 
     public function boot(TherapyService       $therapyService,
                          IdentifyValueService $identifyValueService)
@@ -31,6 +32,7 @@ new class extends Component {
             $this->redirectRoute('doctor.therapies.in_progress.index');
         }
         $this->identifyValue = $this->getIdentifyValue($this->currentTherapy->id);
+        $this->labels = $this->getUniqueNotes();
     }
 
     public function getIdentifyValue(int $therapyId)
@@ -83,17 +85,20 @@ new class extends Component {
 
     public function with()
     {
+        $dataset = $this->getDatasetLabels();
+        $numberAnswers = $this->getNumberAnswers();
+        $textAnswers = $this->getTextAnswers();
+
         return [
-            'datasetLabels' => $this->getDatasetLabels(),
-            'labels' => $this->getUniqueNotes(),
-            'numberAnswers' => $this->getNumberAnswers(),
-            'textAnswers' => $this->getTextAnswers(),
+            'datasetLabels' => $dataset,
+            'numberAnswers' => $numberAnswers,
+            'textAnswers' => $textAnswers,
         ];
     }
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Identify Value'])
+    @include('partials.main-heading', ['title' => 'Catatan Identifikasi Nilai (Identify Value)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="relative w-full max-w-md mx-auto">

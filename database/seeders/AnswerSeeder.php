@@ -16,13 +16,68 @@ use Illuminate\Support\Facades\DB;
 
 class AnswerSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $therapy = Therapy::select('id','start_date')->first();
         $timestamp = now();
+
+        for ($week = 1; $week <= 6; $week++) {
+            for ($day = 1; $day <= 7; $day++) {
+                $currentDate = $therapy->start_date->copy()->addDays((($week - 1) * 7) + ($day - 1));
+                $timestamp = now();
+
+                $sleepDiary = SleepDiary::create([
+                    'therapy_id' => $therapy->id,
+                    'week' => $week,
+                    'day' => $day,
+                    'date' => $currentDate->toDateString(),
+                    'title' => 'Sleep Diary Minggu ke-'.$week,
+                    'created_at' => $timestamp,
+                ]);
+
+                $sleepDiaryQuestions = [
+                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 2, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 3, 'type' => QuestionType::NUMBER->value, 'answer' => 2, 'note' => 'Siang'],
+                    ['id' => 4, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
+                    ['id' => 5, 'type' => QuestionType::BINARY->value, 'answer' => 'Penenang', 'note' => 'Siang'],
+                    ['id' => 6, 'type' => QuestionType::NUMBER->value, 'answer' => 1, 'note' => 'Siang'],
+                    ['id' => 7, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
+                    ['id' => 8, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 9, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 10, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 11, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 12, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 13, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
+                    ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
+                    ['id' => 16, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 10), 'note' => 'Malam'],
+                    ['id' => 17, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 5), 'note' => 'Malam'],
+                    ['id' => 18, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(1, 5), 'note' => 'Malam'],
+                    ['id' => 19, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Malam'],
+                ];
+
+                $sleepDiaryRecords = [];
+
+                foreach ($sleepDiaryQuestions as $question) {
+                    $answer = Answer::create([
+                        'type' => $question['type'],
+                        'answer' => $question['answer'],
+                        'note' => $question['note'],
+                        'created_at' => $timestamp,
+                    ]);
+
+                    $sleepDiaryRecords[] = [
+                        'sleep_diary_id' => $sleepDiary->id,
+                        'question_id' => $question['id'],
+                        'answer_id' => $answer->id,
+                        'created_at' => $timestamp,
+                    ];
+                }
+
+                DB::table('sleep_diary_question_answer')->insert($sleepDiaryRecords);
+            }
+        }
 
         $identifyValue = IdentifyValue::create([
             'therapy_id' => $therapy->id,
@@ -121,9 +176,10 @@ class AnswerSeeder extends Seeder
             ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
             ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
             ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
-            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi (7)'],
-            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
-            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi (5)'],
+            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi'],
+            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => '7'],
+            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
+            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => '5'],
         ];
 
         $emotionQuestions2 = [
@@ -131,9 +187,10 @@ class AnswerSeeder extends Seeder
             ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
             ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
             ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
-            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Emosi (7)'],
-            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
-            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Emosi (5)'],
+            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Sedih'],
+            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => '7'],
+            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
+            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => '5'],
         ];
 
         $emotionRecords = [];
@@ -177,13 +234,13 @@ class AnswerSeeder extends Seeder
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
         $committedQuestions = [
-            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => 'Kesehatan'],
-            ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga rutin'],
-            ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga tiap seminggu sekali'],
-            ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => 'Setiap hari minggu jam 8 pagi'],
-            ['id' => 38, 'type' => QuestionType::BINARY->value, 'answer' => true],
-            ['id' => 39, 'type' => QuestionType::TEXT->value, 'answer' => 'Rasa malas'],
-            ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => 'Ingat value'],
+            ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => 'Kesehatan'],
+            ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga rutin'],
+            ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga tiap seminggu sekali'],
+            ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => 'Setiap hari minggu jam 8 pagi'],
+            ['id' => 39, 'type' => QuestionType::BINARY->value, 'answer' => true],
+            ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => 'Rasa malas'],
+            ['id' => 41, 'type' => QuestionType::TEXT->value, 'answer' => 'Ingat value'],
         ];
 
         $committedRecords = [];
@@ -204,63 +261,5 @@ class AnswerSeeder extends Seeder
         }
 
         DB::table('committed_action_question_answer')->insert($committedRecords);
-
-        for ($week = 1; $week <= 6; $week++) {
-            for ($day = 1; $day <= 7; $day++) {
-                $currentDate = $therapy->start_date->copy()->addDays((($week - 1) * 7) + ($day - 1));
-                $timestamp = now();
-
-                $sleepDiary = SleepDiary::create([
-                    'therapy_id' => $therapy->id,
-                    'week' => $week,
-                    'day' => $day,
-                    'date' => $currentDate->toDateString(),
-                    'title' => 'Sleep Diary Minggu ke-'.$week,
-                    'created_at' => $timestamp,
-                ]);
-
-                $sleepDiaryQuestions = [
-                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 2, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 3, 'type' => QuestionType::NUMBER->value, 'answer' => 2, 'note' => 'Siang'],
-                    ['id' => 4, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
-                    ['id' => 5, 'type' => QuestionType::BINARY->value, 'answer' => 'Penenang', 'note' => 'Siang'],
-                    ['id' => 6, 'type' => QuestionType::NUMBER->value, 'answer' => 1, 'note' => 'Siang'],
-                    ['id' => 7, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
-                    ['id' => 8, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 9, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
-                    ['id' => 10, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 11, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
-                    ['id' => 12, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 13, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
-                    ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
-                    ['id' => 16, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 10), 'note' => 'Malam'],
-                    ['id' => 17, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 5), 'note' => 'Malam'],
-                    ['id' => 18, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(1, 5), 'note' => 'Malam'],
-                    ['id' => 19, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Malam'],
-                ];
-
-                $sleepDiaryRecords = [];
-
-                foreach ($sleepDiaryQuestions as $question) {
-                    $answer = Answer::create([
-                        'type' => $question['type'],
-                        'answer' => $question['answer'],
-                        'note' => $question['note'],
-                        'created_at' => $timestamp,
-                    ]);
-
-                    $sleepDiaryRecords[] = [
-                        'sleep_diary_id' => $sleepDiary->id,
-                        'question_id' => $question['id'],
-                        'answer_id' => $answer->id,
-                        'created_at' => $timestamp,
-                    ];
-                }
-
-                DB::table('sleep_diary_question_answer')->insert($sleepDiaryRecords);
-            }
-        }
     }
 }

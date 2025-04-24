@@ -1,55 +1,59 @@
 <?php
 
+use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Models\IdentifyValue;
 use App\Models\Therapy;
 use App\Models\ThoughtRecord;
 use App\Service\ChartService;
+use App\Service\Records\ThoughtRecordService;
+use App\Service\TherapyService;
 use Carbon\Carbon;
 use Livewire\Volt\Component;
 
 new class extends Component {
 
     protected ChartService $chartService;
+    protected TherapyService $therapyService;
+    protected ThoughtRecordService $thoughtRecordService;
 
-    public function boot(ChartService $chartService)
+    public $text;
+    public $therapy;
+    public $labels;
+
+    public function boot(ChartService         $chartService,
+                         TherapyService       $therapyService,
+                         ThoughtRecordService $thoughtRecordService)
     {
         $this->chartService = $chartService;
+        $this->therapyService = $therapyService;
+        $this->thoughtRecordService = $thoughtRecordService;
     }
 
-    public function with()
+    public function mount()
     {
-        $doctorID = auth()->user()->doctor->id;
+        $doctorId = auth()->user()->doctor->id;
+        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
+        $this->thoughtRecords = $this->getThoughtRecord($this->therapy->id);
+        $this->labels = $this->chartService->labels;
+        $this->text = 'Frekuensi Kemunculan Pikiran';
+    }
 
-        $therapy = Therapy::where('doctor_id', $doctorID)
-            ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->firstOrFail();
-
-        $thoughtRecords = ThoughtRecord::where('therapy_id', $therapy->id)
-            ->firstOrFail();
-
-        $questions = $this->extractQuestions($thoughtRecords);
-        $chunks = $thoughtRecords->questionAnswers->chunk(count($questions));
-        $dateCounts = $this->countThoughtRecordDates($chunks);
-        $weeklyData = $this->groupCountsByWeek($therapy->start_date, $dateCounts);
-        $maxValue = $this->chartService->calculateMaxValue($weeklyData);
-        $text = 'Frekuensi Kemunculan Pikiran';
-
-        return [
-            'thoughtRecords' => $thoughtRecords,
-            'thoughtRecordQuestions' => $questions,
-            'chunks' => $chunks,
-            'labels' => $this->chartService->labels,
-            'data' => $weeklyData->values()->toArray(),
-            'maxValue' => $maxValue,
-            'text' => $text,
+    public function getThoughtRecord(int $therapyId)
+    {
+        $filters[] = [
+            'operation' => ModelFilter::EQUAL,
+            'column' => 'therapy_id',
+            'value' => $therapyId,
         ];
+
+        return $this->thoughtRecordService->get($filters)[0] ?? null;
     }
 
-    private function extractQuestions($thoughtRecords)
+    private function extractQuestions()
     {
-        return $thoughtRecords->questionAnswers
+        return $this->thoughtRecords->questionAnswers
             ->pluck('question.question')
             ->unique()
             ->values();
@@ -62,8 +66,10 @@ new class extends Component {
         })->filter()->countBy();
     }
 
-    private function groupCountsByWeek($startDate, $counts)
+    private function groupCountsByWeek($counts)
     {
+        $startDate = $this->therapy->start_date;
+
         $weeks = collect(range(1, 6))->mapWithKeys(fn($week) => ["Minggu $week" => 0]);
 
         $counts->each(function ($count, $date) use ($startDate, &$weeks) {
@@ -78,10 +84,28 @@ new class extends Component {
 
         return $weeks;
     }
+
+    public function with()
+    {
+
+        $questions = $this->extractQuestions();
+        $chunks = $this->thoughtRecords->questionAnswers->chunk(count($questions));
+        $dateCounts = $this->countThoughtRecordDates($chunks);
+        $weeklyData = $this->groupCountsByWeek($dateCounts);
+        $maxValue = $this->chartService->calculateMaxValue($weeklyData);
+
+        return [
+            'thoughtRecordQuestions' => $questions,
+            'chunks' => $chunks,
+            'data' => $weeklyData->values()->toArray(),
+            'maxValue' => $maxValue,
+        ];
+    }
+
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Thought Record'])
+    @include('partials.main-heading', ['title' => 'Catatan Pikiran (Thought Record)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="relative w-full">

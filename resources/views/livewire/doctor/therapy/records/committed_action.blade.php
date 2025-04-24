@@ -11,7 +11,7 @@ new class extends Component {
     protected TherapyService $therapyService;
     protected CommittedActionService $committedActionService;
 
-    public $currentTherapy;
+    public $therapy;
     public $committedAction;
 
     public function boot(TherapyService $therapyService, CommittedActionService $committedActionService)
@@ -24,12 +24,12 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
 
-        $this->currentTherapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if (!$this->currentTherapy) {
+        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
+        if (!$this->therapy) {
             $this->redirectRoute('doctor.therapies.in_progress.index');
         }
 
-        $this->committedAction = $this->getCommittedAction($this->currentTherapy->id);
+        $this->committedAction = $this->getCommittedAction($this->therapy->id);
     }
 
     public function getCommittedAction(int $therapyId)
@@ -48,7 +48,7 @@ new class extends Component {
     public function prepareChartData()
     {
         $questionAnswers = $this->committedAction->questionAnswers;
-        $executionAnswers = $questionAnswers->filter(fn($qa) => $qa->question_id === 38);
+        $executionAnswers = $questionAnswers->filter(fn($qa) => $qa->question_id === 39);
 
         return [
             'labels' => ['Terlaksana', 'Tidak Terlaksana'],
@@ -68,8 +68,6 @@ new class extends Component {
         $chart = $this->prepareChartData();
 
         return [
-            'therapy' => $this->currentTherapy,
-            'committedAction' => $this->committedAction,
             'questions' => $questionLabels,
             'rows' => $tableRows,
             ...$chart,
@@ -78,7 +76,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Committed Action'])
+    @include('partials.main-heading', ['title' => 'Catatan Tindakan Berkomitmen (Committed Action)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="relative w-full max-w-md mx-auto">

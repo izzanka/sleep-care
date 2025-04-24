@@ -17,8 +17,10 @@ new class extends Component {
     protected TherapyService $therapyService;
     protected EmotionRecordService $emotionRecordService;
 
-    public $currentTherapy;
+    public $therapy;
     public $emotionRecord;
+    public $labels;
+    public $chartTitle;
 
     public function boot(ChartService         $chartService,
                          TherapyService       $therapyService,
@@ -32,12 +34,14 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->currentTherapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if (!$this->currentTherapy) {
+        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
+        if (!$this->therapy) {
             $this->redirectRoute('doctor.therapies.in_progress.index');
         }
 
-        $this->emotionRecord = $this->getEmotionRecord($this->currentTherapy->id);
+        $this->emotionRecord = $this->getEmotionRecord($this->therapy->id);
+        $this->labels = $this->chartService->labels;
+        $this->chartTitle = 'Frekuensi Kemunculan Emosi';
     }
 
     public function getEmotionRecord(int $therapyId)
@@ -62,7 +66,7 @@ new class extends Component {
 
             if ($date && $emotionWithIntensity) {
                 $weekNumber = Carbon::parse($date)->diffInWeeks($therapyStartDate) + 1;
-                $emotion = trim(preg_replace('/\s*\(\d+\)$/', '', $emotionWithIntensity));
+                $emotion = $emotionWithIntensity;
                 $results->push([
                     'emotion' => $emotion,
                     'week' => min($weekNumber, 6),
@@ -103,30 +107,22 @@ new class extends Component {
             ->values();
 
         $answerRows = $this->emotionRecord->questionAnswers->chunk($questions->count());
-
-        $answerData = $this->extractAnswerData($answerRows, $this->currentTherapy->start_date);
-
+        $answerData = $this->extractAnswerData($answerRows, $this->therapy->start_date);
         $emotionFrequencies = $this->calculateWeeklyEmotionFrequencies($answerData);
         $chartDatasets = $this->buildChartDatasets($emotionFrequencies);
-
         $maxValue = $this->chartService->calculateMaxValue($emotionFrequencies->flatten());
-        $labels = $this->chartService->labels;
-        $title = 'Frekuensi Kemunculan Emosi';
 
         return [
-            'therapy' => $this->currentTherapy,
             'questions' => $questions,
             'answerRows' => $answerRows,
-            'labels' => $labels,
             'datasets' => $chartDatasets,
-            'chartTitle' => $title,
             'maxValue' => $maxValue,
         ];
     }
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Emotion Record'])
+    @include('partials.main-heading', ['title' => 'Catatan Emosi (Emotion Record)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="relative w-full">

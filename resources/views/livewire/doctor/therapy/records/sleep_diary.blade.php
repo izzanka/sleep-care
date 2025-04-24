@@ -16,6 +16,7 @@ new class extends Component {
     protected TherapyService $therapyService;
 
     public $therapy;
+    public $labels;
 
     public function boot(ChartService $chartService,
                          SleepDiaryService $sleepDiaryService,
@@ -33,6 +34,7 @@ new class extends Component {
         if (!$this->therapy) {
             $this->redirectRoute('doctor.therapies.in_progress.index');
         }
+        $this->labels = $this->chartService->labels;
     }
 
     public function getSleepDiaries()
@@ -96,12 +98,10 @@ new class extends Component {
         }
 
         $structuredQuestions = $this->getQuestions($sleepDiaries);
-        $labels = $this->chartService->labels;
 
         return [
             'sleepDiaries' => $sleepDiaries,
             'structuredQuestions' => $structuredQuestions,
-            'labels' => $labels,
             'dataSleepHours' => $totalSleepHours,
             'dataTotalSleep' => $totalSleep,
             'dataAwakenings' => $totalAwakenings,
@@ -116,7 +116,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Sleep Diary'])
+    @include('partials.main-heading', ['title' => 'Catatan Tidur (Sleep Diary)'])
 
     <div x-data="{ openIndex: null }">
         <div x-data="{ activeSlide: 0 }" class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
