@@ -24,33 +24,12 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
 
-        $this->currentTherapy = $this->getCurrentTherapy($doctorId);
+        $this->currentTherapy = $this->therapyService->getCurrentTherapy($doctorId);
         if (!$this->currentTherapy) {
             $this->redirectRoute('doctor.therapies.in_progress.index');
         }
 
         $this->committedAction = $this->getCommittedAction($this->currentTherapy->id);
-        if (!$this->committedAction) {
-            $this->redirectRoute('doctor.therapies.in_progress.index');
-        }
-    }
-
-    public function getCurrentTherapy(int $doctorId)
-    {
-        $filters = [
-            [
-                'operation' => ModelFilter::EQUAL,
-                'column' => 'doctor_id',
-                'value' => $doctorId,
-            ],
-            [
-                'operation' => ModelFilter::EQUAL,
-                'column' => 'status',
-                'value' => TherapyStatus::IN_PROGRESS->value,
-            ],
-        ];
-
-        return $this->therapyService->get($filters)[0] ?? null;
     }
 
     public function getCommittedAction(int $therapyId)
@@ -69,7 +48,7 @@ new class extends Component {
     public function prepareChartData()
     {
         $questionAnswers = $this->committedAction->questionAnswers;
-        $executionAnswers = $questionAnswers->filter(fn($qa) => $qa->question?->question === 'Terlaksana');
+        $executionAnswers = $questionAnswers->filter(fn($qa) => $qa->question_id === 38);
 
         return [
             'labels' => ['Terlaksana', 'Tidak Terlaksana'],
@@ -77,10 +56,9 @@ new class extends Component {
                 $executionAnswers->where('answer.answer', 1)->count(),
                 $executionAnswers->where('answer.answer', 0)->count(),
             ],
-            'title' => 'Statistik',
+            'title' => 'Status',
         ];
     }
-
 
     public function with()
     {

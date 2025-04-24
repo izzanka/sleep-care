@@ -31,7 +31,7 @@ class AnswerSeeder extends Seeder
 
         $questions = [
             ['id' => 20, 'type' => QuestionType::NUMBER->value, 'answer' => 4],
-            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => 'aku ingin jadi orang yang menguasai bidang pekerjaan'],
+            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku ingin jadi orang yang menguasai bidang pekerjaan'],
             ['id' => 22, 'type' => QuestionType::NUMBER->value, 'answer' => 9],
         ];
 
@@ -205,11 +205,9 @@ class AnswerSeeder extends Seeder
 
         DB::table('committed_action_question_answer')->insert($committedRecords);
 
-        $startDate = Carbon::parse($therapy->start_date);
-
         for ($week = 1; $week <= 6; $week++) {
             for ($day = 1; $day <= 7; $day++) {
-                $currentDate = $startDate->addDays((($week - 1) * 7) + ($day - 1));
+                $currentDate = $therapy->start_date->copy()->addDays((($week - 1) * 7) + ($day - 1));
                 $timestamp = now();
 
                 $sleepDiary = SleepDiary::create([

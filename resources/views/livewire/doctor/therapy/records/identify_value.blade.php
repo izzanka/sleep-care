@@ -1,53 +1,93 @@
 <?php
 
+use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Models\IdentifyValue;
 use App\Models\Therapy;
+use App\Service\Records\IdentifyValueService;
+use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    public function with()
+    protected TherapyService $therapyService;
+    protected IdentifyValueService $identifyValueService;
+
+    public $currentTherapy;
+    public $identifyValue;
+
+    public function boot(TherapyService       $therapyService,
+                         IdentifyValueService $identifyValueService)
+    {
+        $this->identifyValueService = $identifyValueService;
+        $this->therapyService = $therapyService;
+    }
+
+    public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
+        $this->currentTherapy = $this->therapyService->getCurrentTherapy($doctorId);
+        if (!$this->currentTherapy) {
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
+        $this->identifyValue = $this->getIdentifyValue($this->currentTherapy->id);
+    }
 
-        $therapy = Therapy::where('doctor_id', $doctorId)
-            ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->first();
+    public function getIdentifyValue(int $therapyId)
+    {
+        $filters[] = [
+            'operation' => ModelFilter::EQUAL,
+            'column' => 'therapy_id',
+            'value' => $therapyId,
+        ];
 
-        $identifyValues = IdentifyValue::where('therapy_id', $therapy->id)
-            ->first();
+        return $this->identifyValueService->get($filters)[0] ?? null;
+    }
 
-        $questions = $identifyValues->questionAnswers
+    protected function getDatasetLabels()
+    {
+        return $this->identifyValue->questionAnswers
             ->pluck('question.question')
             ->map(fn($q) => explode(',', $q)[0])
             ->unique()
             ->values()
             ->toArray();
+    }
 
-        $labels = $identifyValues->questionAnswers
+    protected function getUniqueNotes()
+    {
+        return $this->identifyValue->questionAnswers
             ->pluck('answer.note')
             ->filter()
             ->unique()
             ->values();
+    }
 
-        $numberAnswers = collect($identifyValues->questionAnswers)
+    protected function getNumberAnswers()
+    {
+        return collect($this->identifyValue->questionAnswers)
             ->filter(fn($qa) => $qa->answer->type === QuestionType::NUMBER->value)
             ->groupBy(fn($qa) => explode(',', $qa->question->question)[0])
-            ->map(fn($group) => $group->pluck('answer.answer')->map(fn($val) => (int) $val))
+            ->map(fn($group) => $group->pluck('answer.answer')->map(fn($val) => (int)$val))
             ->toArray();
+    }
 
-        $textAnswers = collect($identifyValues->questionAnswers)
+    protected function getTextAnswers()
+    {
+        return collect($this->identifyValue->questionAnswers)
             ->filter(fn($qa) => $qa->answer->type === QuestionType::TEXT->value)
             ->groupBy(fn($qa) => explode(',', $qa->question->question)[0])
             ->map(fn($group) => $group->pluck('answer.answer'))
             ->toArray();
+    }
 
+    public function with()
+    {
         return [
-            'datasetLabels' => $questions,
-            'labels' => $labels,
-            'numberAnswers' => $numberAnswers,
-            'textAnswers' => $textAnswers,
+            'datasetLabels' => $this->getDatasetLabels(),
+            'labels' => $this->getUniqueNotes(),
+            'numberAnswers' => $this->getNumberAnswers(),
+            'textAnswers' => $this->getTextAnswers(),
         ];
     }
 }; ?>
@@ -60,7 +100,7 @@ new class extends Component {
             <canvas id="identifyValueChart" class="w-full h-full"></canvas>
         </div>
 
-        <flux:separator class="mt-4 mb-4" />
+        <flux:separator class="mt-4 mb-4"/>
 
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border mb-2 mt-2">
@@ -122,7 +162,7 @@ new class extends Component {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Kepentingan dan Kesesuaian',
+                        text: 'Perbandingan Kepentingan dan Kesesuaian',
                         color: isDark ? '#ffffff' : '#000000',
                     },
                     legend: {

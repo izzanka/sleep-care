@@ -34,6 +34,7 @@ new class extends Component {
         $dateCounts = $this->countThoughtRecordDates($chunks);
         $weeklyData = $this->groupCountsByWeek($therapy->start_date, $dateCounts);
         $maxValue = $this->chartService->calculateMaxValue($weeklyData);
+        $text = 'Frekuensi Kemunculan Pikiran';
 
         return [
             'thoughtRecords' => $thoughtRecords,
@@ -42,7 +43,7 @@ new class extends Component {
             'labels' => $this->chartService->labels,
             'data' => $weeklyData->values()->toArray(),
             'maxValue' => $maxValue,
-            'text' => 'Frekuensi',
+            'text' => $text,
         ];
     }
 
@@ -57,7 +58,7 @@ new class extends Component {
     private function countThoughtRecordDates($chunks)
     {
         return $chunks->map(function ($chunk) {
-            return optional($chunk->keyBy(fn($qa) => $qa->question->question)['Tanggal']?->answer)->answer;
+            return optional($chunk->keyBy(fn($qa) => $qa->question_id)[23]?->answer)->answer;
         })->filter()->countBy();
     }
 

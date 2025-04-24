@@ -5,30 +5,48 @@ use App\Enum\TherapyStatus;
 use App\Models\SleepDiary;
 use App\Models\Therapy;
 use App\Service\ChartService;
+use App\Service\Records\SleepDiaryService;
+use App\Service\TherapyService;
+use Carbon\Carbon;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected ChartService $chartService;
+    protected SleepDiaryService $sleepDiaryService;
+    protected TherapyService $therapyService;
 
-    public function boot(ChartService $chartService)
+    public $therapy;
+
+    public function boot(ChartService $chartService,
+                         SleepDiaryService $sleepDiaryService,
+                         TherapyService $therapyService)
     {
         $this->chartService = $chartService;
+        $this->sleepDiaryService = $sleepDiaryService;
+        $this->therapyService = $therapyService;
     }
 
-    public function with()
+    public function mount()
     {
-        $doctor = auth()->user()->doctor;
-        $therapy = Therapy::where('doctor_id', $doctor->id)
-            ->where('status', TherapyStatus::IN_PROGRESS->value)
-            ->first();
+        $doctorId = auth()->user()->doctor->id;
+        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
+        if (!$this->therapy) {
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
+    }
 
-        $sleepDiaries = SleepDiary::where('therapy_id', $therapy->id)
+    public function getSleepDiaries()
+    {
+        return SleepDiary::where('therapy_id', $this->therapy->id)
             ->orderBy('week')
             ->orderBy('day')
             ->get()
             ->groupBy('week');
+    }
 
-        $allQuestions = $sleepDiaries
+    public function getQuestions($sleepDiaries)
+    {
+        $questions = $sleepDiaries
             ->flatten(1)
             ->pluck('questionAnswers')
             ->flatten()
@@ -36,61 +54,56 @@ new class extends Component {
             ->unique('id')
             ->values();
 
-        $structuredQuestions = $allQuestions
+        return $questions
             ->filter(fn($q) => is_null($q->parent_id))
-            ->map(function ($parent) use ($allQuestions) {
-                $parent->children = $allQuestions->where('parent_id', $parent->id)->values();
+            ->map(function ($parent) use ($questions) {
+                $parent->children = $questions->where('parent_id', $parent->id)->values();
                 return $parent;
             })
             ->values();
+    }
 
-        $labels = $this->chartService->labels;
-
+    public function with()
+    {
         $totalSleepHours = [];
+        $totalSleep = [];
         $totalAwakenings = [];
         $totalSleepQuality = [];
-
         $caffeine = [];
         $alcohol = [];
         $nicotine = [];
         $food = [];
 
+        $questions = [
+            16 => &$totalSleepHours,
+            3 => &$totalSleep,
+            17 => &$totalAwakenings,
+            18 => &$totalSleepQuality,
+            10 => &$caffeine,
+            11 => &$alcohol,
+            12 => &$nicotine,
+            13 => &$food,
+        ];
+
+        $sleepDiaries = $this->getSleepDiaries();
+
         foreach ($sleepDiaries as $entries) {
-
-            $totalSleepHours[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 16)?->answer?->answer ?? 0;
-            });
-
-            $totalAwakenings[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 17)?->answer?->answer ?? 0;
-            });
-
-            $totalSleepQuality[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 18)?->answer?->answer ?? 0;
-            });
-
-            $caffeine[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 10)?->answer?->answer ?? 0;
-            });
-
-            $alcohol[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 11)?->answer?->answer ?? 0;
-            });
-
-            $nicotine[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 12)?->answer?->answer ?? 0;
-            });
-
-            $food[] = $entries->sum(function ($diary) {
-                return (int)$diary->questionAnswers->firstWhere('question_id', 13)?->answer?->answer ?? 0;
-            });
+            foreach ($questions as $questionId => &$targetArray) {
+                $targetArray[] = $entries->sum(function ($diary) use ($questionId) {
+                    return (int) $diary->questionAnswers->firstWhere('question_id', $questionId)?->answer?->answer ?? 0;
+                });
+            }
         }
+
+        $structuredQuestions = $this->getQuestions($sleepDiaries);
+        $labels = $this->chartService->labels;
 
         return [
             'sleepDiaries' => $sleepDiaries,
             'structuredQuestions' => $structuredQuestions,
             'labels' => $labels,
             'dataSleepHours' => $totalSleepHours,
+            'dataTotalSleep' => $totalSleep,
             'dataAwakenings' => $totalAwakenings,
             'dataSleepQuality' => $totalSleepQuality,
             'dataCaffeine' => $caffeine,
@@ -99,19 +112,57 @@ new class extends Component {
             'dataFood' => $food,
         ];
     }
+
 }; ?>
 
 <section>
     @include('partials.main-heading', ['title' => 'Sleep Diary'])
 
     <div x-data="{ openIndex: null }">
-        <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-            <div class="relative w-full">
-                <canvas id="lineChart" class="w-full h-full mb-5"></canvas>
-                <flux:separator class="mt-4 mb-4"/>
-                <canvas id="barChart" class="w-full h-full mt-5"></canvas>
+        <div x-data="{ activeSlide: 0 }" class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+            <div class="relative w-full overflow-hidden">
+                <!-- Slides -->
+                <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${activeSlide * 100}%);`">
+                    <!-- Line Chart Slide -->
+                    <div class="w-full flex-shrink-0">
+                        <canvas id="lineChart" class="w-full h-80 mb-5"></canvas>
+                    </div>
+                    <!-- Bar Chart Slide -->
+                    <div class="w-full flex-shrink-0">
+                        <canvas id="barChart" class="w-full h-80 mb-5"></canvas>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
+                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">
+                    <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>
+                </button>
+                <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"
+                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">
+                    <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>
+                </button>
+
+                <!-- Indicators -->
+                <div class="flex justify-center space-x-2 mt-4">
+                    <template x-for="index in 2" :key="index">
+                        <button @click="activeSlide = index - 1"
+                                :class="{
+                            'bg-blue-600 dark:bg-blue-400': activeSlide === index - 1,
+                            'bg-zinc-400 dark:bg-zinc-500': activeSlide !== index - 1
+                        }"
+                                class="w-3 h-3 rounded-full transition-colors duration-300"></button>
+                    </template>
+                </div>
             </div>
         </div>
+        {{--        <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">--}}
+{{--            <div class="relative w-full">--}}
+{{--                <canvas id="lineChart" class="w-full h-full mb-5"></canvas>--}}
+{{--                <flux:separator class="mt-4 mb-4"/>--}}
+{{--                <canvas id="barChart" class="w-full h-full mt-5"></canvas>--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
         <flux:separator class="mt-4 mb-4"/>
 
@@ -161,20 +212,19 @@ new class extends Component {
                             <thead>
                             <tr>
                                 <th class="border p-2 text-center">Hari</th>
-                                <th class="border p-2 text-center">Senin</th>
-                                <th class="border p-2 text-center">Selasa</th>
-                                <th class="border p-2 text-center">Rabu</th>
-                                <th class="border p-2 text-center">Kamis</th>
-                                <th class="border p-2 text-center">Jumat</th>
-                                <th class="border p-2 text-center">Sabtu</th>
-                                <th class="border p-2 text-center">Minggu</th>
+                                @foreach($sleepDiary as $diary)
+                                    @php
+                                        Carbon::setLocale('id');
+                                    @endphp
+                                    <th class="border p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
+                                @endforeach
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
                                 <th class="border p-2 text-center">Tanggal</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="border p-2 text-center">{{ $diary->dayAndMonth }}</th>
+                                    <th class="border p-2 text-center">{{ $diary->date->format('d/m') }}</th>
                                 @endforeach
                             </tr>
 
@@ -253,21 +303,28 @@ new class extends Component {
             labels: @json($labels),
             datasets: [
                 {
-                    label: 'Total Jam Tidur',
+                    label: 'Total Jam Tidur Siang',
+                    data: @json($dataTotalSleep),
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 10
+                },
+                {
+                    label: 'Total Jam Tidur Malam',
                     data: @json($dataSleepHours),
                     fill: false,
                     pointRadius: 5,
                     pointHoverRadius: 10
                 },
                 {
-                    label: 'Total Terbangun di Malam Hari',
+                    label: 'Total Bangun Malam',
                     data: @json($dataAwakenings),
                     fill: false,
                     pointRadius: 5,
                     pointHoverRadius: 10
                 },
                 {
-                    label: 'Total Skala Kualitas Tidur',
+                    label: 'Total Kualitas Tidur',
                     data: @json($dataSleepQuality),
                     fill: false,
                     pointRadius: 5,
@@ -366,7 +423,7 @@ new class extends Component {
                     y: {
                         stacked: true,
                         min: 0,
-                        max: 30,
+                        max: 60,
                         ticks: {
                             color: isDark ? '#ffffff' : '#000000',
                         },

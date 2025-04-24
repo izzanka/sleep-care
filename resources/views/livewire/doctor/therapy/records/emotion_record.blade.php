@@ -32,33 +32,12 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->currentTherapy = $this->getCurrentTherapy($doctorId);
+        $this->currentTherapy = $this->therapyService->getCurrentTherapy($doctorId);
         if (!$this->currentTherapy) {
             $this->redirectRoute('doctor.therapies.in_progress.index');
         }
 
         $this->emotionRecord = $this->getEmotionRecord($this->currentTherapy->id);
-        if (!$this->emotionRecord) {
-            $this->redirectRoute('doctor.therapies.in_progress.index');
-        }
-    }
-
-    public function getCurrentTherapy(int $doctorId)
-    {
-        $filters = [
-            [
-                'operation' => ModelFilter::EQUAL,
-                'column' => 'doctor_id',
-                'value' => $doctorId,
-            ],
-            [
-                'operation' => ModelFilter::EQUAL,
-                'column' => 'status',
-                'value' => TherapyStatus::IN_PROGRESS->value,
-            ],
-        ];
-
-        return $this->therapyService->get($filters)[0] ?? null;
     }
 
     public function getEmotionRecord(int $therapyId)
@@ -77,9 +56,9 @@ new class extends Component {
         $results = collect();
 
         foreach ($rows as $row) {
-            $groupedAnswers = $row->keyBy(fn($qa) => $qa->question->question);
-            $date = optional($groupedAnswers['Tanggal']?->answer)->answer;
-            $emotionWithIntensity = optional($groupedAnswers['Emosi dan intensitas (1-10)']?->answer)->answer;
+            $groupedAnswers = $row->keyBy(fn($qa) => $qa->question_id);
+            $date = optional($groupedAnswers[27]->answer)->answer;
+            $emotionWithIntensity = optional($groupedAnswers[31]->answer)->answer;
 
             if ($date && $emotionWithIntensity) {
                 $weekNumber = Carbon::parse($date)->diffInWeeks($therapyStartDate) + 1;
@@ -132,7 +111,7 @@ new class extends Component {
 
         $maxValue = $this->chartService->calculateMaxValue($emotionFrequencies->flatten());
         $labels = $this->chartService->labels;
-        $title = 'Frekuensi';
+        $title = 'Frekuensi Kemunculan Emosi';
 
         return [
             'therapy' => $this->currentTherapy,
