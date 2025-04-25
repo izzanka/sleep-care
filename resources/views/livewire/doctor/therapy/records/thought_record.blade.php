@@ -5,6 +5,7 @@ use App\Service\ChartService;
 use App\Service\Records\ThoughtRecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Livewire\Volt\Component;
 
 new class extends Component {
@@ -46,7 +47,7 @@ new class extends Component {
     private function countThoughtRecordDates($chunks)
     {
         return $chunks->map(function ($chunk) {
-            return optional($chunk->keyBy(fn($qa) => $qa->question_id)[23]?->answer)->answer;
+            return optional($chunk->keyBy(fn($qa) => $qa->question_id)[23]->answer)->answer;
         })->filter()->countBy();
     }
 
@@ -71,12 +72,15 @@ new class extends Component {
 
     public function with()
     {
-
         $questions = $this->extractQuestions();
         $chunks = $this->thoughtRecords->questionAnswers->chunk(count($questions));
+        $chunks = $chunks->sortByDesc(function ($chunk) {
+            $dateAnswer = optional($chunk->keyBy(fn($qa) => $qa->question_id)[23]->answer)->answer;
+            return $dateAnswer ? Carbon::parse($dateAnswer) : null;
+        })->values();
         $dateCounts = $this->countThoughtRecordDates($chunks);
         $weeklyData = $this->groupCountsByWeek($dateCounts);
-        $maxValue = $this->chartService->calculateMaxValue($weeklyData);
+        $maxValue = $this->chartService->calculateMaxValue($weeklyData->toArray());
 
         return [
             'thoughtRecordQuestions' => $questions,
@@ -114,23 +118,31 @@ new class extends Component {
                         <td class="border p-2 text-center">{{ $index + 1 }}</td>
                         @foreach($thoughtRecordQuestions as $header)
                             @php
-                                $answer = $chunk->firstWhere('question.question', $header);
-                                $value = $answer?->answer?->answer;
-                                $type = $answer?->answer?->type;
+                                $answer = $chunk->firstWhere('question.question', $header)->answer;
+                                $value = $answer->answer;
+                                $type = $answer->type;
                             @endphp
-                            <td class="border p-2 text-center">
-                                @if($type === QuestionType::DATE->value && $value)
-                                    {{ Carbon::parse($value)->format('d M') }}
+                            <td class="border p-2">
+                                @if($type === QuestionType::DATE->value)
+                                    <div class="text-center">
+                                        {{ Carbon::parse($value)->format('d M') }}
+                                    </div>
+                                @elseif($type == QuestionType::TIME->value)
+                                    <div class="text-center">
+                                        {{$value ?? '-'}}
+                                    </div>
                                 @else
-                                    @if(\Illuminate\Support\Str::isJson($value))
-                                        @foreach(json_decode($value) as $txt)
-                                            <div class="py-1">
-                                                {{$txt}}
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        {{ $value ?? '-' }}
-                                    @endif
+                                    <div class="text-left">
+                                        @if(Str::isJson($value))
+                                            @foreach(json_decode($value) as $txt)
+                                                <div class="py-1">
+                                                    {{$txt}}
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            {{ $value ?? '-' }}
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                         @endforeach

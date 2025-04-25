@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\QuestionType;
 use App\Service\ChartService;
 use App\Service\Records\SleepDiaryService;
 use App\Service\TherapyService;
@@ -14,9 +15,9 @@ new class extends Component {
     public $therapy;
     public $labels;
 
-    public function boot(ChartService $chartService,
+    public function boot(ChartService      $chartService,
                          SleepDiaryService $sleepDiaryService,
-                         TherapyService $therapyService)
+                         TherapyService    $therapyService)
     {
         $this->chartService = $chartService;
         $this->sleepDiaryService = $sleepDiaryService;
@@ -76,7 +77,7 @@ new class extends Component {
         foreach ($sleepDiaries as $entries) {
             foreach ($questions as $questionId => &$targetArray) {
                 $targetArray[] = $entries->sum(function ($diary) use ($questionId) {
-                    return (int) $diary->questionAnswers->firstWhere('question_id', $questionId)?->answer?->answer ?? 0;
+                    return (int)$diary->questionAnswers->firstWhere('question_id', $questionId)->answer->answer ?? 0;
                 });
             }
         }
@@ -103,21 +104,19 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Catatan Tidur (Sleep Diary)'])
 
     <div x-data="{ openIndex: null }">
-        <div x-data="{ activeSlide: 0 }" class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+        <div x-data="{ activeSlide: 0 }"
+             class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
             <div class="relative w-full overflow-hidden">
-                <!-- Slides -->
-                <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${activeSlide * 100}%);`">
-                    <!-- Line Chart Slide -->
+                <div class="flex transition-transform duration-500 ease-in-out"
+                     :style="`transform: translateX(-${activeSlide * 100}%);`">
                     <div class="w-full flex-shrink-0">
                         <canvas id="lineChart" class="w-full h-80 mb-5"></canvas>
                     </div>
-                    <!-- Bar Chart Slide -->
                     <div class="w-full flex-shrink-0">
                         <canvas id="barChart" class="w-full h-80 mb-5"></canvas>
                     </div>
                 </div>
 
-                <!-- Controls -->
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
                         class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">
                     <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>
@@ -127,7 +126,6 @@ new class extends Component {
                     <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>
                 </button>
 
-                <!-- Indicators -->
                 <div class="flex justify-center space-x-2 mt-4">
                     <template x-for="index in 2" :key="index">
                         <button @click="activeSlide = index - 1"
@@ -141,12 +139,12 @@ new class extends Component {
             </div>
         </div>
         {{--        <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">--}}
-{{--            <div class="relative w-full">--}}
-{{--                <canvas id="lineChart" class="w-full h-full mb-5"></canvas>--}}
-{{--                <flux:separator class="mt-4 mb-4"/>--}}
-{{--                <canvas id="barChart" class="w-full h-full mt-5"></canvas>--}}
-{{--            </div>--}}
-{{--        </div>--}}
+        {{--            <div class="relative w-full">--}}
+        {{--                <canvas id="lineChart" class="w-full h-full mb-5"></canvas>--}}
+        {{--                <flux:separator class="mt-4 mb-4"/>--}}
+        {{--                <canvas id="barChart" class="w-full h-full mt-5"></canvas>--}}
+        {{--            </div>--}}
+        {{--        </div>--}}
 
         <flux:separator class="mt-4 mb-4"/>
 
@@ -222,7 +220,7 @@ new class extends Component {
                                         @endphp
                                         <td class="border p-2">
                                             <div class="flex justify-center items-center h-full">
-                                                @if($entry?->answer?->type == \App\Enum\QuestionType::BINARY->value)
+                                                @if($entry->answer->type == QuestionType::BINARY->value)
                                                     @if($entry->answer->answer)
                                                         <flux:icon.check-circle class="text-green-500"/>
                                                     @else

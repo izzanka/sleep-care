@@ -100,8 +100,8 @@ new class extends Component {
                 </thead>
                 <tbody>
                 @foreach($labels as $index => $label)
-                    <tr class="text-center">
-                        <td class="border p-2">{{ $loop->iteration }}</td>
+                    <tr class="text-left">
+                        <td class="border p-2 text-center">{{ $loop->iteration }}</td>
                         <td class="border p-2">{{ $label }}</td>
                         <td class="border p-2">
                             {{ $textAnswers[$datasetLabels[1]][$index] ?? '-' }}

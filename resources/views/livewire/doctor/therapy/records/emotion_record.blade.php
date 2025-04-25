@@ -35,22 +35,21 @@ new class extends Component {
         $this->chartTitle = 'Frekuensi Kemunculan Emosi';
     }
 
-    private function extractAnswerData($rows, $therapyStartDate)
+    private function extractAnswerData($rows)
     {
         $results = collect();
 
         foreach ($rows as $row) {
             $groupedAnswers = $row->keyBy(fn($qa) => $qa->question_id);
-            $date = optional($groupedAnswers[27]->answer)->answer;
-            $emotion = optional($groupedAnswers[31]->answer)->answer;
+            $date = Carbon::parse($groupedAnswers[27]->answer->answer);
+            $emotion = $groupedAnswers[31]->answer->answer;
 
-            if ($date && $emotion) {
-                $weekNumber = Carbon::parse($date)->diffInWeeks($therapyStartDate) + 1;
-                $results->push([
-                    'emotion' => $emotion,
-                    'week' => min($weekNumber, 6),
-                ]);
-            }
+            $weekNumber = (int)$this->therapy->start_date->diffInWeeks($date) + 1;
+
+            $results->push([
+                'emotion' => $emotion,
+                'week' => min($weekNumber, 6),
+            ]);
         }
 
         return $results;
@@ -58,6 +57,7 @@ new class extends Component {
 
     private function calculateWeeklyEmotionFrequencies($data)
     {
+
         return $data->groupBy('emotion')->map(function ($group) {
             $weeklyCounts = array_fill(1, 6, 0);
             foreach ($group as $entry) {
@@ -85,15 +85,18 @@ new class extends Component {
             ->unique()
             ->values();
 
-        $answerRows = $this->emotionRecord->questionAnswers->chunk($questions->count());
-        $answerData = $this->extractAnswerData($answerRows, $this->therapy->start_date);
+        $chunks = $this->emotionRecord->questionAnswers->chunk(count($questions))
+            ->sortByDesc(fn($chunk) => Carbon::parse($chunk->keyBy(fn($qa) => $qa->question_id)[27]->answer->answer))
+            ->values();
+
+        $answerData = $this->extractAnswerData($chunks);
         $emotionFrequencies = $this->calculateWeeklyEmotionFrequencies($answerData);
         $chartDatasets = $this->buildChartDatasets($emotionFrequencies);
-        $maxValue = $this->chartService->calculateMaxValue($emotionFrequencies->flatten());
+        $maxValue = $this->chartService->calculateMaxValue($emotionFrequencies->flatten()->toArray());
 
         return [
             'questions' => $questions,
-            'answerRows' => $answerRows,
+            'answerRows' => $chunks,
             'datasets' => $chartDatasets,
             'maxValue' => $maxValue,
         ];
@@ -126,14 +129,18 @@ new class extends Component {
                         <td class="border p-2 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
                             @php
-                                $answer = $row->firstWhere('question.question', $question);
+                                $answer = $row->firstWhere('question.question', $question)->answer;
+                                $type = $answer->type;
+                                $value = $answer->answer;
+                                $formattedValue = match($type) {
+                                    QuestionType::DATE->value => Carbon::parse($value)->format('d M'),
+                                    QuestionType::TIME->value,QuestionType::NUMBER->value => $value,
+                                    default => $value ?? '-',
+                                };
+                                $alignment = in_array($type, [QuestionType::DATE->value, QuestionType::TIME->value, QuestionType::NUMBER->value]) ? 'text-center' : 'text-left';
                             @endphp
-                            <td class="border p-2 text-center">
-                                @if($answer?->answer?->type === QuestionType::DATE->value)
-                                    {{ Carbon::parse($answer->answer->answer)->format('d M') }}
-                                @else
-                                    {{ $answer->answer->answer ?? '-' }}
-                                @endif
+                            <td class="border p-2 {{ $alignment }}">
+                                {{ $formattedValue }}
                             </td>
                         @endforeach
                     </tr>

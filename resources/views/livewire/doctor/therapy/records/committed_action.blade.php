@@ -33,11 +33,11 @@ new class extends Component {
 
         return [
             'labels' => ['Terlaksana', 'Tidak Terlaksana'],
+            'title' => 'Status Tindakan',
             'data' => [
                 $executionAnswers->where('answer.answer', 1)->count(),
                 $executionAnswers->where('answer.answer', 0)->count(),
             ],
-            'title' => 'Status Tindakan',
         ];
     }
 
@@ -83,9 +83,10 @@ new class extends Component {
                         @foreach($questions as $question)
                             @php
                                 $answer = $row->firstWhere('question.question', $question);
+                                $isBinary = $answer->answer->type === QuestionType::BINARY->value;
                             @endphp
-                            <td class="border p-2 text-center">
-                                @if($answer?->answer->type === QuestionType::BINARY->value)
+                            <td class="border p-2">
+                                @if($isBinary)
                                     <div class="flex justify-center items-center h-full">
                                         @if($answer->answer->answer)
                                             <flux:icon.check-circle class="text-green-500"/>
@@ -94,7 +95,9 @@ new class extends Component {
                                         @endif
                                     </div>
                                 @else
-                                    {{ $answer->answer->answer ?? '-' }}
+                                    <div class="text-left">
+                                        {{ $answer->answer->answer ?? '-' }}
+                                    </div>
                                 @endif
                             </td>
                         @endforeach
@@ -117,17 +120,15 @@ new class extends Component {
         const ctx = canvas.getContext('2d');
         const isDark = document.documentElement.classList.contains('dark');
 
-        const data = {
-            labels: @json($labels),
-            datasets: [{
-                data: @json($data),
-                borderWidth: 0.5,
-            }]
-        };
-
         const config = {
             type: 'doughnut',
-            data: data,
+            data: {
+                labels: @json($labels),
+                datasets: [{
+                    data: @json($data),
+                    borderWidth: 0.5,
+                }]
+            },
             options: {
                 responsive: true,
                 plugins: {
@@ -141,7 +142,7 @@ new class extends Component {
                             color: isDark ? '#ffffff' : '#000000',
                         }
                     }
-                },
+                }
             }
         };
 
@@ -152,17 +153,13 @@ new class extends Component {
         chartInstance = new Chart(ctx, config);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        createChart();
-    });
+    document.addEventListener('DOMContentLoaded', createChart);
 
-    const observer = new MutationObserver(() => {
-        createChart();
-    });
-
+    const observer = new MutationObserver(createChart);
     observer.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['class'],
     });
 </script>
 @endscript
+

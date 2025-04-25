@@ -10,6 +10,7 @@ use App\Models\IdentifyValue;
 use App\Models\SleepDiary;
 use App\Models\Therapy;
 use App\Models\ThoughtRecord;
+use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,6 @@ class AnswerSeeder extends Seeder
         for ($week = 1; $week <= 6; $week++) {
             for ($day = 1; $day <= 7; $day++) {
                 $currentDate = $therapy->start_date->copy()->addDays((($week - 1) * 7) + ($day - 1));
-                $timestamp = now();
 
                 $sleepDiary = SleepDiary::create([
                     'therapy_id' => $therapy->id,
@@ -85,7 +85,7 @@ class AnswerSeeder extends Seeder
 
         $questions = [
             ['id' => 20, 'type' => QuestionType::NUMBER->value, 'answer' => 4],
-            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku ingin jadi orang yang menguasai bidang pekerjaan'],
+            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
             ['id' => 22, 'type' => QuestionType::NUMBER->value, 'answer' => 9],
         ];
 
@@ -114,157 +114,128 @@ class AnswerSeeder extends Seeder
 
         DB::table('identify_value_question_answer')->insert($relations);
 
-        $thoughtRecord = ThoughtRecord::create(['therapy_id' => $therapy->id]);
+        //Thought Record
+        $thoughtRecord = ThoughtRecord::create([
+            'therapy_id' => $therapy->id,
+            'created_at' => now(),
+        ]);
 
-        $jsonAnswers = [
-            'Aku merasa tidak akan lancar saat presentasi besok',
-            'Aku merasa tidak akan lancar saat presentasi besok',
-            'Aku merasa tidak akan lancar saat presentasi besok',
-        ];
+        for ($week = 0; $week < 6; $week++) {
+            $recordsThisWeek = rand(0, 7);
 
-        $thoughtQuestions1 = [
-            ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
-            ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-            ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbangun tengah malam'],
-            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => json_encode($jsonAnswers)],
-        ];
+            for ($i = 0; $i < $recordsThisWeek; $i++) {
+                $isJsonAnswer = rand(0, 1) === 1;
+                $answer25 = $isJsonAnswer
+                    ? json_encode([fake()->sentence(), fake()->sentence()])
+                    : fake()->sentence();
 
-        $thoughtRecords1 = [];
+                $questions = [
+                    ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->toDateString()],
+                    ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
+                    ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => $answer25],
+                ];
 
-        foreach ($thoughtQuestions1 as $question) {
-            $answer = Answer::create([
-                'type' => $question['type'],
-                'answer' => $question['answer'],
-                'created_at' => $timestamp,
-            ]);
+                $pivotData = [];
 
-            $thoughtRecords1[] = [
-                'thought_record_id' => $thoughtRecord->id,
-                'question_id' => $question['id'],
-                'answer_id' => $answer->id,
-                'created_at' => $timestamp,
-            ];
+                foreach ($questions as $question) {
+                    $answer = Answer::create([
+                        'type' => $question['type'],
+                        'answer' => $question['answer'],
+                        'created_at' => $timestamp,
+                    ]);
+
+                    $pivotData[] = [
+                        'thought_record_id' => $thoughtRecord->id,
+                        'question_id' => $question['id'],
+                        'answer_id' => $answer->id,
+                        'created_at' => $timestamp,
+                    ];
+                }
+
+                DB::table('thought_record_question_answer')->insert($pivotData);
+            }
         }
 
-        DB::table('thought_record_question_answer')->insert($thoughtRecords1);
+        //Emotion Record
+        $positive = ['Bahagia','Gembira','Syukur','Tenang','Bangga'];
+        $negative = ['Cemas','Malu','Frustasi','Bingung','Kecewa'];
 
-        $thoughtQuestions2 = [
-            ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
-            ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-            ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbagun tengah malam'],
-            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku merasa temen-temenku membicarakan aku di belakang'],
-        ];
+        $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id,'created_at' => $timestamp]);
 
-        $thoughtRecords2 = [];
+        for ($week = 0; $week < 6; $week++) {
+            $recordsThisWeek = rand(0, 7);
 
-        foreach ($thoughtQuestions2 as $question) {
-            $answer = Answer::create([
-                'type' => $question['type'],
-                'answer' => $question['answer'],
-                'created_at' => $timestamp,
-            ]);
+            for ($i = 0; $i < $recordsThisWeek; $i++) {
+                $emotion31 = rand(0, 1) === 1 ? $positive[0] : $negative[0];
 
-            $thoughtRecords2[] = [
-                'thought_record_id' => $thoughtRecord->id,
-                'question_id' => $question['id'],
-                'answer_id' => $answer->id,
-                'created_at' => $timestamp,
-            ];
+                $emotionQuestions = [
+                    ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->toDateString()],
+                    ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
+                    ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => $emotion31],
+                    ['id' => 32, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 10)],
+                    ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 34, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 10)],
+                ];
+
+                $emotionRecords = [];
+
+                foreach ($emotionQuestions as $question) {
+                    $answer = Answer::create([
+                        'type' => $question['type'],
+                        'answer' => $question['answer'],
+                        'created_at' => $timestamp,
+                    ]);
+
+                    $emotionRecords[] = [
+                        'emotion_record_id' => $emotionRecord->id,
+                        'question_id' => $question['id'],
+                        'answer_id' => $answer->id,
+                        'created_at' => $timestamp,
+                    ];
+                }
+
+                DB::table('emotion_record_question_answer')->insert($emotionRecords);
+            }
         }
 
-        DB::table('thought_record_question_answer')->insert($thoughtRecords2);
-
-        $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id]);
-
-        $emotionQuestions = [
-            ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
-            ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-            ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
-            ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
-            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Frustasi'],
-            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => '7'],
-            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
-            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => '5'],
-        ];
-
-        $emotionQuestions2 = [
-            ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
-            ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-            ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur'],
-            ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => 'Tidak bisa tidur lagi hari ini'],
-            ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => 'Sedih'],
-            ['id' => 32, 'type' => QuestionType::TEXT->value, 'answer' => '7'],
-            ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => 'Menenangkan diri'],
-            ['id' => 34, 'type' => QuestionType::TEXT->value, 'answer' => '5'],
-        ];
-
-        $emotionRecords = [];
-
-        foreach ($emotionQuestions as $question) {
-            $answer = Answer::create([
-                'type' => $question['type'],
-                'answer' => $question['answer'],
-                'created_at' => $timestamp,
-            ]);
-
-            $emotionRecords[] = [
-                'emotion_record_id' => $emotionRecord->id,
-                'question_id' => $question['id'],
-                'answer_id' => $answer->id,
-                'created_at' => $timestamp,
-            ];
-        }
-
-        DB::table('emotion_record_question_answer')->insert($emotionRecords);
-
-        $emotionRecords2 = [];
-
-        foreach ($emotionQuestions2 as $question) {
-            $answer = Answer::create([
-                'type' => $question['type'],
-                'answer' => $question['answer'],
-                'created_at' => $timestamp,
-            ]);
-
-            $emotionRecords2[] = [
-                'emotion_record_id' => $emotionRecord->id,
-                'question_id' => $question['id'],
-                'answer_id' => $answer->id,
-                'created_at' => $timestamp,
-            ];
-        }
-
-        DB::table('emotion_record_question_answer')->insert($emotionRecords2);
-
+        //Committed Action
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
-        $committedQuestions = [
-            ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => 'Kesehatan'],
-            ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga rutin'],
-            ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => 'Olahraga tiap seminggu sekali'],
-            ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => 'Setiap hari minggu jam 8 pagi'],
-            ['id' => 39, 'type' => QuestionType::BINARY->value, 'answer' => true],
-            ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => 'Rasa malas'],
-            ['id' => 41, 'type' => QuestionType::TEXT->value, 'answer' => 'Ingat value'],
-        ];
+        for ($week = 0; $week < 6; $week++) {
+            $recordsThisWeek = rand(0, 7);
 
-        $committedRecords = [];
+            for ($i = 0; $i < $recordsThisWeek; $i++) {
+                $committedQuestions = [
+                    ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 39, 'type' => QuestionType::BINARY->value, 'answer' => rand(0, 1)],
+                    ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                    ['id' => 41, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+                ];
 
-        foreach ($committedQuestions as $question) {
-            $answer = Answer::create([
-                'type' => $question['type'],
-                'answer' => $question['answer'],
-                'created_at' => $timestamp,
-            ]);
+                $committedRecords = [];
 
-            $committedRecords[] = [
-                'committed_action_id' => $committedAction->id,
-                'question_id' => $question['id'],
-                'answer_id' => $answer->id,
-                'created_at' => $timestamp,
-            ];
+                foreach ($committedQuestions as $question) {
+                    $answer = Answer::create([
+                        'type' => $question['type'],
+                        'answer' => $question['answer'],
+                        'created_at' => $timestamp,
+                    ]);
+
+                    $committedRecords[] = [
+                        'committed_action_id' => $committedAction->id,
+                        'question_id' => $question['id'],
+                        'answer_id' => $answer->id,
+                        'created_at' => $timestamp,
+                    ];
+                }
+                DB::table('committed_action_question_answer')->insert($committedRecords);
+            }
         }
-
-        DB::table('committed_action_question_answer')->insert($committedRecords);
     }
 }
