@@ -1,8 +1,6 @@
 <?php
 
-use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
-use App\Enum\TherapyStatus;
 use App\Service\Records\CommittedActionService;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
@@ -24,25 +22,8 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
 
-        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if (!$this->therapy) {
-            $this->redirectRoute('doctor.therapies.in_progress.index');
-        }
-
-        $this->committedAction = $this->getCommittedAction($this->therapy->id);
-    }
-
-    public function getCommittedAction(int $therapyId)
-    {
-        $filters = [
-            [
-                'operation' => ModelFilter::EQUAL,
-                'column' => 'therapy_id',
-                'value' => $therapyId,
-            ],
-        ];
-
-        return $this->committedActionService->get($filters)[0] ?? null;
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->committedAction = $this->committedActionService->get($this->therapy->id);
     }
 
     public function prepareChartData()
@@ -56,7 +37,7 @@ new class extends Component {
                 $executionAnswers->where('answer.answer', 1)->count(),
                 $executionAnswers->where('answer.answer', 0)->count(),
             ],
-            'title' => 'Status',
+            'title' => 'Status Tindakan',
         ];
     }
 

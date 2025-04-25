@@ -69,17 +69,17 @@ class Therapy extends Model
         return $this->hasMany(CommittedAction::class);
     }
 
-//    protected function startDate(): Attribute
-//    {
-//        return Attribute::make(
-//            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
-//        );
-//    }
-//
-//    protected function endDate(): Attribute
-//    {
-//        return Attribute::make(
-//            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
-//        );
-//    }
+    //    protected function startDate(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
+    //        );
+    //    }
+    //
+    //    protected function endDate(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
+    //        );
+    //    }
 }

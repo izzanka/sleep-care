@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class SleepDiary extends Model
@@ -10,6 +9,7 @@ class SleepDiary extends Model
     protected $casts = [
         'date' => 'date',
     ];
+
     public function therapy()
     {
         return $this->belongsTo(Therapy::class);

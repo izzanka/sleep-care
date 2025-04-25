@@ -1,12 +1,7 @@
 <?php
 
-use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
-use App\Enum\TherapyStatus;
-use App\Models\EmotionRecord;
-use App\Models\Therapy;
 use App\Service\ChartService;
-use App\Service\Records\CommittedActionService;
 use App\Service\Records\EmotionRecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
@@ -34,25 +29,10 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if (!$this->therapy) {
-            $this->redirectRoute('doctor.therapies.in_progress.index');
-        }
-
-        $this->emotionRecord = $this->getEmotionRecord($this->therapy->id);
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->emotionRecord = $this->emotionRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->chartTitle = 'Frekuensi Kemunculan Emosi';
-    }
-
-    public function getEmotionRecord(int $therapyId)
-    {
-        $filters[] = [
-            'operation' => ModelFilter::EQUAL,
-            'column' => 'therapy_id',
-            'value' => $therapyId,
-        ];
-
-        return $this->emotionRecordService->get($filters)[0] ?? null;
     }
 
     private function extractAnswerData($rows, $therapyStartDate)
@@ -62,11 +42,10 @@ new class extends Component {
         foreach ($rows as $row) {
             $groupedAnswers = $row->keyBy(fn($qa) => $qa->question_id);
             $date = optional($groupedAnswers[27]->answer)->answer;
-            $emotionWithIntensity = optional($groupedAnswers[31]->answer)->answer;
+            $emotion = optional($groupedAnswers[31]->answer)->answer;
 
-            if ($date && $emotionWithIntensity) {
+            if ($date && $emotion) {
                 $weekNumber = Carbon::parse($date)->diffInWeeks($therapyStartDate) + 1;
-                $emotion = $emotionWithIntensity;
                 $results->push([
                     'emotion' => $emotion,
                     'week' => min($weekNumber, 6),
@@ -151,7 +130,7 @@ new class extends Component {
                             @endphp
                             <td class="border p-2 text-center">
                                 @if($answer?->answer?->type === QuestionType::DATE->value)
-                                    {{ Carbon::parse($answer->answer->answer)->format('d/m/Y') }}
+                                    {{ Carbon::parse($answer->answer->answer)->format('d M') }}
                                 @else
                                     {{ $answer->answer->answer ?? '-' }}
                                 @endif

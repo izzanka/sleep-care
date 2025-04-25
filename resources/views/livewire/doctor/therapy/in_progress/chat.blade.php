@@ -1,29 +1,34 @@
 <?php
 
-use App\Enum\TherapyStatus;
-use App\Models\Chat;
-use App\Models\Therapy;
-use App\Models\User;
+use App\Service\ChatService;
 use App\Service\TherapyService;
+use App\Service\UserService;
+use Illuminate\Support\Facades\Session;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected TherapyService $therapyService;
+    protected ChatService $chatService;
+    protected UserService $userService;
 
     public bool $isOnline = false;
     public ?string $message = '';
 
     public $therapy;
 
-    public function boot(TherapyService $therapyService)
+    public function boot(TherapyService $therapyService,
+                         ChatService    $chatService,
+                         UserService    $userService)
     {
         $this->therapyService = $therapyService;
+        $this->chatService = $chatService;
+        $this->userService = $userService;
     }
 
     public function mount()
     {
         $this->dispatch('scroll-to-bottom');
-        $this->therapy = $this->therapyService->getCurrentTherapy(auth()->user()->doctor->id);
+        $this->therapy = $this->therapyService->getInprogress(auth()->user()->doctor->id);
     }
 
     public function send()
@@ -32,27 +37,26 @@ new class extends Component {
             'message' => ['required', 'string']
         ]);
 
-        Chat::create([
-            'therapy_id' => $this->therapy->id,
-            'sender_id' => auth()->id(),
-            'receiver_id' => $this->therapy->patient_id,
-            'message' => $validated['message'],
-            'created_at' => now(),
-        ]);
+        $validated['therapy_id'] = $this->therapy->id;
+        $validated['sender_id'] = auth()->id();
+        $validated['receiver_id'] = $this->therapy->patient_id;
 
+        $result = $this->chatService->store($validated);
+        if (!$result) {
+            Session::flash('status', ['message' => 'Gagal mengirimkan pesan.', 'success' => false]);
+        }
         $this->reset(['message']);
         $this->dispatch('scroll-to-bottom');
     }
 
     public function checkPatientOnlineStatus()
     {
-        $this->isOnline = User::where('id', $this->therapy->patient_id)->value('is_online') ?? false;
+        $this->isOnline = $this->userService->getOnlineStatus($this->therapy->patient_id);
     }
 
     public function with()
     {
-        $chats = Chat::where('receiver_id', $this->therapy->patient->id)
-            ->orWhere('sender_id', $this->therapy->patient->id)->orderBy('created_at')->get();
+        $chats = $this->chatService->get($this->therapy->patient_id);
 
         return [
             'chats' => $chats,

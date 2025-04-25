@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enum\ModelFilter;
 use App\Enum\Problem;
 use App\Enum\UserGender;
-use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Mail\ResetPasswordOtpMail;
 use App\Models\User;
+use App\Service\TokenService;
 use App\Service\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 
 class AuthController extends Controller
 {
-    public function __construct(protected UserService $userService) {}
+    public function __construct(protected UserService $userService, protected TokenService $otpService) {}
 
     public function login(Request $request)
     {
@@ -30,41 +30,24 @@ class AuthController extends Controller
         ]);
 
         try {
-            $filters = [
-                [
-                    'operation' => ModelFilter::EQUAL->name,
-                    'column' => 'email',
-                    'value' => $validated['email'],
-                ],
-                [
-                    'operation' => ModelFilter::EQUAL->name,
-                    'column' => 'role',
-                    'value' => UserRole::PATIENT->value,
-                ],
-            ];
-
-            $user = $this->userService->get($filters)[0] ?? null;
+            $user = $this->userService->getPatient($validated['email']);
 
             if (! $user || ! Hash::check($validated['password'], $user->password)) {
-                return Response::error('The provided credentials are incorrect.', 401);
+                return Response::error('Email atau password yang anda masukan salah.', 401);
             }
 
             if (is_null($user->email_verified_at)) {
-                return Response::error('Patient account is not verified.', 401);
+                return Response::error('Email akun belum diverifikasi.', 401);
             }
 
-            $updateOnlineStatus = $user->update(['is_online' => true]);
-            if (! $updateOnlineStatus) {
-                Log::warning('Failed to update user online status.');
-            }
-
+            $user->update(['is_online' => true]);
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return Response::success([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => new UserResource($user),
-            ], 'Login successful.');
+            ], 'Login berhasil.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
@@ -96,7 +79,7 @@ class AuthController extends Controller
 
             return Response::success([
                 'user' => new UserResource($user),
-            ], 'Patient registered successfully.');
+            ], 'Register berhasil.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
@@ -107,15 +90,35 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-
-            $updateOnlineStatus = $user->update(['is_online' => false]);
-            if (! $updateOnlineStatus) {
-                Log::warning('Failed to update user online status.');
-            }
-
+            $user->update(['is_online' => false]);
             $user->currentAccessToken()->delete();
 
-            return Response::success(null, 'Logout successfully.');
+            return Response::success(null, 'Logout sukses.');
+        } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+        ]);
+
+        try {
+
+            $user = $this->userService->getPatient($validated['email']);
+            if (!$user) {
+                return Response::error('Akun tidak ditemukan.', 404);
+            }
+
+            $otp = $this->otpService->generateOtp();
+            $this->otpService->storeOtp($validated['email'], $otp);
+
+            Mail::to($validated['email'])->queue(new ResetPasswordOtpMail($otp));
+
+            return Response::success(null, 'Kode OTP berhasil dikirimkan.');
+
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
@@ -131,56 +134,23 @@ class AuthController extends Controller
 
         try {
 
-            $status = Password::reset($validated, function ($user) use ($validated) {
-                $user->forceFill([
-                    'password' => Hash::make($validated['password']),
-                    'remember_token' => Str::random(60),
-                ])->save();
-            });
-
-            return $status === Password::PASSWORD_RESET
-                ? Response::success(null, 'The password was reset successfully.')
-                : Response::error('Failed to reset password.', 500);
-
-        } catch (\Exception $exception) {
-            return Response::error($exception->getMessage(), 500);
-        }
-    }
-
-    public function forgotPassword(Request $request)
-    {
-        $validated = $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255'],
-        ]);
-
-        try {
-
-            $filters = [
-                [
-                    'operation' => ModelFilter::EQUAL->name,
-                    'column' => 'email',
-                    'value' => $validated['email'],
-                ],
-                [
-                    'operation' => ModelFilter::EQUAL->name,
-                    'column' => 'role',
-                    'value' => UserRole::PATIENT->value,
-                ],
-            ];
-
-            $user = $this->userService->get($filters)[0] ?? null;
-
-            if (! $user) {
-                return Response::error('Patient not found.', 404);
+            $otpRecord = $this->otpService->checkOtp($validated['email'], $validated['token']);
+            if (!$otpRecord || now()->greaterThan($otpRecord->expired_at)) {
+                return Response::error('Kode OTP tidak valid atau sudah kedaluwarsa.', 422);
             }
 
-            $status = Password::sendResetLink([
-                'email' => $validated['email'],
-            ]);
+            $user = $this->userService->getPatient($validated['email']);
+            if (!$user) {
+                return Response::error('Akun tidak ditemukan.', 404);
+            }
 
-            return $status === Password::RESET_LINK_SENT
-                ? Response::success(null, 'Reset password sent successfully.')
-                : Response::error('Failed to sent reset password.', 500);
+            $user->password = Hash::make($validated['password']);
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+
+            $this->otpService->deleteOtp($validated['token']);
+
+            return Response::success(null, 'Password berhasil direset.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

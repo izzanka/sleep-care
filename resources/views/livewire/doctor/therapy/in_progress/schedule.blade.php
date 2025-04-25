@@ -1,15 +1,14 @@
 <?php
 
-use App\Enum\TherapyStatus;
-use App\Models\Therapy;
 use App\Models\TherapySchedule;
+use App\Service\TherapyScheduleService;
 use App\Service\TherapyService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected TherapyService $therapyService;
+    protected TherapyScheduleService $therapyScheduleService;
 
     public $date = null;
     public $time = null;
@@ -20,21 +19,19 @@ new class extends Component {
     public bool $is_completed = false;
 
     public $therapy;
+    public $therapySchedules;
 
-    public function boot(TherapyService $therapyService)
+    public function boot(TherapyService $therapyService, TherapyScheduleService $therapyScheduleService)
     {
         $this->therapyService = $therapyService;
+        $this->therapyScheduleService = $therapyScheduleService;
     }
 
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
-    }
-
-    protected function getTherapySchedules(int $therapyId)
-    {
-        return TherapySchedule::where('therapy_id', $therapyId)->get();
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapySchedules = $this->therapyScheduleService->get($this->therapy->id);
     }
 
     public function resetEdit()
@@ -45,26 +42,15 @@ new class extends Component {
 
     public function editSchedule(int $scheduleID)
     {
-        $schedule = $this->findScheduleById($scheduleID);
-
-        if (!$schedule) {
-            return;
-        }
-
-        $this->fillScheduleData($schedule);
-
-        $this->modal('editSchedule')->show();
-    }
-
-    protected function findScheduleById(int $scheduleID)
-    {
-        $schedule = TherapySchedule::find($scheduleID);
+        $schedule = $this->therapyScheduleService->find($scheduleID);
 
         if (!$schedule) {
             Session::flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
-        return $schedule;
+        $this->fillScheduleData($schedule);
+
+        $this->modal('editSchedule')->show();
     }
 
     protected function fillScheduleData(TherapySchedule $schedule)
@@ -88,10 +74,10 @@ new class extends Component {
             'is_completed' => ['required', 'boolean'],
         ]);
 
-        $schedule = $this->findScheduleById($scheduleID);
+        $schedule = $this->therapyScheduleService->find($scheduleID);
 
         if (!$schedule) {
-            return;
+            Session::flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
         $schedule->update($validated);
@@ -101,15 +87,6 @@ new class extends Component {
         Session::flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
 
         $this->js("window.scrollTo({ top: 0, behavior: 'smooth' });");
-    }
-
-    public function with()
-    {
-        $schedules = $this->getTherapySchedules($this->therapy->id);
-
-        return [
-            'schedules' => $schedules,
-        ];
     }
 }; ?>
 
@@ -142,7 +119,7 @@ new class extends Component {
             </form>
         </div>
     </flux:modal>
-    @foreach($schedules as $schedule)
+    @foreach($therapySchedules as $schedule)
         <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
              x-data="{openTab: null}" wire:key="{{$schedule->id}}">
             <div class="flex items-center justify-between flex-wrap gap-y-2">

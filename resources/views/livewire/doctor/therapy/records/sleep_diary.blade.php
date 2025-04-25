@@ -1,9 +1,5 @@
 <?php
 
-use App\Enum\QuestionType;
-use App\Enum\TherapyStatus;
-use App\Models\SleepDiary;
-use App\Models\Therapy;
 use App\Service\ChartService;
 use App\Service\Records\SleepDiaryService;
 use App\Service\TherapyService;
@@ -30,20 +26,8 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if (!$this->therapy) {
-            $this->redirectRoute('doctor.therapies.in_progress.index');
-        }
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
         $this->labels = $this->chartService->labels;
-    }
-
-    public function getSleepDiaries()
-    {
-        return SleepDiary::where('therapy_id', $this->therapy->id)
-            ->orderBy('week')
-            ->orderBy('day')
-            ->get()
-            ->groupBy('week');
     }
 
     public function getQuestions($sleepDiaries)
@@ -87,7 +71,7 @@ new class extends Component {
             13 => &$food,
         ];
 
-        $sleepDiaries = $this->getSleepDiaries();
+        $sleepDiaries = $this->sleepDiaryService->get($this->therapy->id);
 
         foreach ($sleepDiaries as $entries) {
             foreach ($questions as $questionId => &$targetArray) {
@@ -213,9 +197,6 @@ new class extends Component {
                             <tr>
                                 <th class="border p-2 text-center">Hari</th>
                                 @foreach($sleepDiary as $diary)
-                                    @php
-                                        Carbon::setLocale('id');
-                                    @endphp
                                     <th class="border p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
                                 @endforeach
                             </tr>
@@ -224,7 +205,7 @@ new class extends Component {
                             <tr>
                                 <th class="border p-2 text-center">Tanggal</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="border p-2 text-center">{{ $diary->date->format('d/m') }}</th>
+                                    <th class="border p-2 text-center">{{ $diary->date->format('d M') }}</th>
                                 @endforeach
                             </tr>
 

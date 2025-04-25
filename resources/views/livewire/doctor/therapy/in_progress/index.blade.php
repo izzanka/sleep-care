@@ -1,8 +1,6 @@
 <?php
 
 use App\Enum\Problem;
-use App\Enum\TherapyStatus;
-use App\Models\Therapy;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
@@ -20,10 +18,8 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if($this->therapy){
-            $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
-        }
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
     }
 
     protected function formatPatientProblems(?string $problems)
@@ -36,15 +32,6 @@ new class extends Component {
             ->map(fn($problem) => Problem::tryFrom($problem)?->label() ?? $problem)
             ->implode(', ');
     }
-
-//    public function with()
-//    {
-//        return [
-//            'therapy' => $this->therapy,
-//            'problems' => $this->problems,
-//        ];
-//    }
-
 }; ?>
 
 <section>
@@ -73,11 +60,11 @@ new class extends Component {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div>
                         <flux:heading>Tanggal Mulai</flux:heading>
-                        <flux:text>{{$therapy->start_date->toDateString()}}</flux:text>
+                        <flux:text>{{$therapy->start_date->format('d M Y')}}</flux:text>
                     </div>
                     <div>
                         <flux:heading>Tanggal Selesai</flux:heading>
-                        <flux:text>{{$therapy->end_date->toDateString()}}</flux:text>
+                        <flux:text>{{$therapy->end_date->format('d M Y')}}</flux:text>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

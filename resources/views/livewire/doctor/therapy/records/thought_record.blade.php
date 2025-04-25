@@ -1,11 +1,6 @@
 <?php
 
-use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
-use App\Enum\TherapyStatus;
-use App\Models\IdentifyValue;
-use App\Models\Therapy;
-use App\Models\ThoughtRecord;
 use App\Service\ChartService;
 use App\Service\Records\ThoughtRecordService;
 use App\Service\TherapyService;
@@ -34,21 +29,10 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getCurrentTherapy($doctorId);
-        $this->thoughtRecords = $this->getThoughtRecord($this->therapy->id);
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->thoughtRecords = $this->thoughtRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->text = 'Frekuensi Kemunculan Pikiran';
-    }
-
-    public function getThoughtRecord(int $therapyId)
-    {
-        $filters[] = [
-            'operation' => ModelFilter::EQUAL,
-            'column' => 'therapy_id',
-            'value' => $therapyId,
-        ];
-
-        return $this->thoughtRecordService->get($filters)[0] ?? null;
     }
 
     private function extractQuestions()
@@ -136,9 +120,17 @@ new class extends Component {
                             @endphp
                             <td class="border p-2 text-center">
                                 @if($type === QuestionType::DATE->value && $value)
-                                    {{ Carbon::parse($value)->format('d/m/Y') }}
+                                    {{ Carbon::parse($value)->format('d M') }}
                                 @else
-                                    {{ $value ?? '-' }}
+                                    @if(\Illuminate\Support\Str::isJson($value))
+                                        @foreach(json_decode($value) as $txt)
+                                            <div class="py-1">
+                                                {{$txt}}
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        {{ $value ?? '-' }}
+                                    @endif
                                 @endif
                             </td>
                         @endforeach

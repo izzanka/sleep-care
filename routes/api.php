@@ -21,7 +21,7 @@ Route::get('/patient/problems', [PatientController::class, 'getProblems']);
 
 Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/doctors', [DoctorController::class, 'getAll']);
+    Route::get('/doctors', [DoctorController::class, 'get']);
 
     Route::get('/patient', function (Request $request) {
         return Response::success([

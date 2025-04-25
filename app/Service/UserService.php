@@ -2,29 +2,29 @@
 
 namespace App\Service;
 
-use App\Enum\ModelFilter;
+use App\Enum\UserRole;
 use App\Models\User;
 
 class UserService
 {
-    public function get(?array $filters = null)
+    public function getUnverifiedPatient(string $email)
     {
-        $query = User::query();
+        return User::where('email', $email)->where('role', UserRole::PATIENT->value)
+            ->whereNull('email_verified_at')->latest()->first();
+    }
 
-        if ($filters) {
-            foreach ($filters as $filter) {
-                switch ($filter['operation']) {
-                    case ModelFilter::EQUAL->name:
-                        $query->where($filter['column'], $filter['value']);
-                        break;
+    public function getPatient(string $email)
+    {
+        return User::where('email', $email)->where('role', UserRole::PATIENT->value)->first();
+    }
 
-                    case ModelFilter::ORDER_BY->name:
-                        $query->orderBy($filter['column'], $filter['value']);
-                        break;
-                }
-            }
-        }
+    public function getAdmin()
+    {
+        return User::where('role', UserRole::ADMIN->value)->first();
+    }
 
-        return $query->get();
+    public function getPatientOnlineStatus(int $patientId)
+    {
+        return User::where('id', $patientId)->value('is_online') ?? false;
     }
 }

@@ -2,26 +2,16 @@
 
 namespace App\Service\Records;
 
-use App\Enum\ModelFilter;
-use App\Models\IdentifyValue;
 use App\Models\SleepDiary;
 
 class SleepDiaryService
 {
-    public function get(?array $filters = null)
+    public function get(int $therapyId)
     {
-        $query = SleepDiary::query();
-
-        if ($filters) {
-            foreach ($filters as $filter) {
-                switch ($filter['operation']) {
-                    case ModelFilter::EQUAL->name:
-                        $query->where($filter['column'], $filter['value']);
-                        break;
-                }
-            }
-        }
-
-        return $query->get();
+        return SleepDiary::where('therapy_id', $therapyId)
+            ->orderBy('week')
+            ->orderBy('day')
+            ->get()
+            ->groupBy('week');
     }
 }

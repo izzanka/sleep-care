@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enum\ModelFilter;
-use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
 use App\Mail\OtpMail;
 use App\Models\User;
@@ -27,39 +25,22 @@ class OtpController extends Controller
 
         try {
 
-            $filters = [
-                [
-                    'operation' => ModelFilter::EQUAL->name,
-                    'column' => 'email',
-                    'value' => $validated['email'],
-                ],
-                [
-                    'operation' => ModelFilter::MORE_THAN->name,
-                    'column' => 'expired_at',
-                    'value' => now(),
-                ],
-            ];
-
-            $checkOtp = $this->otpService->get($filters);
-            if ($checkOtp->isNotEmpty()) {
-                return Response::error('The OTP has already been sent.', 400);
+            $checkOtp = $this->otpService->getAvailableOtp($validated['email']);
+            if ($checkOtp) {
+                return Response::error('Kode OTP sudah dikirim sebelumnya dan belum kedaluwarsa.', 400);
             }
 
-            $user = $this->getUnverifiedUser($validated['email']);
+            $user = $this->userService->getUnverifiedPatient($validated['email']);
             if (! $user) {
-                return Response::error('Patient account is not found or already verified.', 404);
+                return Response::error('Akun tidak ditemukan atau sudah terverifikasi.', 404);
             }
 
             $otp = $this->otpService->generateOtp();
-
-            $storeOtp = $this->otpService->storeOtp($validated['email'], $otp);
-            if (! $storeOtp) {
-                return Response::error('Failed to store OTP.', 500);
-            }
+            $this->otpService->storeOtp($validated['email'], $otp);
 
             Mail::to($validated['email'])->queue(new OtpMail($otp));
 
-            return Response::success(null, 'OTP sent successfully.');
+            return Response::success(null, 'Kode OTP berhasil dikirim.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
@@ -75,66 +56,31 @@ class OtpController extends Controller
 
         try {
 
-            $user = $this->getUnverifiedUser($validated['email']);
+            $user = $this->userService->getUnverifiedPatient($validated['email']);
             if (! $user) {
-                return Response::error('Patient account is not found or already verified.', 404);
+                return Response::error('Akun tidak ditemukan atau sudah terverifikasi.', 404);
             }
 
-            $otpRecord = $this->otpService->getOtp($validated['email'], $validated['otp']);
-            if (! $otpRecord) {
-                return Response::error('Invalid or expired OTP.', 422);
+            $otpRecord = $this->otpService->checkOtp($validated['email'], $validated['otp']);
+            if (! $otpRecord || now()->greaterThan($otpRecord->expired_at)) {
+                return Response::error('Kode OTP tidak valid atau sudah kedaluwarsa.', 422);
             }
 
-            $user = $this->getUnverifiedUser($validated['email']);
-
-            $updateUser = $user->update(['email_verified_at' => now()]);
-            if (! $updateUser) {
-                return Response::error('Failed to update user verified status.', 500);
-            }
-
-            $deleteToken = $this->otpService->deleteOtp($validated['otp']);
-            if (! $deleteToken) {
-                return Response::error('Failed to delete OTP.', 500);
-            }
+            $user->update(['email_verified_at' => now()]);
+            $this->otpService->deleteOtp($validated['otp']);
 
             $this->notifyAdmin($user);
 
-            return Response::success(null, 'OTP verified successfully.');
+            return Response::success(null, 'Kode OTP berhasil diverifikasi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
 
-    protected function getUnverifiedUser(string $email)
-    {
-        $filters = [
-            [
-                'operation' => ModelFilter::EQUAL->name,
-                'column' => 'email',
-                'value' => $email,
-            ],
-            [
-                'operation' => ModelFilter::EQUAL->name,
-                'column' => 'role',
-                'value' => UserRole::PATIENT->value,
-            ],
-            [
-                'operation' => ModelFilter::EQUAL->name,
-                'column' => 'email_verified_at',
-                'value' => null,
-            ],
-        ];
-
-        return $this->userService->get($filters)[0] ?? null;
-    }
-
     protected function notifyAdmin(User $user)
     {
-        $admin = User::where('role', UserRole::ADMIN->value)->first();
-
-        if ($admin) {
-            $admin->notify(new RegisteredUser($user));
-        }
+        $admin = $this->userService->getAdmin();
+        $admin->notify(new RegisteredUser($user));
     }
 }

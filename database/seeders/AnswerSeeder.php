@@ -10,7 +10,6 @@ use App\Models\IdentifyValue;
 use App\Models\SleepDiary;
 use App\Models\Therapy;
 use App\Models\ThoughtRecord;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +17,7 @@ class AnswerSeeder extends Seeder
 {
     public function run(): void
     {
-        $therapy = Therapy::select('id','start_date')->first();
+        $therapy = Therapy::select('id', 'start_date')->first();
         $timestamp = now();
 
         for ($week = 1; $week <= 6; $week++) {
@@ -117,11 +116,17 @@ class AnswerSeeder extends Seeder
 
         $thoughtRecord = ThoughtRecord::create(['therapy_id' => $therapy->id]);
 
+        $jsonAnswers = [
+            'Aku merasa tidak akan lancar saat presentasi besok',
+            'Aku merasa tidak akan lancar saat presentasi besok',
+            'Aku merasa tidak akan lancar saat presentasi besok',
+        ];
+
         $thoughtQuestions1 = [
             ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => now()->toDateString()],
             ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
             ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => 'Terbangun tengah malam'],
-            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => 'Aku merasa tidak akan lancar saat presentasi besok'],
+            ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => json_encode($jsonAnswers)],
         ];
 
         $thoughtRecords1 = [];

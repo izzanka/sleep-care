@@ -7,11 +7,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Route::view('dashboard', 'dashboard')
-//    ->middleware(['auth'])
-// //    ->middleware(['auth', 'verified'])
-//    ->name('dashboard');
-
 Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('dashboard', 'dashboard')->name('dashboard');
     Volt::route('notifications', 'notification')->name('notification');

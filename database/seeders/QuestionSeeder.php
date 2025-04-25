@@ -120,9 +120,9 @@ class QuestionSeeder extends Seeder
         }
 
         $identifyValueTitleParents = [
-            'Skala Kepentingan, Seberapa penting area ini untuk anda? (skala 1-10)' => QuestionType::NUMBER->value,
+            'Skala Kepentingan, seberapa penting area ini untuk anda? (skala 1-10)' => QuestionType::NUMBER->value,
             'Aku ingin jadi pribadi yang?' => QuestionType::TEXT->value,
-            'Skor Kesuaian, Seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? (skala 1-10)' => QuestionType::NUMBER->value,
+            'Skor Kesuaian, seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? (skala 1-10)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($identifyValueTitleParents as $question => $type) {
@@ -161,10 +161,10 @@ class QuestionSeeder extends Seeder
             'Jam' => QuestionType::TIME->value,
             'Kejadian' => QuestionType::TEXT->value,
             'Pemikiran yang muncul' => QuestionType::TEXT->value,
-            'Emosi' => QuestionType::TEXT->value,
-            'Intensitas sebelum (1-10)' => QuestionType::NUMBER->value,
-            'Cara yang dilakukan' => QuestionType::TEXT->value,
-            'Intensitas sesudah (1-10)' => QuestionType::NUMBER->value,
+            'Emosi yang dirasakan' => QuestionType::TEXT->value,
+            'Intensitas emosi sebelum diatasi (1-10)' => QuestionType::NUMBER->value,
+            'Cara mengatasi' => QuestionType::TEXT->value,
+            'Intensitas emosi sesudah diatasi (1-10)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($emotionRecordQuestions as $question => $type) {

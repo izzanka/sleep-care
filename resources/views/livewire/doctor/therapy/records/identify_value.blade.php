@@ -1,10 +1,6 @@
 <?php
 
-use App\Enum\ModelFilter;
 use App\Enum\QuestionType;
-use App\Enum\TherapyStatus;
-use App\Models\IdentifyValue;
-use App\Models\Therapy;
 use App\Service\Records\IdentifyValueService;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
@@ -13,7 +9,7 @@ new class extends Component {
     protected TherapyService $therapyService;
     protected IdentifyValueService $identifyValueService;
 
-    public $currentTherapy;
+    public $therapy;
     public $identifyValue;
     public $labels;
 
@@ -27,23 +23,9 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->currentTherapy = $this->therapyService->getCurrentTherapy($doctorId);
-        if (!$this->currentTherapy) {
-            $this->redirectRoute('doctor.therapies.in_progress.index');
-        }
-        $this->identifyValue = $this->getIdentifyValue($this->currentTherapy->id);
+        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->identifyValue = $this->identifyValueService->get($this->therapy->id);
         $this->labels = $this->getUniqueNotes();
-    }
-
-    public function getIdentifyValue(int $therapyId)
-    {
-        $filters[] = [
-            'operation' => ModelFilter::EQUAL,
-            'column' => 'therapy_id',
-            'value' => $therapyId,
-        ];
-
-        return $this->identifyValueService->get($filters)[0] ?? null;
     }
 
     protected function getDatasetLabels()
