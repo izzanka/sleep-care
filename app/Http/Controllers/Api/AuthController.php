@@ -13,7 +13,6 @@ use App\Service\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
@@ -108,7 +107,7 @@ class AuthController extends Controller
         try {
 
             $user = $this->userService->getPatient($validated['email']);
-            if (!$user) {
+            if (! $user) {
                 return Response::error('Akun tidak ditemukan.', 404);
             }
 
@@ -135,12 +134,12 @@ class AuthController extends Controller
         try {
 
             $otpRecord = $this->otpService->checkOtp($validated['email'], $validated['token']);
-            if (!$otpRecord || now()->greaterThan($otpRecord->expired_at)) {
+            if (! $otpRecord || now()->greaterThan($otpRecord->expired_at)) {
                 return Response::error('Kode OTP tidak valid atau sudah kedaluwarsa.', 422);
             }
 
             $user = $this->userService->getPatient($validated['email']);
-            if (!$user) {
+            if (! $user) {
                 return Response::error('Akun tidak ditemukan.', 404);
             }
 

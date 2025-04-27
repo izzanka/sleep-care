@@ -2,14 +2,22 @@
 
 namespace App\Service;
 
-use App\Enum\TherapyStatus;
 use App\Models\Therapy;
 
 class TherapyService
 {
-    public function getInProgress(int $doctorId)
+    public function find(?int $doctorId = null, ?int $patientId = null, ?string $status = null)
     {
-        return Therapy::where('doctor_id', $doctorId)
-            ->where('status', TherapyStatus::IN_PROGRESS->value)->latest()->first();
+        $query = Therapy::query();
+
+        if ($doctorId) {
+            $query->where('doctor_id', $doctorId);
+        }
+
+        if ($patientId) {
+            $query->where('patient_id', $patientId);
+        }
+
+        return $query->where('status', $status)->latest()->first();
     }
 }

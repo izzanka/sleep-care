@@ -10,7 +10,6 @@ use App\Models\IdentifyValue;
 use App\Models\SleepDiary;
 use App\Models\Therapy;
 use App\Models\ThoughtRecord;
-use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -114,7 +113,7 @@ class AnswerSeeder extends Seeder
 
         DB::table('identify_value_question_answer')->insert($relations);
 
-        //Thought Record
+        // Thought Record
         $thoughtRecord = ThoughtRecord::create([
             'therapy_id' => $therapy->id,
             'created_at' => now(),
@@ -157,11 +156,11 @@ class AnswerSeeder extends Seeder
             }
         }
 
-        //Emotion Record
-        $positive = ['Bahagia','Gembira','Syukur','Tenang','Bangga'];
-        $negative = ['Cemas','Malu','Frustasi','Bingung','Kecewa'];
+        // Emotion Record
+        $positive = ['Bahagia', 'Gembira', 'Syukur', 'Tenang', 'Bangga'];
+        $negative = ['Cemas', 'Malu', 'Frustasi', 'Bingung', 'Kecewa'];
 
-        $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id,'created_at' => $timestamp]);
+        $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id, 'created_at' => $timestamp]);
 
         for ($week = 0; $week < 6; $week++) {
             $recordsThisWeek = rand(0, 7);
@@ -201,7 +200,7 @@ class AnswerSeeder extends Seeder
             }
         }
 
-        //Committed Action
+        // Committed Action
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
         for ($week = 0; $week < 6; $week++) {

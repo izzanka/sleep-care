@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\QuestionType;
+use App\Enum\TherapyStatus;
 use App\Service\ChartService;
 use App\Service\Records\ThoughtRecordService;
 use App\Service\TherapyService;
@@ -30,7 +31,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->thoughtRecords = $this->thoughtRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->text = 'Frekuensi Kemunculan Pikiran';
@@ -96,8 +97,10 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Catatan Pikiran (Thought Record)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-        <div class="relative w-full">
-            <canvas id="thoughtRecordChart" class="w-full h-full"></canvas>
+        <div class="flex">
+            <div class="w-full flex-shrink-0">
+                <canvas id="thoughtRecordChart" class="w-full h-80 mb-4"></canvas>
+            </div>
         </div>
 
         <flux:separator class="mt-4 mb-4"/>

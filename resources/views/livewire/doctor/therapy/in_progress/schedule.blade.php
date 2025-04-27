@@ -1,8 +1,10 @@
 <?php
 
+use App\Enum\TherapyStatus;
 use App\Models\TherapySchedule;
 use App\Service\TherapyScheduleService;
 use App\Service\TherapyService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 use Livewire\Volt\Component;
 
@@ -30,7 +32,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->therapySchedules = $this->therapyScheduleService->get($this->therapy->id);
     }
 
@@ -57,7 +59,7 @@ new class extends Component {
     {
         $this->ID = $schedule->id;
         $this->date = $schedule->date->toDateString();
-        $this->time = $schedule->time->format('H:i');
+        $this->time = Carbon::parse($schedule->time)->format('H:i');
         $this->link = $schedule->link;
         $this->title = $schedule->title;
         $this->note = $schedule->note;
@@ -85,8 +87,7 @@ new class extends Component {
         $this->modal('editSchedule')->close();
 
         Session::flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
-
-        $this->js("window.scrollTo({ top: 0, behavior: 'smooth' });");
+        $this->redirectRoute('doctor.therapies.in_progress.schedule');
     }
 }; ?>
 
@@ -140,7 +141,8 @@ new class extends Component {
             </div>
             <div class="flex items-center gap-2 mt-4">
                 <flux:icon.clock></flux:icon.clock>
-                <flux:text>{{$schedule->date->format('d M Y')}} - {{$schedule->time->format('H:i')}}</flux:text>
+                <flux:text>{{$schedule->date->format('d M Y')}}
+                    - {{Carbon::parse($schedule->time)->format('H:i')}}</flux:text>
             </div>
             <div class="mt-4">
                 <flux:button.group>

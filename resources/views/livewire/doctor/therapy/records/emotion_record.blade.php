@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\QuestionType;
+use App\Enum\TherapyStatus;
 use App\Service\ChartService;
 use App\Service\Records\EmotionRecordService;
 use App\Service\TherapyService;
@@ -29,7 +30,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->emotionRecord = $this->emotionRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->chartTitle = 'Frekuensi Kemunculan Emosi';
@@ -107,9 +108,14 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Catatan Emosi (Emotion Record)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-        <div class="relative w-full">
-            <canvas id="emotionRecordChart" class="w-full h-full"></canvas>
+        <div class="flex">
+            <div class="w-full flex-shrink-0">
+                <canvas id="emotionRecordChart" class="w-full h-80 mb-4"></canvas>
+            </div>
         </div>
+        {{--        <div class="relative w-full">--}}
+        {{--            <canvas id="emotionRecordChart" class="w-full h-full"></canvas>--}}
+        {{--        </div>--}}
 
         <flux:separator class="mt-4 mb-4"/>
 

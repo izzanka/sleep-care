@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\QuestionType;
+use App\Enum\TherapyStatus;
 use App\Service\ChartService;
 use App\Service\Records\SleepDiaryService;
 use App\Service\TherapyService;
@@ -27,7 +28,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->labels = $this->chartService->labels;
     }
 
@@ -110,10 +111,10 @@ new class extends Component {
                 <div class="flex transition-transform duration-500 ease-in-out"
                      :style="`transform: translateX(-${activeSlide * 100}%);`">
                     <div class="w-full flex-shrink-0">
-                        <canvas id="lineChart" class="w-full h-80 mb-5"></canvas>
+                        <canvas id="lineChart" class="w-full h-80 mb-4"></canvas>
                     </div>
                     <div class="w-full flex-shrink-0">
-                        <canvas id="barChart" class="w-full h-80 mb-5"></canvas>
+                        <canvas id="barChart" class="w-full h-80 mb-4"></canvas>
                     </div>
                 </div>
 
@@ -172,7 +173,7 @@ new class extends Component {
                         "
                     >
                         <div class="flex items-center justify-between w-full">
-                            Sleep Diary Minggu Ke-{{ $index }}
+                            Catatan Tidur Minggu Ke-{{ $index }}
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
                                  viewBox="0 0 24 24"

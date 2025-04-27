@@ -6,11 +6,9 @@ use App\Models\Chat;
 
 class ChatService
 {
-    public function get(int $patientId)
+    public function get(int $therapyId)
     {
-        return Chat::where('receiver_id', $patientId)
-            ->orWhere('sender_id', $patientId)
-            ->orderBy('created_at')->get();
+        return Chat::where('therapy_id', $therapyId)->oldest()->get();
     }
 
     public function store(array $validated)

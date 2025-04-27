@@ -80,6 +80,7 @@ class UserFactory extends Factory
         return $this->state([
             'role' => UserRole::PATIENT->value,
             'problems' => $jsonProblems,
+            'email_verified_at' => now(),
         ]);
     }
 }

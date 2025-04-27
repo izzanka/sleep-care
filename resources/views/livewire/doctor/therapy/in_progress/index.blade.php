@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\Problem;
+use App\Enum\TherapyStatus;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
@@ -18,7 +19,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\TherapyStatus;
 use App\Service\ChatService;
 use App\Service\TherapyService;
 use App\Service\UserService;
@@ -27,8 +28,9 @@ new class extends Component {
 
     public function mount()
     {
-        $this->dispatch('scroll-to-bottom');
-        $this->therapy = $this->therapyService->getInprogress(auth()->user()->doctor->id);
+        $doctorId = auth()->user()->doctor->id;
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        $this->isOnline = $this->userService->getPatientOnlineStatus($this->therapy->patient_id);
     }
 
     public function send()
@@ -51,12 +53,13 @@ new class extends Component {
 
     public function checkPatientOnlineStatus()
     {
-        $this->isOnline = $this->userService->getOnlineStatus($this->therapy->patient_id);
+        $this->isOnline = $this->userService->getPatientOnlineStatus($this->therapy->patient_id);
     }
 
     public function with()
     {
-        $chats = $this->chatService->get($this->therapy->patient_id);
+        $chats = $this->chatService->get($this->therapy->id);
+        $this->dispatch('scroll-to-bottom');
 
         return [
             'chats' => $chats,

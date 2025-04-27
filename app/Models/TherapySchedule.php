@@ -8,7 +8,6 @@ class TherapySchedule extends Model
 {
     protected $casts = [
         'date' => 'date',
-        'time' => 'datetime',
     ];
 
     public function therapy()

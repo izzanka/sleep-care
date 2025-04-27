@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\QuestionType;
+use App\Enum\TherapyStatus;
 use App\Service\Records\IdentifyValueService;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
@@ -23,7 +24,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->getInprogress($doctorId);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->identifyValue = $this->identifyValueService->get($this->therapy->id);
         $this->labels = $this->getUniqueNotes();
     }
@@ -83,9 +84,14 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Catatan Identifikasi Nilai (Identify Value)'])
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-        <div class="relative w-full max-w-md mx-auto">
-            <canvas id="identifyValueChart" class="w-full h-full"></canvas>
+        <div class="flex">
+            <div class="w-full max-w-md flex-shrink-0 mx-auto">
+                <canvas id="identifyValueChart" class="w-full h-80 mb-4"></canvas>
+            </div>
         </div>
+        {{--        <div class="relative w-full max-w-md mx-auto">--}}
+        {{--            <canvas id="identifyValueChart" class="w-full h-full"></canvas>--}}
+        {{--        </div>--}}
 
         <flux:separator class="mt-4 mb-4"/>
 

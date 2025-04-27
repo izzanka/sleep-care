@@ -8,7 +8,7 @@ class TherapyScheduleService
 {
     public function get(int $therapyId)
     {
-        return TherapySchedule::where('therapy_id', $therapyId)->get();
+        return TherapySchedule::where('therapy_id', $therapyId)->oldest()->get();
     }
 
     public function find(int $scheduleId)
