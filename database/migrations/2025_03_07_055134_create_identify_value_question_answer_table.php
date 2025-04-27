@@ -15,7 +15,6 @@ return new class extends Migration
             $table->foreignId('identify_value_id')->constrained();
             $table->foreignId('question_id')->constrained();
             $table->foreignId('answer_id')->constrained();
-            $table->timestamps();
         });
     }
 

@@ -13,6 +13,6 @@ class ThoughtRecord extends Model
 
     public function questionAnswers()
     {
-        return $this->hasMany(ThoughtRecordQuestionAnswer::class)->orderBy('created_at');
+        return $this->hasMany(ThoughtRecordQuestionAnswer::class);
     }
 }

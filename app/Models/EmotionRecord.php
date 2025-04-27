@@ -13,6 +13,6 @@ class EmotionRecord extends Model
 
     public function questionAnswers()
     {
-        return $this->hasMany(EmotionRecordQuestionAnswer::class)->orderBy('created_at');
+        return $this->hasMany(EmotionRecordQuestionAnswer::class);
     }
 }

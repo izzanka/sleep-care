@@ -18,6 +18,8 @@ new class extends Component {
     public $text;
     public $therapy;
     public $labels;
+    public $selectedWeek;
+    public $thoughtRecords;
 
     public function boot(ChartService         $chartService,
                          TherapyService       $therapyService,
@@ -34,6 +36,7 @@ new class extends Component {
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->thoughtRecords = $this->thoughtRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
+        $this->selectedWeek = min((int) $this->therapy->start_date->diffInWeeks(now()) + 1, 6);
         $this->text = 'Frekuensi Kemunculan Pikiran';
     }
 
@@ -74,18 +77,24 @@ new class extends Component {
     public function with()
     {
         $questions = $this->extractQuestions();
-        $chunks = $this->thoughtRecords->questionAnswers->chunk(count($questions));
-        $chunks = $chunks->sortByDesc(function ($chunk) {
+        $chunks = $this->thoughtRecords->questionAnswers->chunk(count($questions))->sortByDesc(function ($chunk) {
             $dateAnswer = optional($chunk->keyBy(fn($qa) => $qa->question_id)[23]->answer)->answer;
             return $dateAnswer ? Carbon::parse($dateAnswer) : null;
         })->values();
+        $filteredRows = $chunks->filter(function ($chunk) {
+            $groupedAnswers = $chunk->keyBy(fn($qa) => $qa->question_id);
+            $date = Carbon::parse($groupedAnswers[23]->answer->answer);
+            $weekNumber = (int)$this->therapy->start_date->diffInWeeks($date) + 1;
+            return min($weekNumber, 6) == $this->selectedWeek;
+        })->values();
+
         $dateCounts = $this->countThoughtRecordDates($chunks);
         $weeklyData = $this->groupCountsByWeek($dateCounts);
         $maxValue = $this->chartService->calculateMaxValue($weeklyData->toArray());
 
         return [
             'thoughtRecordQuestions' => $questions,
-            'chunks' => $chunks,
+            'chunks' => $filteredRows,
             'data' => $weeklyData->values()->toArray(),
             'maxValue' => $maxValue,
         ];
@@ -105,6 +114,12 @@ new class extends Component {
 
         <flux:separator class="mt-4 mb-4"/>
 
+        <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
+            @for ($i = 1; $i <= 6; $i++)
+                <flux:select.option :value="$i">Minggu {{$i}}</flux:select.option>
+            @endfor
+        </flux:select>
+
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border mb-2 mt-2">
                 <thead>
@@ -116,7 +131,7 @@ new class extends Component {
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($chunks as $index => $chunk)
+                @forelse($chunks as $index => $chunk)
                     <tr>
                         <td class="border p-2 text-center">{{ $index + 1 }}</td>
                         @foreach($thoughtRecordQuestions as $header)
@@ -150,7 +165,13 @@ new class extends Component {
                             </td>
                         @endforeach
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td class="border p-2 text-center" colspan="5">
+                            <flux:heading>Tidak ada catatan pikiran</flux:heading>
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>

@@ -69,7 +69,6 @@ class AnswerSeeder extends Seeder
                         'sleep_diary_id' => $sleepDiary->id,
                         'question_id' => $question['id'],
                         'answer_id' => $answer->id,
-                        'created_at' => $timestamp,
                     ];
                 }
 
@@ -83,9 +82,9 @@ class AnswerSeeder extends Seeder
         ]);
 
         $questions = [
-            ['id' => 20, 'type' => QuestionType::NUMBER->value, 'answer' => 4],
-            ['id' => 21, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-            ['id' => 22, 'type' => QuestionType::NUMBER->value, 'answer' => 9],
+            ['id' => 20, 'type' => QuestionType::NUMBER->value],
+            ['id' => 21, 'type' => QuestionType::TEXT->value],
+            ['id' => 22, 'type' => QuestionType::NUMBER->value],
         ];
 
         $categories = ['Keluarga', 'Pernikahan', 'Pertemanan', 'Pekerjaan', 'Pendidikan',
@@ -95,9 +94,15 @@ class AnswerSeeder extends Seeder
 
         foreach ($categories as $category) {
             foreach ($questions as $question) {
+                $randomAnswer = match ($question['type']) {
+                    QuestionType::NUMBER->value => fake()->numberBetween(1, 10),
+                    QuestionType::TEXT->value => fake()->sentence(),
+                    default => null,
+                };
+
                 $answer = Answer::create([
                     'type' => $question['type'],
-                    'answer' => $question['answer'],
+                    'answer' => $randomAnswer,
                     'note' => $category,
                     'created_at' => $timestamp,
                 ]);
@@ -106,7 +111,6 @@ class AnswerSeeder extends Seeder
                     'identify_value_id' => $identifyValue->id,
                     'question_id' => $question['id'],
                     'answer_id' => $answer->id,
-                    'created_at' => $timestamp,
                 ];
             }
         }
@@ -148,7 +152,6 @@ class AnswerSeeder extends Seeder
                         'thought_record_id' => $thoughtRecord->id,
                         'question_id' => $question['id'],
                         'answer_id' => $answer->id,
-                        'created_at' => $timestamp,
                     ];
                 }
 
@@ -192,7 +195,6 @@ class AnswerSeeder extends Seeder
                         'emotion_record_id' => $emotionRecord->id,
                         'question_id' => $question['id'],
                         'answer_id' => $answer->id,
-                        'created_at' => $timestamp,
                     ];
                 }
 
@@ -230,7 +232,6 @@ class AnswerSeeder extends Seeder
                         'committed_action_id' => $committedAction->id,
                         'question_id' => $question['id'],
                         'answer_id' => $answer->id,
-                        'created_at' => $timestamp,
                     ];
                 }
                 DB::table('committed_action_question_answer')->insert($committedRecords);

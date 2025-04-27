@@ -172,10 +172,11 @@ new class extends Component {
                         ticks: {
                             stepSize: 1,
                             color: isDark ? '#ffffff' : '#000000',
+                            backdropColor: 'transparent',
                         },
-                        grid: {
-                            color: isDark ? '#ffffff' : '#000000',
-                        },
+                        // grid: {
+                        //     color: isDark ? '#ffffff' : '#000000',
+                        // },
                         pointLabels: {
                             color: isDark ? '#ffffff' : '#000000',
                         }
@@ -204,5 +205,4 @@ new class extends Component {
         attributeFilter: ['class'],
     });
 </script>
-
 @endscript

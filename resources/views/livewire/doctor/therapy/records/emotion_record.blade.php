@@ -17,6 +17,7 @@ new class extends Component {
     public $emotionRecord;
     public $labels;
     public $chartTitle;
+    public $selectedWeek;
 
     public function boot(ChartService         $chartService,
                          TherapyService       $therapyService,
@@ -33,6 +34,7 @@ new class extends Component {
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->emotionRecord = $this->emotionRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
+        $this->selectedWeek = min((int) $this->therapy->start_date->diffInWeeks(now()) + 1, 6);
         $this->chartTitle = 'Frekuensi Kemunculan Emosi';
     }
 
@@ -90,6 +92,13 @@ new class extends Component {
             ->sortByDesc(fn($chunk) => Carbon::parse($chunk->keyBy(fn($qa) => $qa->question_id)[27]->answer->answer))
             ->values();
 
+        $filteredRows = $chunks->filter(function ($chunk) {
+            $groupedAnswers = $chunk->keyBy(fn($qa) => $qa->question_id);
+            $date = Carbon::parse($groupedAnswers[27]->answer->answer);
+            $weekNumber = (int)$this->therapy->start_date->diffInWeeks($date) + 1;
+            return min($weekNumber, 6) == $this->selectedWeek;
+        })->values();
+
         $answerData = $this->extractAnswerData($chunks);
         $emotionFrequencies = $this->calculateWeeklyEmotionFrequencies($answerData);
         $chartDatasets = $this->buildChartDatasets($emotionFrequencies);
@@ -97,7 +106,7 @@ new class extends Component {
 
         return [
             'questions' => $questions,
-            'answerRows' => $chunks,
+            'answerRows' => $filteredRows,
             'datasets' => $chartDatasets,
             'maxValue' => $maxValue,
         ];
@@ -119,6 +128,18 @@ new class extends Component {
 
         <flux:separator class="mt-4 mb-4"/>
 
+            <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
+                @for ($i = 1; $i <= 6; $i++)
+                    <flux:select.option :value="$i">Minggu {{$i}}</flux:select.option>
+                @endfor
+            </flux:select>
+{{--            <label for="week-select" class="mr-2 font-medium">Pilih Minggu:</label>--}}
+{{--            <select id="week-select" wire:model.live="selectedWeek" class="border rounded p-2 dark:bg-zinc-700 dark:text-white">--}}
+{{--                @for ($i = 1; $i <= 6; $i++)--}}
+{{--                    <option value="{{ $i }}">Minggu {{ $i }}</option>--}}
+{{--                @endfor--}}
+{{--            </select>--}}
+
         <div class="overflow-x-auto">
             <table class="text-sm border mb-2 mt-2 w-full">
                 <thead>
@@ -130,7 +151,7 @@ new class extends Component {
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($answerRows as $index => $row)
+                @forelse($answerRows as $index => $row)
                     <tr>
                         <td class="border p-2 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
@@ -150,7 +171,13 @@ new class extends Component {
                             </td>
                         @endforeach
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td class="border p-2 text-center" colspan="9">
+                            <flux:heading>Tidak ada catatan emosi</flux:heading>
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>

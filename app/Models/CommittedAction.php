@@ -13,6 +13,6 @@ class CommittedAction extends Model
 
     public function questionAnswers()
     {
-        return $this->hasMany(CommittedActionQuestionAnswer::class)->orderBy('created_at');
+        return $this->hasMany(CommittedActionQuestionAnswer::class);
     }
 }

@@ -173,7 +173,7 @@ new class extends Component {
                         "
                     >
                         <div class="flex items-center justify-between w-full">
-                            Catatan Tidur Minggu Ke-{{ $index }}
+                            Catatan Tidur Minggu {{ $index }}
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
                                  viewBox="0 0 24 24"
@@ -209,7 +209,7 @@ new class extends Component {
                             </tr>
 
                             <tr>
-                                <td class="p-2 text-center font-bold" colspan="9">Siang Hari</td>
+                                <td class="p-2 text-center font-bold" colspan="8">Siang Hari</td>
                             </tr>
 
                             @foreach($structuredQuestions as $question)
@@ -251,7 +251,7 @@ new class extends Component {
 
                                 @if($question->id == 13)
                                     <tr>
-                                        <td class="p-2 text-center font-bold" colspan="9">Malam Hari</td>
+                                        <td class="p-2 text-center font-bold" colspan="8">Malam Hari</td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -403,7 +403,7 @@ new class extends Component {
                     y: {
                         stacked: true,
                         min: 0,
-                        max: 60,
+                        max: 30,
                         ticks: {
                             color: isDark ? '#ffffff' : '#000000',
                         },

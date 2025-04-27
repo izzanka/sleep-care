@@ -17,6 +17,6 @@ class SleepDiary extends Model
 
     public function questionAnswers()
     {
-        return $this->hasMany(SleepDiaryQuestionAnswer::class)->orderBy('created_at');
+        return $this->hasMany(SleepDiaryQuestionAnswer::class);
     }
 }

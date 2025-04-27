@@ -45,7 +45,7 @@ new class extends Component {
     {
         $questionAnswers = $this->committedAction->questionAnswers;
         $questionLabels = $questionAnswers->pluck('question.question')->unique()->values();
-        $tableRows = $questionAnswers->chunk($questionLabels->count());
+        $tableRows = $questionAnswers->sortByDesc('answer.created_at')->chunk($questionLabels->count());
         $chart = $this->prepareChartData();
 
         return [
