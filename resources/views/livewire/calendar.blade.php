@@ -13,6 +13,7 @@
         if (!calendarEl) return;
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'id',
             initialView: 'dayGridMonth',
             height: 540,
             timeZone: 'UTC',

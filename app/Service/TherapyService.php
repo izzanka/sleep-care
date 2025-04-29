@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Enum\TherapyStatus;
 use App\Models\Therapy;
 
 class TherapyService
@@ -18,6 +19,12 @@ class TherapyService
             $query->where('patient_id', $patientId);
         }
 
-        return $query->where('status', $status)->latest()->first();
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $query->latest();
+
+        return $status === TherapyStatus::COMPLETED->value ? $query->get() : $query->first();
     }
 }

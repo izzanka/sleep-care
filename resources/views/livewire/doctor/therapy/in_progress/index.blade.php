@@ -20,7 +20,9 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
-        $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
+        if($this->therapy){
+            $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
+        }
     }
 
     protected function formatPatientProblems(?string $problems)
@@ -61,11 +63,11 @@ new class extends Component {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div>
                         <flux:heading>Tanggal Mulai</flux:heading>
-                        <flux:text>{{$therapy->start_date->format('d M Y')}}</flux:text>
+                        <flux:text>{{$therapy->start_date->isoFormat('D MMMM Y')}}</flux:text>
                     </div>
                     <div>
                         <flux:heading>Tanggal Selesai</flux:heading>
-                        <flux:text>{{$therapy->end_date->format('d M Y')}}</flux:text>
+                        <flux:text>{{$therapy->end_date->isoFormat('D MMMM Y')}}</flux:text>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

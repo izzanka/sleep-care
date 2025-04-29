@@ -92,7 +92,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Jadwal Pertemuan'])
+    @include('partials.main-heading', ['title' => 'Jadwal Sesi'])
     {{--    <x-therapies.on-going-layout>--}}
     <flux:modal name="editSchedule" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
         <div class="space-y-6" x-data="{ showNote: false }" x-init="showNote = @json($is_completed)">
@@ -141,7 +141,7 @@ new class extends Component {
             </div>
             <div class="flex items-center gap-2 mt-4">
                 <flux:icon.clock></flux:icon.clock>
-                <flux:text>{{$schedule->date->format('d M Y')}}
+                <flux:text>{{$schedule->date->isoFormat('D MMMM Y')}}
                     - {{Carbon::parse($schedule->time)->format('H:i')}}</flux:text>
             </div>
             <div class="mt-4">

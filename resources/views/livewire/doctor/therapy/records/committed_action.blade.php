@@ -72,46 +72,54 @@ new class extends Component {
 
         <flux:separator class="mt-4 mb-4"></flux:separator>
 
-        <div class="overflow-x-auto">
-            <table class="table-auto w-full text-sm border mb-2 mt-2">
+        <div class="overflow-x-auto border mt-4">
+            <table class="min-w-[800px] table-auto w-full text-sm text-left">
                 <thead>
                 <tr>
-                    <th class="border p-2 text-center">No</th>
+                    <th class="border p-3 text-center">No</th>
                     @foreach($questions as $question)
-                        <th class="border p-2 text-center">{{ $question }}</th>
+                        <th class="border p-3 text-center whitespace-nowrap">{{ $question }}</th>
                     @endforeach
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($rows as $index => $row)
+                @forelse($rows as $index => $row)
                     <tr>
-                        <td class="border p-2 text-center">{{ $index + 1 }}</td>
+                        <td class="border p-3 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
                             @php
-                                $answer = $row->firstWhere('question.question', $question);
-                                $isBinary = $answer->answer->type === QuestionType::BINARY->value;
+                                $answerData = $row->firstWhere('question.question', $question)?->answer;
+                                $isBinary = $answerData?->type === QuestionType::BINARY->value;
+                                $value = $answerData?->answer ?? null;
                             @endphp
-                            <td class="border p-2">
+                            <td class="border p-3">
                                 @if($isBinary)
                                     <div class="flex justify-center items-center h-full">
-                                        @if($answer->answer->answer)
-                                            <flux:icon.check-circle class="text-green-500"/>
+                                        @if($value)
+                                            <flux:icon.check-circle class="text-green-500 w-5 h-5"/>
                                         @else
-                                            <flux:icon.x-circle class="text-red-500"/>
+                                            <flux:icon.x-circle class="text-red-500 w-5 h-5"/>
                                         @endif
                                     </div>
                                 @else
                                     <div class="text-left">
-                                        {{ $answer->answer->answer ?? '-' }}
+                                        {{ $value ?? '-' }}
                                     </div>
                                 @endif
                             </td>
                         @endforeach
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td class="border p-4 text-center" colspan="{{ count($questions) + 1 }}">
+                            <flux:heading>Belum ada data jawaban</flux:heading>
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
+
     </div>
 </section>
 

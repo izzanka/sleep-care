@@ -15,6 +15,7 @@ new class extends Component {
 
     public $therapy;
     public $labels;
+    public $dropdownLabels;
 
     public function boot(ChartService      $chartService,
                          SleepDiaryService $sleepDiaryService,
@@ -30,6 +31,7 @@ new class extends Component {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->labels = $this->chartService->labels;
+        $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
     }
 
     public function getQuestions($sleepDiaries)
@@ -173,7 +175,7 @@ new class extends Component {
                         "
                     >
                         <div class="flex items-center justify-between w-full">
-                            Catatan Tidur Minggu {{ $index }}
+                            Catatan Tidur {{ $dropdownLabels[$index - 1]}}
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
                                  viewBox="0 0 24 24"
@@ -204,7 +206,7 @@ new class extends Component {
                             <tr>
                                 <th class="border p-2 text-center">Tanggal</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="border p-2 text-center">{{ $diary->date->format('d M') }}</th>
+                                    <th class="border p-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
                                 @endforeach
                             </tr>
 

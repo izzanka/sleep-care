@@ -15,6 +15,7 @@ new class extends Component {
 
     public $therapy;
     public $emotionRecord;
+    public $dropdownLabels;
     public $labels;
     public $chartTitle;
     public $selectedWeek;
@@ -34,7 +35,8 @@ new class extends Component {
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
         $this->emotionRecord = $this->emotionRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
-        $this->selectedWeek = min((int) $this->therapy->start_date->diffInWeeks(now()) + 1, 6);
+        $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
+        $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);
         $this->chartTitle = 'Frekuensi Kemunculan Emosi';
     }
 
@@ -128,59 +130,62 @@ new class extends Component {
 
         <flux:separator class="mt-4 mb-4"/>
 
-            <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
-                @for ($i = 1; $i <= 6; $i++)
-                    <flux:select.option :value="$i">Minggu {{$i}}</flux:select.option>
-                @endfor
-            </flux:select>
-{{--            <label for="week-select" class="mr-2 font-medium">Pilih Minggu:</label>--}}
-{{--            <select id="week-select" wire:model.live="selectedWeek" class="border rounded p-2 dark:bg-zinc-700 dark:text-white">--}}
-{{--                @for ($i = 1; $i <= 6; $i++)--}}
-{{--                    <option value="{{ $i }}">Minggu {{ $i }}</option>--}}
-{{--                @endfor--}}
-{{--            </select>--}}
+        <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
+            @foreach ($dropdownLabels as $index => $label)
+                <flux:select.option :value="$index + 1">{{$label}}</flux:select.option>
+            @endforeach
+        </flux:select>
+        {{--            <label for="week-select" class="mr-2 font-medium">Pilih Minggu:</label>--}}
+        {{--            <select id="week-select" wire:model.live="selectedWeek" class="border rounded p-2 dark:bg-zinc-700 dark:text-white">--}}
+        {{--                @for ($i = 1; $i <= 6; $i++)--}}
+        {{--                    <option value="{{ $i }}">Minggu {{ $i }}</option>--}}
+        {{--                @endfor--}}
+        {{--            </select>--}}
 
-        <div class="overflow-x-auto">
-            <table class="text-sm border mb-2 mt-2 w-full">
+        <div class="overflow-x-auto mt-4">
+            <table class="min-w-[800px] w-full text-sm text-left">
                 <thead>
                 <tr>
-                    <th class="border p-2 text-center">No</th>
+                    <th class="border p-3 text-center">No</th>
                     @foreach($questions as $question)
-                        <th class="border p-2 text-center">{{ $question }}</th>
+                        <th class="border p-3 text-center">{{ $question }}</th>
                     @endforeach
                 </tr>
                 </thead>
                 <tbody>
                 @forelse($answerRows as $index => $row)
                     <tr>
-                        <td class="border p-2 text-center">{{ $index + 1 }}</td>
+                        <td class="border p-3 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
                             @php
-                                $answer = $row->firstWhere('question.question', $question)->answer;
-                                $type = $answer->type;
-                                $value = $answer->answer;
+                                $answerData = $row->firstWhere('question.question', $question)?->answer;
+                                $type = $answerData?->type ?? null;
+                                $value = $answerData?->answer ?? null;
+
                                 $formattedValue = match($type) {
-                                    QuestionType::DATE->value => Carbon::parse($value)->format('d M'),
-                                    QuestionType::TIME->value,QuestionType::NUMBER->value => $value,
+                                    QuestionType::DATE->value => $value ? Carbon::parse($value)->isoFormat('D MMMM') : '-',
+                                    QuestionType::TIME->value, QuestionType::NUMBER->value => $value ?? '-',
                                     default => $value ?? '-',
                                 };
+
                                 $alignment = in_array($type, [QuestionType::DATE->value, QuestionType::TIME->value, QuestionType::NUMBER->value]) ? 'text-center' : 'text-left';
                             @endphp
-                            <td class="border p-2 {{ $alignment }}">
+                            <td class="border p-3 {{ $alignment }}">
                                 {{ $formattedValue }}
                             </td>
                         @endforeach
                     </tr>
                 @empty
                     <tr>
-                        <td class="border p-2 text-center" colspan="9">
-                            <flux:heading>Tidak ada catatan emosi</flux:heading>
+                        <td class="border p-4 text-center" colspan="{{ count($questions) + 1 }}">
+                            <flux:heading>Belum ada catatan emosi</flux:heading>
                         </td>
                     </tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
+
     </div>
 </section>
 

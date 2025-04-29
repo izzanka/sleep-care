@@ -6,6 +6,15 @@ class ChartService
 {
     public array $labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5', 'Minggu 6'];
 
+    public function labeling($startDate)
+    {
+        return collect(range(1, 6))->map(function ($week) use ($startDate) {
+            $weekStart = $startDate->copy()->addWeeks($week - 1);
+            $weekEnd = $weekStart->copy()->addDays(6);
+            return "Minggu $week (" . $weekStart->isoFormat('D MMMM') . ' - ' . $weekEnd->isoFormat('D MMMM') . ")";
+        })->toArray();
+    }
+
     public function calculateMaxValue($data): int
     {
         $max = max($data);

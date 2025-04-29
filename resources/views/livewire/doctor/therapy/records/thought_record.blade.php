@@ -20,6 +20,7 @@ new class extends Component {
     public $labels;
     public $selectedWeek;
     public $thoughtRecords;
+    public $dropdownLabels;
 
     public function boot(ChartService         $chartService,
                          TherapyService       $therapyService,
@@ -37,6 +38,7 @@ new class extends Component {
         $this->thoughtRecords = $this->thoughtRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->selectedWeek = min((int) $this->therapy->start_date->diffInWeeks(now()) + 1, 6);
+        $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
         $this->text = 'Frekuensi Kemunculan Pikiran';
     }
 
@@ -115,13 +117,13 @@ new class extends Component {
         <flux:separator class="mt-4 mb-4"/>
 
         <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
-            @for ($i = 1; $i <= 6; $i++)
-                <flux:select.option :value="$i">Minggu {{$i}}</flux:select.option>
-            @endfor
+            @foreach ($dropdownLabels as $index => $label)
+                <flux:select.option :value="$index + 1">{{$label}}</flux:select.option>
+            @endforeach
         </flux:select>
 
         <div class="overflow-x-auto">
-            <table class="table-auto w-full text-sm border mb-2 mt-2">
+            <table class="table-auto w-full text-sm mb-2 mt-2">
                 <thead>
                 <tr>
                     <th class="border p-2 text-center">No</th>
@@ -143,7 +145,7 @@ new class extends Component {
                             <td class="border p-2">
                                 @if($type === QuestionType::DATE->value)
                                     <div class="text-center">
-                                        {{ Carbon::parse($value)->format('d M') }}
+                                        {{ Carbon::parse($value)->isoFormat('D MMMM') }}
                                     </div>
                                 @elseif($type == QuestionType::TIME->value)
                                     <div class="text-center">
@@ -168,7 +170,7 @@ new class extends Component {
                 @empty
                     <tr>
                         <td class="border p-2 text-center" colspan="5">
-                            <flux:heading>Tidak ada catatan pikiran</flux:heading>
+                            <flux:heading>Belum ada catatan pikiran</flux:heading>
                         </td>
                     </tr>
                 @endforelse

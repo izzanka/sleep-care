@@ -21,11 +21,12 @@ class DoctorController extends Controller
         $validated = $request->validate([
             'order_by' => ['required', Rule::in($allowedColumns)],
             'sort' => ['required', Rule::in($allowedSorts)],
+            'paginate' => ['required', 'integer'],
         ]);
 
         try {
 
-            $doctors = $this->doctorService->get($validated['order_by'], $validated['sort']);
+            $doctors = $this->doctorService->get($validated['order_by'], $validated['sort'], $validated['paginate']);
 
             return Response::success([
                 'doctors' => DoctorResource::collection($doctors),
