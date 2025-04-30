@@ -33,6 +33,9 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        if(!$this->therapy){
+            $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
         $this->therapySchedules = $this->therapyScheduleService->get($this->therapy->id);
     }
 
@@ -47,7 +50,7 @@ new class extends Component {
         $schedule = $this->therapyScheduleService->find($scheduleID);
 
         if (!$schedule) {
-            Session::flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
         $this->fillScheduleData($schedule);
@@ -79,14 +82,14 @@ new class extends Component {
         $schedule = $this->therapyScheduleService->find($scheduleID);
 
         if (!$schedule) {
-            Session::flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
         $schedule->update($validated);
 
         $this->modal('editSchedule')->close();
 
-        Session::flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
+        session()->flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
         $this->redirectRoute('doctor.therapies.in_progress.schedule');
     }
 }; ?>

@@ -29,7 +29,11 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
+
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        if(!$this->therapy){
+            return $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
         $this->labels = $this->chartService->labels;
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
     }
@@ -86,6 +90,7 @@ new class extends Component {
         }
 
         $structuredQuestions = $this->getQuestions($sleepDiaries);
+
 
         return [
             'sleepDiaries' => $sleepDiaries,

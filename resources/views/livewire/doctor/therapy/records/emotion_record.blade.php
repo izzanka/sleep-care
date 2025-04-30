@@ -33,6 +33,9 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        if(!$this->therapy){
+            return $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
         $this->emotionRecord = $this->emotionRecordService->get($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);

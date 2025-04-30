@@ -33,8 +33,18 @@ class TokenService
         ]);
     }
 
-    public function deleteOtp(string $token)
+    public function deleteOtp(string $token = null, string $email = null)
     {
-        return DB::table('password_reset_tokens')->where('token', $token)->delete();
+        $query = DB::table('password_reset_tokens');
+
+        if($token){
+            $query->where('token', $token);
+        }
+
+        if($email){
+            $query->where('email', $email);
+        }
+
+        return $query->delete();
     }
 }

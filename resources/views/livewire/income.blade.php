@@ -47,10 +47,8 @@ new class extends Component {
         return [
             'orders' => Order::where('status', OrderStatus::SUCCESS->value)
                 ->whereHas('therapy', fn($query) =>
-                $query->where('doctor_id', $user->doctor->id)
-                )
-                ->latest()
-                ->paginate(15),
+                    $query->where('doctor_id', $user->doctor->id)
+                )->latest()->paginate(15),
         ];
     }
 }; ?>

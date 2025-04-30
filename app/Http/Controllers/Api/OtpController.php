@@ -27,6 +27,9 @@ class OtpController extends Controller
 
             $checkOtp = $this->otpService->getAvailableOtp($validated['email']);
             if ($checkOtp) {
+                if (now()->greaterThan($checkOtp->expired_at)) {
+                    $this->otpService->deleteOtp(email: $validated['email']);
+                }
                 return Response::error('Kode OTP sudah dikirim sebelumnya dan belum kedaluwarsa.', 400);
             }
 
@@ -67,7 +70,7 @@ class OtpController extends Controller
             }
 
             $user->update(['email_verified_at' => now()]);
-            $this->otpService->deleteOtp($validated['otp']);
+            $this->otpService->deleteOtp($validated['otp'], $validated['email']);
 
             $this->notifyAdmin($user);
 

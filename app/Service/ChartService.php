@@ -11,7 +11,8 @@ class ChartService
         return collect(range(1, 6))->map(function ($week) use ($startDate) {
             $weekStart = $startDate->copy()->addWeeks($week - 1);
             $weekEnd = $weekStart->copy()->addDays(6);
-            return "Minggu $week (" . $weekStart->isoFormat('D MMMM') . ' - ' . $weekEnd->isoFormat('D MMMM') . ")";
+
+            return "Minggu $week (".$weekStart->isoFormat('D MMMM').' - '.$weekEnd->isoFormat('D MMMM').')';
         })->toArray();
     }
 

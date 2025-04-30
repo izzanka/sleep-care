@@ -22,21 +22,20 @@ new class extends Component {
     public int $registered_year;
     public $avatar;
     public $avatar_url;
+    public $user;
 
     public function mount(): void
     {
-        $user = Auth::user();
+        $this->user = auth()->user();
 
-        $this->fillUserFields($user);
-        $this->fillDoctorFields($user);
+        $this->fillUserFields();
+        $this->fillDoctorFields();
     }
 
     public function updateProfileInformation()
     {
-        $user = Auth::user();
-
         if ($this->shouldUpdateDoctorInfo()) {
-            $this->updateDoctorInformation($user);
+            $this->updateDoctorInformation();
         }
 
         $validated = $this->validate([
@@ -58,15 +57,15 @@ new class extends Component {
             $validated['avatar'] = $this->avatar->store('img/avatars', 'public');
         }
 
-        $user->fill($validated);
+        $this->user->fill($validated);
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
+        if ($this->user->isDirty('email')) {
+            $this->user->email_verified_at = null;
         }
 
-        $user->save();
+        $this->user->save();
 
-        Session::flash('status', ['message' => 'Profile berhasil diubah.', 'success' => true]);
+        session()->flash('status', ['message' => 'Profile berhasil diubah.', 'success' => true]);
 
         $this->js("
             window.scrollTo({
@@ -76,20 +75,20 @@ new class extends Component {
         ");
     }
 
-    protected function fillUserFields($user)
+    protected function fillUserFields()
     {
-        $this->name = $user->name;
-        $this->email = $user->email;
-        $this->gender = $user->gender->value;
-        $this->age = $user->age;
-        $this->avatar_url = $user->avatar;
+        $this->name = $this->user->name;
+        $this->email = $this->user->email;
+        $this->gender = $this->user->gender->value;
+        $this->age = $this->user->age;
+        $this->avatar_url = $this->user->avatar;
     }
 
-    protected function fillDoctorFields($user)
+    protected function fillDoctorFields()
     {
-        $this->phone = $user->doctor->phone;
-        $this->registered_year = $user->doctor->registered_year;
-        $this->name_title = $user->doctor->name_title;
+        $this->phone = $this->user->doctor->phone;
+        $this->registered_year = $this->user->doctor->registered_year;
+        $this->name_title = $this->user->doctor->name_title;
     }
 
     protected function shouldUpdateDoctorInfo()
@@ -97,29 +96,27 @@ new class extends Component {
         return $this->name_title !== '' || $this->phone !== '';
     }
 
-    public function updateDoctorInformation($user)
+    public function updateDoctorInformation()
     {
         $validated = $this->validate([
             'name_title' => ['nullable', 'string', 'max:225'],
             'phone' => ['nullable', 'string', 'max:225'],
         ]);
 
-        $user->doctor->update($validated);
+        $this->user->doctor->update($validated);
     }
 
     public function resendVerificationNotification(): void
     {
-        $user = Auth::user();
-
-        if ($user->hasVerifiedEmail()) {
+        if ($this->user->hasVerifiedEmail()) {
             $this->redirectIntended(default: route('dashboard', absolute: false));
 
             return;
         }
 
-        $user->sendEmailVerificationNotification();
+        $this->user->sendEmailVerificationNotification();
 
-        Session::flash('status', 'verification-link-sent');
+        session()->flash('status', 'verification-link-sent');
     }
 }; ?>
 

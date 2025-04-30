@@ -30,6 +30,9 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        if(!$this->therapy){
+            return redirect()->route('doctor.therapies.in_progress.index');
+        }
         $this->isOnline = $this->userService->getPatientOnlineStatus($this->therapy->patient_id);
     }
 
@@ -45,7 +48,7 @@ new class extends Component {
 
         $result = $this->chatService->store($validated);
         if (!$result) {
-            Session::flash('status', ['message' => 'Gagal mengirimkan pesan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Gagal mengirimkan pesan.', 'success' => false]);
         }
         $this->reset(['message']);
         $this->dispatch('scroll-to-bottom');

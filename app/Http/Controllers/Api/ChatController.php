@@ -37,7 +37,7 @@ class ChatController extends Controller
     public function send(Request $request)
     {
         $validated = $request->validate([
-            'message' => ['required', 'string']
+            'message' => ['required', 'string'],
         ]);
 
         try {
@@ -52,7 +52,7 @@ class ChatController extends Controller
             $validated['receiver_id'] = $therapy->doctor_id;
 
             $chat = $this->chatService->store($validated);
-            if (!$chat) {
+            if (! $chat) {
                 return Response::error('Gagal mengirimkan pesan.', 500);
             }
 

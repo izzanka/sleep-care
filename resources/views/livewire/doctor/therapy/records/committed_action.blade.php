@@ -23,6 +23,9 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        if(!$this->therapy){
+            return $this->redirectRoute('doctor.therapies.in_progress.index');
+        }
         $this->committedAction = $this->committedActionService->get($this->therapy->id);
     }
 

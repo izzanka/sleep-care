@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 
 class AuthController extends Controller
@@ -144,10 +143,10 @@ class AuthController extends Controller
             }
 
             $user->password = Hash::make($validated['password']);
-            $user->setRememberToken(Str::random(60));
+            $user->setRememberToken(str()->random(60));
             $user->save();
 
-            $this->otpService->deleteOtp($validated['token']);
+            $this->otpService->deleteOtp($validated['token'], $validated['email']);
 
             return Response::success(null, 'Password berhasil direset.');
 

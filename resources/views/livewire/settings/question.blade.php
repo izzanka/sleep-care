@@ -101,7 +101,7 @@ new class extends Component {
     {
         $question = Question::select('id', 'question', 'type', 'record_type', 'parent_id', 'is_parent', 'note')->find($questionID);
         if(!$question){
-            Session::flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
         }
         $this->ID = $questionID;
         $this->question = $question->question;
@@ -133,14 +133,14 @@ new class extends Component {
         $question = Question::find($questionID);
 
         if(!$question){
-            Session::flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
         $question->update($validated);
 
         $this->modal('editQuestion')->close();
 
-        Session::flash('status', ['message' => 'Pertanyaan catatan terapi berhasil diubah.', 'success' => true]);
+        session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil diubah.', 'success' => true]);
 
         $this->js(
             "window.scrollTo({
@@ -155,14 +155,14 @@ new class extends Component {
         $question = Question::find($questionID);
 
         if(!$question){
-            Session::flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
         }
 
         $question->delete();
 
         $this->modal('deleteQuestion')->close();
 
-        Session::flash('status', ['message' => 'Pertanyaan catatan terapi berhasil dihapus.', 'success' => true]);
+        session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil dihapus.', 'success' => true]);
 
         $this->js(
             "window.scrollTo({
