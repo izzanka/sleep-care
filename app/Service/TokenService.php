@@ -33,15 +33,15 @@ class TokenService
         ]);
     }
 
-    public function deleteOtp(string $token = null, string $email = null)
+    public function deleteOtp(?string $token = null, ?string $email = null)
     {
         $query = DB::table('password_reset_tokens');
 
-        if($token){
+        if ($token) {
             $query->where('token', $token);
         }
 
-        if($email){
+        if ($email) {
             $query->where('email', $email);
         }
 

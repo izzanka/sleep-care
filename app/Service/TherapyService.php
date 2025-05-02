@@ -7,9 +7,13 @@ use App\Models\Therapy;
 
 class TherapyService
 {
-    public function find(?int $doctorId = null, ?int $patientId = null, ?string $status = null)
+    public function find(?int $doctorId = null, ?int $patientId = null, ?string $status = null, ?int $id = null)
     {
         $query = Therapy::query();
+
+        if ($id) {
+            $query->find($id);
+        }
 
         if ($doctorId) {
             $query->where('doctor_id', $doctorId);

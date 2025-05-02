@@ -54,10 +54,10 @@ class UserFactory extends Factory
     {
         return $this->state([
             'name' => 'admin',
-            'email' => 'admin@sleepcare.com',
+            'email' => 'admin@sleepcares.xyz',
             'role' => UserRole::ADMIN->value,
             'email_verified_at' => now(),
-            'balance' => 20000,
+            'balance' => 40000,
         ]);
     }
 

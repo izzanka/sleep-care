@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::prefix('doctor')->name('doctor.')->group(function () {
             //            Route::redirect('therapies', 'therapies/in-progress');
+            Volt::route('therapies/completed/{id}/detail', 'doctor.therapy.completed.detail')->name('therapies.completed.detail');
             Volt::route('therapies/completed', 'doctor.therapy.completed.index')->name('therapies.completed.index');
 
             Volt::route('therapies/in-progress', 'doctor.therapy.in_progress.index')->name('therapies.in_progress.index');

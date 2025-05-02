@@ -25,19 +25,37 @@ class TherapySeeder extends Seeder
 
         $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->first();
 
-        $therapy = Therapy::factory()->create([
+        $therapyInProgress = Therapy::factory()->create([
             'doctor_id' => $doctor->id,
             'patient_id' => $patient->id,
             'status' => TherapyStatus::IN_PROGRESS->value,
         ]);
 
         Order::factory()->create([
-            'therapy_id' => $therapy->id,
+            'therapy_id' => $therapyInProgress->id,
             'status' => OrderStatus::SUCCESS->value,
         ]);
 
         Chat::create([
-            'therapy_id' => $therapy->id,
+            'therapy_id' => $therapyInProgress->id,
+            'sender_id' => $patient->id,
+            'receiver_id' => $doctor->user->id,
+            'message' => 'Halo salam kenal',
+        ]);
+
+        $therapyCompleted = Therapy::factory()->create([
+            'doctor_id' => $doctor->id,
+            'patient_id' => $patient->id,
+            'status' => TherapyStatus::COMPLETED->value,
+        ]);
+
+        Order::factory()->create([
+            'therapy_id' => $therapyCompleted->id,
+            'status' => OrderStatus::SUCCESS->value,
+        ]);
+
+        Chat::create([
+            'therapy_id' => $therapyCompleted->id,
             'sender_id' => $patient->id,
             'receiver_id' => $doctor->user->id,
             'message' => 'Halo salam kenal',

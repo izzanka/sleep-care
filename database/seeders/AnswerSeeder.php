@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enum\QuestionType;
+use App\Enum\TherapyStatus;
 use App\Models\Answer;
 use App\Models\CommittedAction;
 use App\Models\EmotionRecord;
@@ -17,12 +18,24 @@ class AnswerSeeder extends Seeder
 {
     public function run(): void
     {
-        $therapy = Therapy::select('id', 'start_date')->first();
+        $therapyInProgress = Therapy::where('status', TherapyStatus::IN_PROGRESS->value)->first();
+        $therapyCompleted = Therapy::where('status', TherapyStatus::COMPLETED->value)->first();
         $timestamp = now();
 
+        foreach ([$therapyInProgress, $therapyCompleted] as $therapy) {
+            $this->seedSleepDiaries($therapy, $timestamp);
+            $this->seedIdentifyValue($therapy, $timestamp);
+            $this->seedThoughtRecords($therapy, $timestamp);
+            $this->seedEmotionRecords($therapy, $timestamp);
+            $this->seedCommittedActions($therapy, $timestamp);
+        }
+    }
+
+    private function seedSleepDiaries(Therapy $therapy, $timestamp)
+    {
         for ($week = 1; $week <= 6; $week++) {
             for ($day = 1; $day <= 7; $day++) {
-                $currentDate = $therapy->start_date->copy()->addDays((($week - 1) * 7) + ($day - 1));
+                $currentDate = $therapy->start_date->addDays((($week - 1) * 7) + ($day - 1));
 
                 $sleepDiary = SleepDiary::create([
                     'therapy_id' => $therapy->id,
@@ -56,7 +69,6 @@ class AnswerSeeder extends Seeder
                 ];
 
                 $sleepDiaryRecords = [];
-
                 foreach ($sleepDiaryQuestions as $question) {
                     $answer = Answer::create([
                         'type' => $question['type'],
@@ -75,7 +87,10 @@ class AnswerSeeder extends Seeder
                 DB::table('sleep_diary_question_answer')->insert($sleepDiaryRecords);
             }
         }
+    }
 
+    private function seedIdentifyValue(Therapy $therapy, $timestamp)
+    {
         $identifyValue = IdentifyValue::create([
             'therapy_id' => $therapy->id,
             'created_at' => $timestamp,
@@ -87,8 +102,7 @@ class AnswerSeeder extends Seeder
             ['id' => 22, 'type' => QuestionType::NUMBER->value],
         ];
 
-        $categories = ['Keluarga', 'Pernikahan', 'Pertemanan', 'Pekerjaan', 'Pendidikan',
-            'Rekreasi', 'Spiritualitas', 'Komunitas', 'Lingkungan', 'Kesehatan'];
+        $categories = ['Keluarga', 'Pernikahan', 'Pertemanan', 'Pekerjaan', 'Pendidikan', 'Rekreasi', 'Spiritualitas', 'Komunitas', 'Lingkungan', 'Kesehatan'];
 
         $relations = [];
 
@@ -116,11 +130,13 @@ class AnswerSeeder extends Seeder
         }
 
         DB::table('identify_value_question_answer')->insert($relations);
+    }
 
-        // Thought Record
+    private function seedThoughtRecords(Therapy $therapy, $timestamp)
+    {
         $thoughtRecord = ThoughtRecord::create([
             'therapy_id' => $therapy->id,
-            'created_at' => now(),
+            'created_at' => $timestamp,
         ]);
 
         for ($week = 0; $week < 6; $week++) {
@@ -140,7 +156,6 @@ class AnswerSeeder extends Seeder
                 ];
 
                 $pivotData = [];
-
                 foreach ($questions as $question) {
                     $answer = Answer::create([
                         'type' => $question['type'],
@@ -158,8 +173,10 @@ class AnswerSeeder extends Seeder
                 DB::table('thought_record_question_answer')->insert($pivotData);
             }
         }
+    }
 
-        // Emotion Record
+    private function seedEmotionRecords(Therapy $therapy, $timestamp)
+    {
         $positive = ['Bahagia', 'Gembira', 'Syukur', 'Tenang', 'Bangga'];
         $negative = ['Cemas', 'Malu', 'Frustasi', 'Bingung', 'Kecewa'];
 
@@ -183,7 +200,6 @@ class AnswerSeeder extends Seeder
                 ];
 
                 $emotionRecords = [];
-
                 foreach ($emotionQuestions as $question) {
                     $answer = Answer::create([
                         'type' => $question['type'],
@@ -201,8 +217,10 @@ class AnswerSeeder extends Seeder
                 DB::table('emotion_record_question_answer')->insert($emotionRecords);
             }
         }
+    }
 
-        // Committed Action
+    private function seedCommittedActions(Therapy $therapy, $timestamp)
+    {
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
         for ($week = 0; $week < 6; $week++) {
@@ -220,7 +238,6 @@ class AnswerSeeder extends Seeder
                 ];
 
                 $committedRecords = [];
-
                 foreach ($committedQuestions as $question) {
                     $answer = Answer::create([
                         'type' => $question['type'],
@@ -234,6 +251,7 @@ class AnswerSeeder extends Seeder
                         'answer_id' => $answer->id,
                     ];
                 }
+
                 DB::table('committed_action_question_answer')->insert($committedRecords);
             }
         }

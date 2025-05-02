@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enum\TherapyStatus;
 use App\Models\Therapy;
 use App\Models\TherapySchedule;
 use Carbon\Carbon;
@@ -14,11 +15,12 @@ class TherapyScheduleSeeder extends Seeder
      */
     public function run(): void
     {
-        $therapy = Therapy::select('id')->first();
+        $therapyInProgress = Therapy::where('status', TherapyStatus::IN_PROGRESS->value)->first();
+        $therapyCompleted = Therapy::where('status', TherapyStatus::COMPLETED->value)->first();
 
         $therapyScheduleDescriptions = [
             [
-                'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan pendekatan ACT-I.',
+                'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan pendekatan ACT.',
                 'Psikolog menyusun kesepakatan bersama dengan pasien',
                 'Psikolog meminta pasien untuk mengisi sleep diary setiap hari selama terapi berlangsung.',
                 'Psikolog meminta pasien untuk menyampaikan permasalahan insomnia yang dialami.',
@@ -39,7 +41,7 @@ class TherapyScheduleSeeder extends Seeder
             ],
             [
                 'Psikolog menjelaskan konsep committed action.',
-                'Psikolog meminta pasien untuk mengisi form committed action berdasarkan nilai-nilai (value) yang dimiliki.',
+                'Psikolog meminta pasien untuk mengisi committed action berdasarkan nilai-nilai (value) yang dimiliki.',
             ],
             [
                 'Psikolog dan pasien mendiskusikan hasil dari committed action yang telah dilakukan.',
@@ -50,15 +52,17 @@ class TherapyScheduleSeeder extends Seeder
 
         $startDate = Carbon::create(2025, 1, 1);
 
-        foreach ($therapyScheduleDescriptions as $index => $therapyScheduleDescription) {
-            TherapySchedule::create([
-                'therapy_id' => $therapy->id,
-                'title' => 'Jadwal Sesi Terapi '.($index + 1),
-                'description' => json_encode($therapyScheduleDescription),
-                'date' => $startDate->copy()->addWeeks($index),
-                'time' => fake()->time('H:i'),
-                'created_at' => now(),
-            ]);
+        foreach ([$therapyInProgress, $therapyCompleted] as $therapy) {
+            foreach ($therapyScheduleDescriptions as $index => $descriptions) {
+                TherapySchedule::create([
+                    'therapy_id' => $therapy->id,
+                    'title' => 'Jadwal Sesi Terapi '.($index + 1),
+                    'description' => json_encode($descriptions),
+                    'date' => $startDate->copy()->addWeeks($index),
+                    'time' => fake()->time('H:i'),
+                    'created_at' => now(),
+                ]);
+            }
         }
     }
 }
