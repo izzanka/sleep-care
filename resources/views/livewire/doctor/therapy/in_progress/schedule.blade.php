@@ -32,7 +32,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)[0];
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -61,8 +61,8 @@ new class extends Component {
     protected function fillScheduleData(TherapySchedule $schedule)
     {
         $this->ID = $schedule->id;
-        $this->date = $schedule->date->toDateString();
-        $this->time = Carbon::parse($schedule->time)->format('H:i');
+        $this->date = $schedule->date ? $schedule->date->toDateString() : null;
+        $this->time = $schedule->time ? Carbon::parse($schedule->time)->format('H:i') : null;
         $this->link = $schedule->link;
         $this->title = $schedule->title;
         $this->note = $schedule->note;
@@ -87,7 +87,7 @@ new class extends Component {
 
         $schedule->update($validated);
 
-        $this->modal('editSchedule')->close();
+//        $this->modal('editSchedule')->close();
 
         session()->flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
         $this->redirectRoute('doctor.therapies.in_progress.schedule');
@@ -95,7 +95,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Jadwal Sesi'])
+    @include('partials.main-heading', ['title' => 'Jadwal Sesi Terapi'])
     {{--    <x-therapies.on-going-layout>--}}
     <flux:modal name="editSchedule" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
         <div class="space-y-6" x-data="{ showNote: false }" x-init="showNote = @json($is_completed)">
@@ -143,9 +143,19 @@ new class extends Component {
                 @endif
             </div>
             <div class="flex items-center gap-2 mt-4">
-                <flux:icon.clock></flux:icon.clock>
-                <flux:text>{{$schedule->date->isoFormat('D MMMM Y')}}
-                    - {{Carbon::parse($schedule->time)->format('H:i')}}</flux:text>
+                <flux:icon.calendar class="size-5"></flux:icon.calendar>
+                @if($schedule->date)
+                    <flux:text>
+                        {{$schedule->date->isoFormat('D MMMM Y') }}
+                    </flux:text>
+                    <flux:text>
+                        ({{Carbon::parse($schedule->time)->format('H:i')}} - {{Carbon::parse($schedule->time)->addHour()->format('H:i')}})
+                    </flux:text>
+                @else
+                    <flux:text>
+                        Tanggal dan waktu belum ditentukan.
+                    </flux:text>
+                @endif
             </div>
             <div class="mt-4">
                 <flux:button.group>

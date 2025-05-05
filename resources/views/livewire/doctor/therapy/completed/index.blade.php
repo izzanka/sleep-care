@@ -30,11 +30,11 @@ new class extends Component {
                 <tr class="text-center">
                     <th class="border p-3">No</th>
                     <th class="border p-3">ID</th>
-                    <th class="border p-3">Pasien</th>
                     <th class="border p-3">Tanggal Mulai</th>
                     <th class="border p-3">Tanggal Selesai</th>
+                    <th class="border p-3">Biaya Jasa Psikolog</th>
+                    <th class="border p-3">Biaya Jasa Aplikasi</th>
                     <th class="border p-3">Status</th>
-                    <th class="border p-3">Rating</th>
                     <th class="border p-3">Aksi</th>
                 </tr>
                 </thead>
@@ -43,11 +43,11 @@ new class extends Component {
                     <tr>
                         <td class="border p-3 text-center">{{ $loop->iteration }}</td>
                         <td class="border p-3 text-center">{{ $therapy->id }}</td>
-                        <td class="border p-3">{{ $therapy->patient->name }}</td>
                         <td class="border p-3">{{ $therapy->start_date->isoFormat('D MMMM Y') }}</td>
                         <td class="border p-3">{{ $therapy->end_date->isoFormat('D MMMM Y') }}</td>
+                        <td class="border p-3">@currency($therapy->doctor_fee)</td>
+                        <td class="border p-3">@currency($therapy->application_fee)</td>
                         <td class="border p-3">{{ $therapy->status->label() }}</td>
-                        <td class="border p-3 text-center">4/5</td>
                         <td class="border p-3 text-center">
                             <flux:button size="xs" wire:navigate :href="route('doctor.therapies.completed.detail', $therapy->id)">
                                 Detail

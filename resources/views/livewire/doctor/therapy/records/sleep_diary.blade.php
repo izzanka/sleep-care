@@ -30,7 +30,7 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
 
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)[0];
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -59,52 +59,36 @@ new class extends Component {
 
     public function with()
     {
-        $totalSleepHours = [];
-        $totalSleep = [];
-        $totalAwakenings = [];
-        $totalSleepQuality = [];
-        $caffeine = [];
-        $alcohol = [];
-        $nicotine = [];
-        $food = [];
-
-        $questions = [
-            16 => &$totalSleepHours,
-            3 => &$totalSleep,
-            17 => &$totalAwakenings,
-            18 => &$totalSleepQuality,
-            10 => &$caffeine,
-            11 => &$alcohol,
-            12 => &$nicotine,
-            13 => &$food,
+        $questionMapping = [
+            16 => 'dataSleepHours',
+            3  => 'dataTotalSleep',
+            17 => 'dataAwakenings',
+            18 => 'dataSleepQuality',
+            10 => 'dataCaffeine',
+            11 => 'dataAlcohol',
+            12 => 'dataNicotine',
+            13 => 'dataFood',
         ];
+
+        $resultData = array_fill_keys(array_values($questionMapping), []);
 
         $sleepDiaries = $this->sleepDiaryService->get($this->therapy->id);
 
         foreach ($sleepDiaries as $entries) {
-            foreach ($questions as $questionId => &$targetArray) {
-                $targetArray[] = $entries->sum(function ($diary) use ($questionId) {
-                    return (int)$diary->questionAnswers->firstWhere('question_id', $questionId)->answer->answer ?? 0;
+            foreach ($questionMapping as $questionId => $dataKey) {
+                $sum = $entries->sum(function ($diary) use ($questionId) {
+                    return $diary->questionAnswers->firstWhere('question_id', $questionId)->answer->answer ?? 0;
                 });
+                $resultData[$dataKey][] = $sum;
             }
         }
 
-        $structuredQuestions = $this->getQuestions($sleepDiaries);
-
-
-        return [
+        return array_merge([
             'sleepDiaries' => $sleepDiaries,
-            'structuredQuestions' => $structuredQuestions,
-            'dataSleepHours' => $totalSleepHours,
-            'dataTotalSleep' => $totalSleep,
-            'dataAwakenings' => $totalAwakenings,
-            'dataSleepQuality' => $totalSleepQuality,
-            'dataCaffeine' => $caffeine,
-            'dataAlcohol' => $alcohol,
-            'dataNicotine' => $nicotine,
-            'dataFood' => $food,
-        ];
+            'structuredQuestions' => $this->getQuestions($sleepDiaries),
+        ], $resultData);
     }
+
 
 }; ?>
 
@@ -270,7 +254,6 @@ new class extends Component {
         @endforeach
     </div>
 </section>
-
 
 @script
 <script>

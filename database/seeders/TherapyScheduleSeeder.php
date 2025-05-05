@@ -50,16 +50,12 @@ class TherapyScheduleSeeder extends Seeder
             ],
         ];
 
-        $startDate = Carbon::create(2025, 1, 1);
-
         foreach ([$therapyInProgress, $therapyCompleted] as $therapy) {
             foreach ($therapyScheduleDescriptions as $index => $descriptions) {
                 TherapySchedule::create([
                     'therapy_id' => $therapy->id,
                     'title' => 'Jadwal Sesi Terapi '.($index + 1),
                     'description' => json_encode($descriptions),
-                    'date' => $startDate->copy()->addWeeks($index),
-                    'time' => fake()->time('H:i'),
                     'created_at' => now(),
                 ]);
             }

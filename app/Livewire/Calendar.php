@@ -29,7 +29,7 @@ class Calendar extends Component
         ])->first();
 
         if ($therapy) {
-            $therapySchedules = TherapySchedule::where('therapy_id', $therapy->id)->get();
+            $therapySchedules = TherapySchedule::where('therapy_id', $therapy->id)->whereNotNull('date')->get();
 
             $schedules = $therapySchedules->map(function ($schedule) {
                 return [

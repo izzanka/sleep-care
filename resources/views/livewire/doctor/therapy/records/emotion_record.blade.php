@@ -32,7 +32,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)[0];
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -188,7 +188,6 @@ new class extends Component {
                 </tbody>
             </table>
         </div>
-
     </div>
 </section>
 

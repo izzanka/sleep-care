@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Enum\TherapyStatus;
 use App\Models\Therapy;
 
 class TherapyService
@@ -12,7 +11,7 @@ class TherapyService
         $query = Therapy::query();
 
         if ($id) {
-            $query->find($id);
+            $query->where('id', $id);
         }
 
         if ($doctorId) {
@@ -27,8 +26,6 @@ class TherapyService
             $query->where('status', $status);
         }
 
-        $query->latest();
-
-        return $status === TherapyStatus::COMPLETED->value ? $query->get() : $query->first();
+        return $query->latest()->get();
     }
 }

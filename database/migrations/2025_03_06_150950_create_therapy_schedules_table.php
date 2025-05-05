@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->string('link')->nullable();
             $table->boolean('is_completed')->default(false);
-            $table->date('date');
-            $table->time('time');
+            $table->date('date')->nullable();
+            $table->time('time')->nullable();
             $table->timestamps();
         });
     }

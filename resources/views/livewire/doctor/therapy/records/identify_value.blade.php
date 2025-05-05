@@ -24,7 +24,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value);
+        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)[0];
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -92,10 +92,6 @@ new class extends Component {
                 <canvas id="identifyValueChart" class="w-full h-80 mb-4"></canvas>
             </div>
         </div>
-        {{--        <div class="relative w-full max-w-md mx-auto">--}}
-        {{--            <canvas id="identifyValueChart" class="w-full h-full"></canvas>--}}
-        {{--        </div>--}}
-
         <flux:separator class="mt-4 mb-4"/>
 
         <div class="overflow-x-auto">
@@ -104,6 +100,8 @@ new class extends Component {
                 <tr class="text-center">
                     <th class="border p-2">No</th>
                     <th class="border p-2">Area</th>
+                    <th class="border p-2">Skala Kepentingan</th>
+                    <th class="border p-2">Skor Kesesuaian</th>
                     <th class="border p-2">{{ $datasetLabels[1] ?? '-' }}</th>
                 </tr>
                 </thead>
@@ -112,6 +110,8 @@ new class extends Component {
                     <tr class="text-left">
                         <td class="border p-2 text-center">{{ $loop->iteration }}</td>
                         <td class="border p-2">{{ $label }}</td>
+                        <td class="border p-2 text-center">{{ $numberAnswers['Skala Kepentingan'][$index] }}</td>
+                        <td class="border p-2 text-center">{{ $numberAnswers['Skor Kesesuaian'][$index] }}</td>
                         <td class="border p-2">
                             {{ $textAnswers[$datasetLabels[1]][$index] ?? '-' }}
                         </td>

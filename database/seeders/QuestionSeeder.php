@@ -122,7 +122,7 @@ class QuestionSeeder extends Seeder
         $identifyValueTitleParents = [
             'Skala Kepentingan, seberapa penting area ini untuk anda? (skala 1-10)' => QuestionType::NUMBER->value,
             'Aku ingin jadi pribadi yang?' => QuestionType::TEXT->value,
-            'Skor Kesuaian, seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? (skala 1-10)' => QuestionType::NUMBER->value,
+            'Skor Kesesuaian, seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? (skala 1-10)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($identifyValueTitleParents as $question => $type) {

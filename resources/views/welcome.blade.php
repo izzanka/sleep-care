@@ -25,19 +25,19 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         <div class="border border-gray-200 rounded p-4 text-center bg-white">
             <div>
-                <img src="{{ asset('storage/img/welcome/psychologist.svg') }}" alt="" class="w-50 mx-auto">
+                <img src="{{ asset('storage/img/welcome/psychologist.svg') }}" alt="" class="w-50 mx-auto" loading="lazy">
             </div>
             <p class="text-sm font-medium mt-2">Terapi ACT Dengan Bantuan Psikolog</p>
         </div>
         <div class="border border-gray-200 rounded p-4 text-center bg-white">
             <div>
-                <img src="{{ asset('storage/img/welcome/phone.svg') }}" alt="" class="w-50 mx-auto">
+                <img src="{{ asset('storage/img/welcome/phone.svg') }}" alt="" class="w-50 mx-auto" loading="lazy">
             </div>
             <p class="text-sm font-medium mt-2">Pencatatan Data Terapi</p>
         </div>
         <div class="border border-gray-200 rounded p-4 text-center bg-white">
             <div>
-                <img src="{{ asset('storage/img/welcome/chatbot.svg') }}" alt="" class="w-50 mx-auto">
+                <img src="{{ asset('storage/img/welcome/chatbot.svg') }}" alt="" class="w-50 mx-auto" loading="lazy">
             </div>
             <p class="text-sm font-medium mt-2">Chatbot Informasi Tentang Insomnia & Terapi ACT</p>
         </div>
@@ -47,7 +47,7 @@
 
 <section class="px-6 py-14 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
     <div>
-        <img src="{{ asset('storage/img/welcome/medical.svg') }}" alt="" class="w-70 mx-auto">
+        <img src="{{ asset('storage/img/welcome/medical.svg') }}" alt="" class="w-70 mx-auto" loading="lazy">
     </div>
     <div>
         <h2 class="text-2xl md:text-3xl font-bold mb-4">
