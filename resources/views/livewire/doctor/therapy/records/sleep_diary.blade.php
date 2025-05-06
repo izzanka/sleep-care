@@ -30,7 +30,7 @@ new class extends Component {
     {
         $doctorId = auth()->user()->doctor->id;
 
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)[0];
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }

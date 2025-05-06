@@ -8,8 +8,7 @@ class TokenService
 {
     public function getAvailableOtp(string $email)
     {
-        return DB::table('password_reset_tokens')->where('email', $email)
-            ->where('expired_at', '>', now())->latest()->first();
+        return DB::table('password_reset_tokens')->where('email', $email)->latest()->first();
     }
 
     public function checkOtp(string $email, string $token)

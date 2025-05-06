@@ -6,7 +6,7 @@ use App\Models\Therapy;
 
 class TherapyService
 {
-    public function find(?int $doctorId = null, ?int $patientId = null, ?string $status = null, ?int $id = null)
+    public function get(?int $doctorId = null, ?int $patientId = null, ?string $status = null, ?int $id = null)
     {
         $query = Therapy::query();
 

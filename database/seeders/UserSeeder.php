@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         $userDoctor = User::factory()->doctor()->create([
             'name' => 'psikolog',
             'email' => 'psikolog@sleepcares.xyz',
-            'balance' => 700000,
+            'balance' => 350000,
         ]);
 
         Doctor::factory()->create([

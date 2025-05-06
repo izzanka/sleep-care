@@ -37,8 +37,7 @@
                                     </flux:navlist.group>
                                 @endif
                             </flux:navlist.group>
-{{--                            <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" badge="{{auth()->user()->doctor->therapies->where('status', \App\Enum\TherapyStatus::IN_PROGRESS->value)->count()}}" :current="request()->routeIs('doctor.therapies.in_progress.index') || request()->routeIs('doctor.therapies.in_progress.chat') || request()->routeIs('doctor.therapies.in_progress.schedule')" wire:navigate>Berlangsung</flux:navlist.item>--}}
-                            <flux:navlist.item :href="route('doctor.therapies.completed.index')" badge="{{auth()->user()->doctor->therapies->where('status', \App\Enum\TherapyStatus::COMPLETED->value)->count()}}" :current="request()->routeIs('doctor.therapies.completed.index')" wire:navigate>Riwayat</flux:navlist.item>
+                            <flux:navlist.item :href="route('doctor.therapies.completed.index')" badge="{{auth()->user()->doctor->therapies->where('status', \App\Enum\TherapyStatus::COMPLETED->value)->count()}}" :current="request()->routeIs('doctor.therapies.completed.index') || request()->routeIs('doctor.therapies.completed.detail')" wire:navigate>Riwayat</flux:navlist.item>
                         </flux:navlist.group>
                     @endcan
                     @can('isAdmin', auth()->user())

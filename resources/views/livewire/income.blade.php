@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\OrderStatus;
+use App\Enum\TherapyStatus;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -46,9 +47,12 @@ new class extends Component {
     {
         return [
             'orders' => Order::where('status', OrderStatus::SUCCESS->value)
-                ->whereHas('therapy', fn($query) =>
+                ->whereHas('therapy', function ($query) use ($user) {
                     $query->where('doctor_id', $user->doctor->id)
-                )->latest()->paginate(15),
+                        ->where('status', TherapyStatus::COMPLETED->value);
+                })
+                ->latest()
+                ->paginate(15),
         ];
     }
 }; ?>
@@ -83,56 +87,54 @@ new class extends Component {
                     </div>
 
                     <div class="ml-auto">
-                        <flux:modal.trigger :name="'detail-order-'.$order->id">
-                            <flux:button
-                                icon-trailing="arrow-up-right"
-                            >
-                                Detail
-                            </flux:button>
-                        </flux:modal.trigger>
+                        <flux:button
+                            icon-trailing="arrow-up-right"
+                            wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">
+                            Detail
+                        </flux:button>
                     </div>
 
-{{--                        <flux:modal :name="'detail-order-'.$order->id" class="md:w-100">--}}
-{{--                            <div class="space-y-6">--}}
-{{--                                <div>--}}
-{{--                                    <flux:heading size="lg">Detail</flux:heading>--}}
-{{--                                </div>--}}
+                    {{--                        <flux:modal :name="'detail-order-'.$order->id" class="md:w-100">--}}
+                    {{--                            <div class="space-y-6">--}}
+                    {{--                                <div>--}}
+                    {{--                                    <flux:heading size="lg">Detail</flux:heading>--}}
+                    {{--                                </div>--}}
 
-{{--                                <flux:heading>Pasien</flux:heading>--}}
-{{--                                <flux:subheading>--}}
-{{--                                    <flux:link wire:navigate href="#">--}}
-{{--                                        {{$order->therapy->patient->name}}--}}
-{{--                                    </flux:link>--}}
-{{--                                </flux:subheading>--}}
+                    {{--                                <flux:heading>Pasien</flux:heading>--}}
+                    {{--                                <flux:subheading>--}}
+                    {{--                                    <flux:link wire:navigate href="#">--}}
+                    {{--                                        {{$order->therapy->patient->name}}--}}
+                    {{--                                    </flux:link>--}}
+                    {{--                                </flux:subheading>--}}
 
-{{--                                <flux:heading>Psikolog</flux:heading>--}}
-{{--                                <flux:subheading>--}}
-{{--                                    <flux:link wire:navigate href="#">--}}
-{{--                                        {{$order->therapy->doctor->user->name}}--}}
-{{--                                    </flux:link>--}}
-{{--                                </flux:subheading>--}}
+                    {{--                                <flux:heading>Psikolog</flux:heading>--}}
+                    {{--                                <flux:subheading>--}}
+                    {{--                                    <flux:link wire:navigate href="#">--}}
+                    {{--                                        {{$order->therapy->doctor->user->name}}--}}
+                    {{--                                    </flux:link>--}}
+                    {{--                                </flux:subheading>--}}
 
-{{--                                <flux:heading>Status</flux:heading>--}}
-{{--                                <flux:subheading>--}}
-{{--                                    {{$order->status->label()}}--}}
-{{--                                </flux:subheading>--}}
+                    {{--                                <flux:heading>Status</flux:heading>--}}
+                    {{--                                <flux:subheading>--}}
+                    {{--                                    {{$order->status->label()}}--}}
+                    {{--                                </flux:subheading>--}}
 
-{{--                                <flux:heading>Status Pembayaran</flux:heading>--}}
-{{--                                <flux:subheading>--}}
-{{--                                    {{$order->payment_status->label()}}--}}
-{{--                                </flux:subheading>--}}
+                    {{--                                <flux:heading>Status Pembayaran</flux:heading>--}}
+                    {{--                                <flux:subheading>--}}
+                    {{--                                    {{$order->payment_status->label()}}--}}
+                    {{--                                </flux:subheading>--}}
 
-{{--                                <flux:heading>Metode Pembayaran</flux:heading>--}}
-{{--                                <flux:subheading>--}}
-{{--                                    {{$order->payment_method}}--}}
-{{--                                </flux:subheading>--}}
+                    {{--                                <flux:heading>Metode Pembayaran</flux:heading>--}}
+                    {{--                                <flux:subheading>--}}
+                    {{--                                    {{$order->payment_method}}--}}
+                    {{--                                </flux:subheading>--}}
 
-{{--                                <flux:heading>Total Harga</flux:heading>--}}
-{{--                                <flux:subheading>--}}
-{{--                                    @currency($order->total_price)--}}
-{{--                                </flux:subheading>--}}
-{{--                            </div>--}}
-{{--                        </flux:modal>--}}
+                    {{--                                <flux:heading>Total Harga</flux:heading>--}}
+                    {{--                                <flux:subheading>--}}
+                    {{--                                    @currency($order->total_price)--}}
+                    {{--                                </flux:subheading>--}}
+                    {{--                            </div>--}}
+                    {{--                        </flux:modal>--}}
                 </div>
                 <flux:separator class="mt-6"/>
             @empty

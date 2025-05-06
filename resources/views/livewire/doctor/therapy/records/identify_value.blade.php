@@ -24,7 +24,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)[0];
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -100,8 +100,8 @@ new class extends Component {
                 <tr class="text-center">
                     <th class="border p-2">No</th>
                     <th class="border p-2">Area</th>
-                    <th class="border p-2">Skala Kepentingan</th>
-                    <th class="border p-2">Skor Kesesuaian</th>
+                    <th class="border p-2">Skala Kepentingan (1-10)</th>
+                    <th class="border p-2">Skor Kesesuaian (1-10)</th>
                     <th class="border p-2">{{ $datasetLabels[1] ?? '-' }}</th>
                 </tr>
                 </thead>

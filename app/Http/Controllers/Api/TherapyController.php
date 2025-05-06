@@ -21,7 +21,7 @@ class TherapyController extends Controller
 
         try {
 
-            $therapy = $this->therapyService->find(patientId: auth()->id(), status: $validated['status']);
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: $validated['status']);
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }

@@ -17,7 +17,7 @@ new class extends Component {
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapies = $this->therapyService->find(doctorId: $doctorId, status: TherapyStatus::COMPLETED->value);
+        $this->therapies = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::COMPLETED->value);
     }
 }; ?>
 

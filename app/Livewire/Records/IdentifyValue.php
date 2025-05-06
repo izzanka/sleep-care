@@ -26,7 +26,7 @@ class IdentifyValue extends Component
     public function mount(int $therapyId)
     {
         $doctorId = auth()->user()->doctor->id;
-        $therapy = $this->therapyService->find(doctorId: $doctorId, id: $therapyId)[0];
+        $therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
             return $this->redirectRoute('doctor.therapies.completed.index');

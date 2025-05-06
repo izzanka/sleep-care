@@ -1,10 +1,29 @@
 <?php
 
+use App\Enum\TherapyStatus;
+use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
 new class extends Component {
     public $id;
     public $history = 'index';
+
+    protected TherapyService $therapyService;
+
+    public function boot(TherapyService $therapyService)
+    {
+        $this->therapyService = $therapyService;
+    }
+
+    public function mount(int $id)
+    {
+        $doctorId = auth()->user()->doctor->id;
+        $therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::COMPLETED->value, id: $id)->first();
+        if (!$therapy) {
+            session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
+            return $this->redirectRoute('doctor.therapies.completed.index');
+        }
+    }
 
     public function setHistory($value)
     {
@@ -13,7 +32,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Detail Riwayat Terapi'])
+    @include('partials.main-heading', ['title' => 'Detail Riwayat'])
 
     <div class="flex flex-wrap gap-4 items-start mb-6">
         <flux:radio.group class="mb-0" variant="segmented" label="Catatan:">
@@ -68,26 +87,26 @@ new class extends Component {
     <flux:separator variant="subtle" class="mb-6"/>
 
     <div wire:loading wire:target="setHistory">
-        <flux:icon.loading />
+        <flux:icon.loading/>
     </div>
 
     <div wire:loading.remove wire:target="setHistory">
         @if($history == 'index')
-            <livewire:records.index :therapyId="$id" />
+            <livewire:records.index :therapyId="$id"/>
         @elseif($history == 'sleep_diary')
-            <livewire:records.sleep_diary :therapyId="$id" />
+            <livewire:records.sleep_diary :therapyId="$id"/>
         @elseif($history == 'identify_value')
-            <livewire:records.identify_value :therapyId="$id" />
+            <livewire:records.identify_value :therapyId="$id"/>
         @elseif($history == 'thought_record')
-            <livewire:records.thought_record :therapyId="$id" />
+            <livewire:records.thought_record :therapyId="$id"/>
         @elseif($history == 'emotion_record')
-            <livewire:records.emotion_record :therapyId="$id" />
+            <livewire:records.emotion_record :therapyId="$id"/>
         @elseif($history == 'committed_action')
-            <livewire:records.committed_action :therapyId="$id" />
+            <livewire:records.committed_action :therapyId="$id"/>
         @elseif($history == 'chat')
-            <livewire:records.chat :therapyId="$id" />
+            <livewire:records.chat :therapyId="$id"/>
         @elseif($history == 'schedule')
-            <livewire:records.schedule :therapyId="$id" />
+            <livewire:records.schedule :therapyId="$id"/>
         @endif
     </div>
 </section>

@@ -25,7 +25,7 @@ class Chat extends Component
     public function mount(int $therapyId)
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->find(doctorId: $doctorId, id: $therapyId)[0];
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $this->therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
             return $this->redirectRoute('doctor.therapies.completed.index');

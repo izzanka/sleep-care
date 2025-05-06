@@ -22,8 +22,8 @@ class UserResource extends JsonResource
             'age' => $this->age,
             'gender' => $this->gender,
             'problems' => json_decode($this->problems),
-            'is_active' => $this->is_active,
-            'is_online' => $this->is_online,
+            'is_active' => (bool) $this->is_active,
+            'is_online' => (bool) $this->is_online,
             'created_at' => $this->created_at,
             'deleted_at' => $this->deleted_at,
         ];
