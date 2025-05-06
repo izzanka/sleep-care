@@ -60,15 +60,15 @@ class User extends Authenticatable implements MustVerifyEmail
             ->implode('');
     }
 
-    public function sendEmailVerificationNotification()
-    {
-        $this->notify(new VerifyEmailQueue);
-    }
-
-    public function sendPasswordResetNotification($token)
-    {
-        $this->notify(new ResetPasswordQueue($token));
-    }
+//    public function sendEmailVerificationNotification()
+//    {
+//        $this->notify(new VerifyEmailQueue);
+//    }
+//
+//    public function sendPasswordResetNotification($token)
+//    {
+//        $this->notify(new ResetPasswordQueue($token));
+//    }
 
     public function doctor()
     {

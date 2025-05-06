@@ -113,7 +113,7 @@ class AuthController extends Controller
             $otp = $this->otpService->generateOtp();
             $this->otpService->storeOtp($validated['email'], $otp);
 
-            Mail::to($validated['email'])->queue(new ResetPasswordOtpMail($otp));
+            Mail::to($validated['email'])->send(new ResetPasswordOtpMail($otp));
 
             return Response::success(null, 'Kode OTP berhasil dikirimkan.');
 

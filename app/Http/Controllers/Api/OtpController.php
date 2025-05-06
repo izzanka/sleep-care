@@ -42,7 +42,7 @@ class OtpController extends Controller
             $otp = $this->otpService->generateOtp();
             $this->otpService->storeOtp($validated['email'], $otp);
 
-            Mail::to($validated['email'])->queue(new OtpMail($otp));
+            Mail::to($validated['email'])->send(new OtpMail($otp));
 
             return Response::success(null, 'Kode OTP berhasil dikirim.');
 
