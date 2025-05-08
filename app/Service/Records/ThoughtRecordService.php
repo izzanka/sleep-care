@@ -8,6 +8,6 @@ class ThoughtRecordService
 {
     public function get(int $therapyId)
     {
-        return ThoughtRecord::where('therapy_id', $therapyId)->first();
+        return ThoughtRecord::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
     }
 }

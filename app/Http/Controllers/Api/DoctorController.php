@@ -13,7 +13,7 @@ class DoctorController extends Controller
 {
     public function __construct(protected DoctorService $doctorService) {}
 
-    public function get(Request $request)
+    public function getAll(Request $request)
     {
         $allowedColumns = ['registered_year', 'created_at'];
         $allowedSorts = ['asc', 'desc'];
@@ -37,15 +37,14 @@ class DoctorController extends Controller
         }
     }
 
-    public function find(Request $request)
+    public function getById(int $id)
     {
-        $validated = $request->validate([
-            'id' => ['required', 'integer', 'min:1'],
-        ]);
-
         try {
 
-            $doctor = $this->doctorService->find($validated['id']);
+            $doctor = $this->doctorService->find($id);
+            if (! $doctor) {
+                return Response::error('Psikolog tidak ditemukan.', 404);
+            }
 
             return Response::success([
                 'doctor' => new DoctorResource($doctor),

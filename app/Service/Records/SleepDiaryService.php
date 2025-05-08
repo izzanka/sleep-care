@@ -14,4 +14,9 @@ class SleepDiaryService
             ->get()
             ->groupBy('week');
     }
+
+    public function find(int $sleepDiaryId)
+    {
+        return SleepDiary::with('questionAnswers.question', 'questionAnswers.answer')->find($sleepDiaryId);
+    }
 }

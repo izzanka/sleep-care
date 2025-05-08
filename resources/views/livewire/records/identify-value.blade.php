@@ -5,9 +5,9 @@
             <tr class="text-center">
                 <th class="border p-2">No</th>
                 <th class="border p-2">Area</th>
-                <th class="border p-2">Skala Kepentingan (1-10)</th>
-                <th class="border p-2">Skor Kesesuaian (1-10)</th>
-                <th class="border p-2">{{ $datasetLabels[1] ?? '-' }}</th>
+                <th class="border p-2">{{ $datasetLabels[0] }}</th>
+                <th class="border p-2">{{ $datasetLabels[2] }}</th>
+                <th class="border p-2">{{ $datasetLabels[1] }}</th>
             </tr>
             </thead>
             <tbody>

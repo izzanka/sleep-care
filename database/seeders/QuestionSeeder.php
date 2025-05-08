@@ -164,7 +164,7 @@ class QuestionSeeder extends Seeder
             'Emosi yang dirasakan' => QuestionType::TEXT->value,
             'Intensitas emosi sebelum diatasi (1-10)' => QuestionType::NUMBER->value,
             'Cara mengatasi' => QuestionType::TEXT->value,
-            'Intensitas emosi sesudah diatasi (1-10)' => QuestionType::NUMBER->value,
+            'Intensitas emosi setelah diatasi (1-10)' => QuestionType::NUMBER->value,
         ];
 
         foreach ($emotionRecordQuestions as $question => $type) {

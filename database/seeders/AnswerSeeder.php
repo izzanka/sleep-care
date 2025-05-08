@@ -42,7 +42,7 @@ class AnswerSeeder extends Seeder
                     'week' => $week,
                     'day' => $day,
                     'date' => $currentDate->toDateString(),
-                    'title' => 'Sleep Diary Minggu ke-'.$week,
+                    'title' => 'Sleep Diary Minggu '.$week,
                     'created_at' => $timestamp,
                 ]);
 

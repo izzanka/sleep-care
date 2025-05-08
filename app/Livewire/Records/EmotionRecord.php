@@ -27,6 +27,7 @@ class EmotionRecord extends Component
         $therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
+
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
         $this->emotionRecord = $this->emotionRecordService->get($therapyId);

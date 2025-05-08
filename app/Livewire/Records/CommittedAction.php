@@ -26,6 +26,7 @@ class CommittedAction extends Component
         $therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
+
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
         $this->committedAction = $this->committedActionService->get($therapyId);

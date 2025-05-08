@@ -28,6 +28,7 @@ class ThoughtRecord extends Component
         $therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
+
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
         $this->thoughtRecords = $this->thoughtRecordService->get($therapyId);
@@ -46,6 +47,7 @@ class ThoughtRecord extends Component
         $questions = $this->extractQuestions();
         $chunks = $this->thoughtRecords->questionAnswers->chunk(count($questions))->sortByDesc(function ($chunk) {
             $dateAnswer = $chunk->keyBy(fn ($qa) => $qa->question_id)[23]->answer->answer;
+
             return Carbon::parse($dateAnswer);
         })->values();
 

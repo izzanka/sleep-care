@@ -2,33 +2,38 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enum\RecordType;
 use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
+use App\Service\QuestionService;
 use App\Service\TherapyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rules\Enum;
 
-class TherapyController extends Controller
+class QuestionController extends Controller
 {
-    public function __construct(protected TherapyService $therapyService) {}
+    public function __construct(protected QuestionService $questionService,
+        protected TherapyService $therapyService) {}
 
     public function get(Request $request)
     {
         $validated = $request->validate([
-            'status' => ['required', new Enum(TherapyStatus::class)],
+            'record_type' => ['required', new Enum(RecordType::class)],
         ]);
 
         try {
 
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: $validated['status'])->first();
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
+            $questions = $this->questionService->get($validated['record_type']);
+
             return Response::success([
-                'therapy' => $therapy,
-            ], 'Berhasil mendapatkan data terapi.');
+                'questions' => $questions,
+            ], 'Berhasil mendapatkan data pertanyaan catatan.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

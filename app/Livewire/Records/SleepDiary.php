@@ -34,6 +34,7 @@ class SleepDiary extends Component
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $this->therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
+
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
@@ -53,6 +54,7 @@ class SleepDiary extends Component
             ->filter(fn ($q) => is_null($q->parent_id))
             ->map(function ($parent) use ($questions) {
                 $parent->children = $questions->where('parent_id', $parent->id)->values();
+
                 return $parent;
             })
             ->values();

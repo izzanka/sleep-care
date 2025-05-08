@@ -17,19 +17,19 @@ class TherapyScheduleController extends Controller
     {
         try {
 
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value);
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
             $schedule = $this->therapyScheduleService->get($therapy->id);
             if (! $schedule) {
-                return Response::error('Jadwal tidak ditemukan.', 404);
+                return Response::error('Jadwal terapi tidak ditemukan.', 404);
             }
 
             return Response::success([
                 'schedule' => $schedule,
-            ], 'Berhasil mendapatkan data jadawl terapi.');
+            ], 'Berhasil mendapatkan data jadwal terapi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

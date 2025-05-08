@@ -8,6 +8,6 @@ class CommittedActionService
 {
     public function get(int $therapyId)
     {
-        return CommittedAction::where('therapy_id', $therapyId)->first();
+        return CommittedAction::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
     }
 }

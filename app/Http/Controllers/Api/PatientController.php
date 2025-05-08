@@ -62,11 +62,11 @@ class PatientController extends Controller
         try {
 
             if (! Hash::check($validated['current_password'], $request->user()->password)) {
-                return Response::error('Password sekarang salah.', 500);
+                return Response::error('Password saat ini salah.', 500);
             }
 
             if (Hash::check($validated['new_password'], $request->user()->password)) {
-                return Response::error('Password baru tidak boleh sama dengan password sekarang.', 500);
+                return Response::error('Password baru tidak boleh sama dengan password lama.', 500);
             }
 
             $request->user()->update([

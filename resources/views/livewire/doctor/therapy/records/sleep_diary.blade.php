@@ -109,14 +109,24 @@ new class extends Component {
                     </div>
                 </div>
 
+{{--                <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"--}}
+{{--                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
+{{--                    <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>--}}
+{{--                </button>--}}
+{{--                <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"--}}
+{{--                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
+{{--                    <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>--}}
+{{--                </button>--}}
+
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
-                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">
+                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-zinc-300 dark:hover:bg-zinc-600">
                     <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>
                 </button>
                 <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"
-                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">
+                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-zinc-300 dark:hover:bg-zinc-600">
                     <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>
                 </button>
+
 
                 <div class="flex justify-center space-x-2 mt-4">
                     <template x-for="index in 2" :key="index">
@@ -130,13 +140,6 @@ new class extends Component {
                 </div>
             </div>
         </div>
-        {{--        <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">--}}
-        {{--            <div class="relative w-full">--}}
-        {{--                <canvas id="lineChart" class="w-full h-full mb-5"></canvas>--}}
-        {{--                <flux:separator class="mt-4 mb-4"/>--}}
-        {{--                <canvas id="barChart" class="w-full h-full mt-5"></canvas>--}}
-        {{--            </div>--}}
-        {{--        </div>--}}
 
         <flux:separator class="mt-4 mb-4"/>
 

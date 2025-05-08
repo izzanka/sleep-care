@@ -8,6 +8,6 @@ class IdentifyValueService
 {
     public function get(int $therapyId)
     {
-        return IdentifyValue::where('therapy_id', $therapyId)->first();
+        return IdentifyValue::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
     }
 }

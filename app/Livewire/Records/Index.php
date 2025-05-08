@@ -3,7 +3,6 @@
 namespace App\Livewire\Records;
 
 use App\Enum\Problem;
-use App\Enum\TherapyStatus;
 use App\Service\TherapyService;
 use Livewire\Component;
 
@@ -12,6 +11,7 @@ class Index extends Component
     protected TherapyService $therapyService;
 
     public $therapy;
+
     public $problems;
 
     public function boot(TherapyService $therapyService)
@@ -25,6 +25,7 @@ class Index extends Component
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (! $this->therapy) {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
+
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
         $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
@@ -32,14 +33,15 @@ class Index extends Component
 
     protected function formatPatientProblems(?string $problems)
     {
-        if (!$problems) {
+        if (! $problems) {
             return '-';
         }
 
         return collect(json_decode($problems))
-            ->map(fn($problem) => Problem::tryFrom($problem)?->label() ?? $problem)
+            ->map(fn ($problem) => Problem::tryFrom($problem)?->label() ?? $problem)
             ->implode(', ');
     }
+
     public function render()
     {
         return view('livewire.records.index');
