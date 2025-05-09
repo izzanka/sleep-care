@@ -21,7 +21,7 @@ class UserResource extends JsonResource
             'avatar' => $this->avatar ? asset('storage/'.$this->avatar) : null,
             'age' => $this->age,
             'gender' => $this->gender,
-            'problems' => $this->problems,
+            'problems' => $this->problems ? json_decode($this->problems) : null,
             'is_active' => (bool) $this->is_active,
             'is_online' => (bool) $this->is_online,
             'created_at' => $this->created_at,

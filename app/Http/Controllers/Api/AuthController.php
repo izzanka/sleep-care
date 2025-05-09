@@ -110,6 +110,15 @@ class AuthController extends Controller
                 return Response::error('Akun tidak ditemukan.', 404);
             }
 
+            $checkOtp = $this->otpService->getAvailableOtp($validated['email']);
+            if ($checkOtp) {
+                if (now()->greaterThan($checkOtp->expired_at)) {
+                    $this->otpService->deleteOtp(email: $validated['email']);
+                } else {
+                    return Response::error('Kode OTP sudah dikirim sebelumnya dan belum kedaluwarsa.', 400);
+                }
+            }
+
             $otp = $this->otpService->generateOtp();
             $this->otpService->storeOtp($validated['email'], $otp);
 

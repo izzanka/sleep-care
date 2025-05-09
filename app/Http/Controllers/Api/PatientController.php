@@ -41,6 +41,7 @@ class PatientController extends Controller
 
         try {
 
+            $validated['problems'] = json_encode($validated['problems']);
             $request->user()->update($validated);
 
             return Response::success([
