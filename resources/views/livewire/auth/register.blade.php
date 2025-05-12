@@ -62,7 +62,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     protected function verifyHimpsiAccount(string $name, string $email)
     {
         $himpsiService = new HimpsiService();
-        $result = $himpsiService->search($name, $email);
+        $result = $himpsiService->get($name, $email);
 
         if ($result === false) {
             throw ValidationException::withMessages([

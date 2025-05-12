@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('therapy_id')->constrained();
+            $table->foreignId('therapy_id')->nullable()->constrained();
             $table->string('status');
             $table->integer('total_price');
-            $table->string('payment_status');
-            $table->string('payment_method');
-            $table->string('payment_token');
+            $table->string('payment_status')->nullable();
+            $table->string('payment_method')->nullable();
+            $table->string('payment_token')->nullable();
             $table->timestamps();
         });
     }

@@ -28,10 +28,21 @@ class PatientController extends Controller
         }
     }
 
+    public function getProfile(Request $request)
+    {
+        try {
+
+            return Response::success(new UserResource($request->user()),
+                'Berhasil mengambil data profile pasien.');
+
+        } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
     public function updateProfile(Request $request)
     {
         $validated = $request->validate([
-            'id' => ['required', 'integer'],
             'name' => ['required', 'string', 'max:225'],
             'age' => ['required', 'integer', 'min:1', 'max:100'],
             'gender' => ['required', new Enum(UserGender::class)],
@@ -41,12 +52,12 @@ class PatientController extends Controller
 
         try {
 
-            $validated['problems'] = json_encode($validated['problems']);
+            if (! empty($validated['problems'])) {
+                $validated['problems'] = json_encode($validated['problems']);
+            }
             $request->user()->update($validated);
 
-            return Response::success([
-                'user' => new UserResource($request->user()),
-            ], 'Berhasil mengubah data profile.');
+            return Response::success(new UserResource($request->user()), 'Berhasil mengubah data profile.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

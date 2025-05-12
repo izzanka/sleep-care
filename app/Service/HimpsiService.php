@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Http;
 
 class HimpsiService
 {
-    public function search(string $name, string $email)
+    public function get(string $name, string $email)
     {
         $response = Http::timeout(env('HIMPSI_TIMEOUT'))
             ->get(env('HIMPSI_URL'), [

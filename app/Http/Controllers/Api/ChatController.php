@@ -42,7 +42,7 @@ class ChatController extends Controller
 
         try {
 
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value);
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }

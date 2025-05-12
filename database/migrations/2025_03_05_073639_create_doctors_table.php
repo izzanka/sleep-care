@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('registered_year');
             $table->string('phone')->nullable();
             $table->string('name_title')->nullable();
+            $table->string('about')->nullable();
             $table->timestamps();
         });
     }

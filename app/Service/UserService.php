@@ -2,29 +2,35 @@
 
 namespace App\Service;
 
-use App\Enum\UserRole;
 use App\Models\User;
 
 class UserService
 {
-    public function getUnverifiedPatient(string $email)
+    public function get(?string $email = null, ?int $role = null, ?bool $verified = null, ?int $id = null)
     {
-        return User::where('email', $email)->where('role', UserRole::PATIENT->value)
-            ->whereNull('email_verified_at')->latest()->first();
-    }
+        $query = User::query();
 
-    public function getPatient(string $email)
-    {
-        return User::where('email', $email)->where('role', UserRole::PATIENT->value)->first();
-    }
+        if ($email) {
+            $query->where('email', $email);
+        }
 
-    public function getAdmin()
-    {
-        return User::where('role', UserRole::ADMIN->value)->first();
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        if ($verified) {
+            $query->whereNotNull('email_verified_at');
+        }
+
+        if ($id) {
+            $query->where('id', $id);
+        }
+
+        return $query->get();
     }
 
     public function getPatientOnlineStatus(int $patientId)
     {
-        return User::where('id', $patientId)->value('is_online') ?? false;
+        return User::find($patientId)->value('is_online');
     }
 }

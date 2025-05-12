@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('doctor_id')->constrained();
             $table->foreignId('patient_id')->constrained('users');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->string('status');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->string('status')->nullable();
             $table->integer('doctor_fee');
             $table->integer('application_fee');
             $table->string('comment')->nullable();

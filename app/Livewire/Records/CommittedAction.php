@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Records;
 
-use App\Service\Records\CommittedActionService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Livewire\Component;
 
@@ -10,14 +10,14 @@ class CommittedAction extends Component
 {
     protected TherapyService $therapyService;
 
-    protected CommittedActionService $committedActionService;
+    protected RecordService $recordService;
 
     public $committedAction;
 
-    public function boot(TherapyService $therapyService, CommittedActionService $committedActionService)
+    public function boot(TherapyService $therapyService, RecordService $recordService)
     {
         $this->therapyService = $therapyService;
-        $this->committedActionService = $committedActionService;
+        $this->recordService = $recordService;
     }
 
     public function mount(int $therapyId)
@@ -29,7 +29,7 @@ class CommittedAction extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->committedAction = $this->committedActionService->get($therapyId);
+        $this->committedAction = $this->recordService->getCommittedActions($therapyId);
     }
 
     public function render()

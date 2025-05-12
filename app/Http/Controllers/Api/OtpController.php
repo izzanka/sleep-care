@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
 use App\Mail\OtpMail;
 use App\Models\User;
@@ -25,22 +26,22 @@ class OtpController extends Controller
 
         try {
 
-            $checkOtp = $this->otpService->getAvailableOtp($validated['email']);
+            $checkOtp = $this->otpService->get($validated['email']);
             if ($checkOtp) {
                 if (now()->greaterThan($checkOtp->expired_at)) {
-                    $this->otpService->deleteOtp(email: $validated['email']);
+                    $this->otpService->delete(email: $validated['email']);
                 } else {
                     return Response::error('Kode OTP sudah dikirim sebelumnya dan belum kedaluwarsa.', 400);
                 }
             }
 
-            $user = $this->userService->getUnverifiedPatient($validated['email']);
+            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, false)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan atau sudah terverifikasi.', 404);
             }
 
-            $otp = $this->otpService->generateOtp();
-            $this->otpService->storeOtp($validated['email'], $otp);
+            $otp = $this->otpService->generate();
+            $this->otpService->store($validated['email'], $otp);
 
             Mail::to($validated['email'])->send(new OtpMail($otp));
 
@@ -60,18 +61,18 @@ class OtpController extends Controller
 
         try {
 
-            $user = $this->userService->getUnverifiedPatient($validated['email']);
+            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, false)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan atau sudah terverifikasi.', 404);
             }
 
-            $otpRecord = $this->otpService->checkOtp($validated['email'], $validated['otp']);
+            $otpRecord = $this->otpService->get($validated['email'], $validated['otp']);
             if (! $otpRecord || now()->greaterThan($otpRecord->expired_at)) {
                 return Response::error('Kode OTP tidak valid atau sudah kedaluwarsa.', 422);
             }
 
             $user->update(['email_verified_at' => now()]);
-            $this->otpService->deleteOtp($validated['otp'], $validated['email']);
+            $this->otpService->delete($validated['otp'], $validated['email']);
 
             $this->notifyAdmin($user);
 
@@ -84,7 +85,7 @@ class OtpController extends Controller
 
     protected function notifyAdmin(User $user)
     {
-        $admin = $this->userService->getAdmin();
+        $admin = $this->userService->get(role: UserRole::ADMIN->value)->first();
         $admin->notify(new RegisteredUser($user));
     }
 }

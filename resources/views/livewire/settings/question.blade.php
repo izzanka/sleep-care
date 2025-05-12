@@ -142,12 +142,7 @@ new class extends Component {
 
         session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil diubah.', 'success' => true]);
 
-        $this->js(
-            "window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });"
-        );
+        $this->redirectRoute('admin.settings.question');
     }
 
     public function destroyQuestion(int $questionID)
@@ -164,12 +159,7 @@ new class extends Component {
 
         session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil dihapus.', 'success' => true]);
 
-        $this->js(
-            "window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });"
-        );
+        $this->redirectRoute('admin.settings.question');
     }
 
 }; ?>

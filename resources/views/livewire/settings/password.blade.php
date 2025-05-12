@@ -34,7 +34,7 @@ new class extends Component {
 
         $this->reset('current_password', 'password', 'password_confirmation');
 
-        Session::flash('status', 'Profile berhasil diubah.');
+        session()->flash('status', 'Profile berhasil diubah.');
 //        $this->dispatch('password-updated');
     }
 }; ?>

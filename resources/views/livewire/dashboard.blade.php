@@ -100,7 +100,9 @@ new class extends Component {
                         <flux:heading size="xl" class="mb-2">{{$therapies->total()}}</flux:heading>
                     </div>
                 </div>
-                <livewire:calendar></livewire:calendar>
+                @if($therapies->isNotEmpty())
+                    <livewire:calendar></livewire:calendar>
+                @endif
                 {{--                <flux:heading>Terapi</flux:heading>--}}
                 {{--                <flux:separator class="mt-4 mb-4"/>--}}
                 {{--                <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">--}}

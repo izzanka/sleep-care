@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Enum\Problem;
 use App\Enum\UserGender;
+use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Mail\ResetPasswordOtpMail;
 use App\Models\User;
 use App\Service\TokenService;
 use App\Service\UserService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +30,7 @@ class AuthController extends Controller
         ]);
 
         try {
-            $user = $this->userService->getPatient($validated['email']);
+            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, false)->first();
 
             if (! $user || ! Hash::check($validated['password'], $user->password)) {
                 return Response::error('Email atau password yang anda masukan salah.', 401);
@@ -47,7 +49,7 @@ class AuthController extends Controller
                 'user' => new UserResource($user),
             ], 'Login berhasil.');
 
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -79,7 +81,7 @@ class AuthController extends Controller
                 'user' => new UserResource($user),
             ], 'Register berhasil.');
 
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -92,7 +94,7 @@ class AuthController extends Controller
             $user->currentAccessToken()->delete();
 
             return Response::success(null, 'Logout sukses.');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -104,29 +106,28 @@ class AuthController extends Controller
         ]);
 
         try {
-
-            $user = $this->userService->getPatient($validated['email']);
+            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, true)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan.', 404);
             }
 
-            $checkOtp = $this->otpService->getAvailableOtp($validated['email']);
+            $checkOtp = $this->otpService->get($validated['email']);
             if ($checkOtp) {
                 if (now()->greaterThan($checkOtp->expired_at)) {
-                    $this->otpService->deleteOtp(email: $validated['email']);
+                    $this->otpService->delete(email: $validated['email']);
                 } else {
                     return Response::error('Kode OTP sudah dikirim sebelumnya dan belum kedaluwarsa.', 400);
                 }
             }
 
-            $otp = $this->otpService->generateOtp();
-            $this->otpService->storeOtp($validated['email'], $otp);
+            $otp = $this->otpService->generate();
+            $this->otpService->store($validated['email'], $otp);
 
             Mail::to($validated['email'])->send(new ResetPasswordOtpMail($otp));
 
             return Response::success(null, 'Kode OTP berhasil dikirimkan.');
 
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -141,12 +142,12 @@ class AuthController extends Controller
 
         try {
 
-            $otpRecord = $this->otpService->checkOtp($validated['email'], $validated['token']);
+            $otpRecord = $this->otpService->get($validated['email'], $validated['token']);
             if (! $otpRecord || now()->greaterThan($otpRecord->expired_at)) {
                 return Response::error('Kode OTP tidak valid atau sudah kedaluwarsa.', 422);
             }
 
-            $user = $this->userService->getPatient($validated['email']);
+            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, true)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan.', 404);
             }
@@ -155,11 +156,11 @@ class AuthController extends Controller
             $user->setRememberToken(str()->random(60));
             $user->save();
 
-            $this->otpService->deleteOtp($validated['token'], $validated['email']);
+            $this->otpService->delete($validated['token'], $validated['email']);
 
             return Response::success(null, 'Password berhasil direset.');
 
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }

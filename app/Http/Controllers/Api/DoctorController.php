@@ -30,7 +30,7 @@ class DoctorController extends Controller
 
             return Response::success([
                 'doctors' => DoctorResource::collection($doctors),
-            ], 'Berhasil mengambil data dokter.');
+            ], 'Berhasil mengambil data psikolog.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
@@ -41,14 +41,12 @@ class DoctorController extends Controller
     {
         try {
 
-            $doctor = $this->doctorService->find($id);
+            $doctor = $this->doctorService->get(id: $id)->first();
             if (! $doctor) {
                 return Response::error('Psikolog tidak ditemukan.', 404);
             }
 
-            return Response::success([
-                'doctor' => new DoctorResource($doctor),
-            ], 'Berhasil mengambil data detail dokter.');
+            return Response::success(new DoctorResource($doctor), 'Berhasil mengambil data detail psikolog.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

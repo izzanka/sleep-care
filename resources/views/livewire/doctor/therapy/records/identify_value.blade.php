@@ -2,50 +2,48 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
-use App\Service\Records\IdentifyValueService;
+use App\Service\QuestionService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected TherapyService $therapyService;
-    protected IdentifyValueService $identifyValueService;
+    protected RecordService $recordService;
+    protected QuestionService $questionService;
 
     public $therapy;
     public $identifyValue;
     public $labels;
 
-    public function boot(TherapyService       $therapyService,
-                         IdentifyValueService $identifyValueService)
+    public function boot(TherapyService $therapyService,
+                         RecordService  $recordService, QuestionService $questionService)
     {
-        $this->identifyValueService = $identifyValueService;
+        $this->recordService = $recordService;
         $this->therapyService = $therapyService;
+        $this->questionService = $questionService;
     }
 
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if(!$this->therapy){
+        if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->identifyValue = $this->identifyValueService->get($this->therapy->id);
+        $this->identifyValue = $this->recordService->getIdentifyValues($this->therapy->id);
         $this->labels = $this->getUniqueNotes();
     }
 
     protected function getDatasetLabels()
     {
-        return $this->identifyValue->questionAnswers
-            ->pluck('question.question')
-            ->map(fn($q) => explode(',', $q)[0])
-            ->unique()
-            ->values()
-            ->toArray();
+        return $this->questionService->get('identify_value')->pluck('question')
+            ->map(fn($q) => explode(',', $q)[0])->toArray();
     }
 
     protected function getUniqueNotes()
     {
-        return $this->identifyValue->questionAnswers
-            ->pluck('answer.note')
+        return $this->identifyValue->questionAnswers->pluck('answer.note')
             ->filter()
             ->unique()
             ->values();
@@ -100,13 +98,13 @@ new class extends Component {
                 <tr class="text-center">
                     <th class="border p-2">No</th>
                     <th class="border p-2">Area</th>
-                    <th class="border p-2">{{ $datasetLabels[0] }}</th>
-                    <th class="border p-2">{{ $datasetLabels[2] }}</th>
+                    <th class="border p-2">{{ $datasetLabels[0] }} (1-10)</th>
+                    <th class="border p-2">{{ $datasetLabels[2] }} (1-10)</th>
                     <th class="border p-2">{{ $datasetLabels[1] }}</th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($labels as $index => $label)
+                @forelse($labels as $index => $label)
                     <tr class="text-left">
                         <td class="border p-2 text-center">{{ $loop->iteration }}</td>
                         <td class="border p-2">{{ $label }}</td>
@@ -116,7 +114,13 @@ new class extends Component {
                             {{ $textAnswers[$datasetLabels[1]][$index] ?? '-' }}
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td class="border p-4 text-center" colspan="5">
+                            <flux:heading>Belum ada catatan</flux:heading>
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
@@ -139,12 +143,12 @@ new class extends Component {
             datasets: [
                 {
                     label: @json($datasetLabels[0]),
-                    data: @json($numberAnswers[$datasetLabels[0]]),
+                    data: @json($numberAnswers[$datasetLabels[0]] ?? []),
                     fill: true,
                 },
                 {
                     label: @json($datasetLabels[2]),
-                    data: @json($numberAnswers[$datasetLabels[2]]),
+                    data: @json($numberAnswers[$datasetLabels[2]] ?? []),
                     fill: true,
                 }
             ]
@@ -177,9 +181,6 @@ new class extends Component {
                             color: isDark ? '#ffffff' : '#000000',
                             backdropColor: 'transparent',
                         },
-                        // grid: {
-                        //     color: isDark ? '#ffffff' : '#000000',
-                        // },
                         pointLabels: {
                             color: isDark ? '#ffffff' : '#000000',
                         }

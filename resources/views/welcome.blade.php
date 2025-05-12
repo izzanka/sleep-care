@@ -7,9 +7,9 @@
 <header class="flex flex-wrap justify-between items-center p-6 border-b border-gray-200">
     <a class="text-xl font-bold text-[#D91E36]" href="/">SleepCare</a>
     @auth
-        <href class="px-4 py-2 mt-4 md:mt-0 text-sm border border-[#D91E36] text-[#D91E36] rounded hover:bg-[#D91E36] hover:text-white transition" href="{{route('dashboard')}}">
+        <a class="px-4 py-2 mt-4 md:mt-0 text-sm border border-[#D91E36] text-[#D91E36] rounded hover:bg-[#D91E36] hover:text-white transition" href="{{route('dashboard')}}">
             Dashboard
-        </href>
+        </a>
     @else
         <a class="px-4 py-2 mt-4 md:mt-0 text-sm border border-[#D91E36] text-[#D91E36] rounded hover:bg-[#D91E36] hover:text-white transition" href="{{route('login')}}">
             Login

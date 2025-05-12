@@ -37,7 +37,7 @@ new class extends Component {
     protected function getAdminOrders()
     {
         return [
-            'orders' => Order::where('status', OrderStatus::SUCCESS->value)
+            'orders' => Order::where('status', OrderStatus::SETTLEMENT->value)
                 ->latest()
                 ->paginate(15),
         ];
@@ -46,7 +46,7 @@ new class extends Component {
     protected function getDoctorOrders($user)
     {
         return [
-            'orders' => Order::where('status', OrderStatus::SUCCESS->value)
+            'orders' => Order::where('status', OrderStatus::SETTLEMENT->value)
                 ->whereHas('therapy', function ($query) use ($user) {
                     $query->where('doctor_id', $user->doctor->id)
                         ->where('status', TherapyStatus::COMPLETED->value);
@@ -66,7 +66,7 @@ new class extends Component {
                 <flux:heading size="xl" class="mb-2">@currency($total_income)</flux:heading>
             </div>
 
-            @forelse($orders as $order)
+            @foreach($orders as $order)
                 <div class="mt-6 flex items-center justify-between">
                     <div>
                         <flux:heading size="lg" class="text-green-600">
@@ -137,12 +137,7 @@ new class extends Component {
                     {{--                        </flux:modal>--}}
                 </div>
                 <flux:separator class="mt-6"/>
-            @empty
-                <flux:heading class="mt-6">
-                    Belum ada pendapatan
-                </flux:heading>
-            @endforelse
-
+            @endforeach
             <div class="mt-auto">
                 {{$orders->links()}}
             </div>

@@ -5,12 +5,14 @@ use App\Enum\UserGender;
 use App\Enum\UserRole;
 use App\Models\Doctor;
 use App\Models\User;
+use App\Service\UserService;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
 new class extends Component {
+    protected UserService $userService
     use WithPagination;
 
     #[Url]
@@ -21,19 +23,19 @@ new class extends Component {
     public ?string $filterGender = null;
     public ?string $filterProblem = null;
 
+    public function boot(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function getPatients()
     {
-
-//        $query = $this->search !== ''
-//            ? User::search($this->search)->where('role', UserRole::PATIENT->value)
-//            : User::query()->where('role', UserRole::PATIENT->value);
-
         $query = User::query();
 
-        if ($this->search !== ''){
+        if ($this->search !== '') {
             $this->resetPage();
             $query = User::search($this->search)->where('role', UserRole::PATIENT->value);
-        }else{
+        } else {
             $query->where('role', UserRole::PATIENT->value);
         }
 
@@ -69,23 +71,18 @@ new class extends Component {
 
     public function destroyPatient(int $patientID)
     {
-        $patient = User::find($patientID);
+        $patient = $this->userService->get(role: UserRole::PATIENT->value, id: $patientID)->first();
 
         if (!$patient) {
-            Session::flash('status', ['message' => 'Pasien tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Pasien tidak dapat ditemukan.', 'success' => false]);
             return;
         }
 
         $patient->delete();
 
-        Session::flash('status', ['message' => 'Pasien berhasil dihapus.', 'success' => true]);
+        session()->flash('status', ['message' => 'Pasien berhasil dihapus.', 'success' => true]);
 
-        $this->js(
-            "window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });"
-        );
+        $this->redirectRoute('admin.users.patient');
     }
 
     public function with()
@@ -175,7 +172,9 @@ new class extends Component {
                     <tr>
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" icon="trash" variant="danger" wire:click="destroyPatient({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus pasien ini?"></flux:button>
+                                <flux:button size="xs" icon="trash" variant="danger"
+                                             wire:click="destroyPatient({{$user->id}})"
+                                             wire:confirm="Apa anda yakin ingin menghapus pasien ini?"></flux:button>
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>

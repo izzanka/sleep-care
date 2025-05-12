@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Records;
 
-use App\Service\Records\EmotionRecordService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -11,13 +11,13 @@ class EmotionRecord extends Component
 {
     protected TherapyService $therapyService;
 
-    protected EmotionRecordService $emotionRecordService;
+    protected RecordService $recordService;
 
     public $emotionRecord;
 
-    public function boot(TherapyService $therapyService, EmotionRecordService $emotionRecordService)
+    public function boot(TherapyService $therapyService, RecordService $recordService)
     {
-        $this->emotionRecordService = $emotionRecordService;
+        $this->recordService = $recordService;
         $this->therapyService = $therapyService;
     }
 
@@ -30,7 +30,7 @@ class EmotionRecord extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->emotionRecord = $this->emotionRecordService->get($therapyId);
+        $this->emotionRecord = $this->recordService->getEmotionRecords($therapyId);
     }
 
     public function render()

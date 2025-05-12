@@ -21,6 +21,8 @@ class DoctorResource extends JsonResource
             'phone' => $this->phone,
             'name_title' => $this->name_title,
             'created_at' => $this->created_at,
+            'total_rating' => $this->usersRated() ?? 0,
+            'avg_rating' => $this->averageRating() ?? 0,
             'user' => new UserResource($this->user),
         ];
     }

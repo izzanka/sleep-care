@@ -18,6 +18,7 @@ new class extends Component {
     public string $gender = '';
     public ?string $phone = '';
     public ?string $name_title = '';
+    public ?string $about = '';
     public int $age;
     public int $registered_year;
     public $avatar;
@@ -67,12 +68,7 @@ new class extends Component {
 
         session()->flash('status', ['message' => 'Profile berhasil diubah.', 'success' => true]);
 
-        $this->js("
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        ");
+        $this->redirectRoute('settings.profile');
     }
 
     protected function fillUserFields()
@@ -89,6 +85,7 @@ new class extends Component {
         $this->phone = $this->user->doctor->phone;
         $this->registered_year = $this->user->doctor->registered_year;
         $this->name_title = $this->user->doctor->name_title;
+        $this->about = $this->user->doctor->about;
     }
 
     protected function shouldUpdateDoctorInfo()
@@ -101,6 +98,7 @@ new class extends Component {
         $validated = $this->validate([
             'name_title' => ['nullable', 'string', 'max:225'],
             'phone' => ['nullable', 'string', 'max:225'],
+            'about' => ['nullable', 'string', 'max:225'],
         ]);
 
         $this->user->doctor->update($validated);
@@ -161,6 +159,12 @@ new class extends Component {
                     <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
                 @endforeach
             </flux:select>
+
+            <flux:textarea
+                label="Tentang"
+                placeholder="Ceritakan sedikit tentang diri anda"
+                wire:model="about"
+            />
 
             <flux:input type="file" label="Avatar" wire:model="avatar"></flux:input>
 

@@ -4,13 +4,14 @@ use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Service\ChartService;
 use App\Service\Records\SleepDiaryService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected ChartService $chartService;
-    protected SleepDiaryService $sleepDiaryService;
+    protected RecordService $recordService;
     protected TherapyService $therapyService;
 
     public $therapy;
@@ -18,11 +19,11 @@ new class extends Component {
     public $dropdownLabels;
 
     public function boot(ChartService      $chartService,
-                         SleepDiaryService $sleepDiaryService,
+                         RecordService $recordService,
                          TherapyService    $therapyService)
     {
         $this->chartService = $chartService;
-        $this->sleepDiaryService = $sleepDiaryService;
+        $this->recordService = $recordService;
         $this->therapyService = $therapyService;
     }
 
@@ -31,7 +32,7 @@ new class extends Component {
         $doctorId = auth()->user()->doctor->id;
 
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if(!$this->therapy){
+        if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
         $this->labels = $this->chartService->labels;
@@ -61,7 +62,7 @@ new class extends Component {
     {
         $questionMapping = [
             16 => 'dataSleepHours',
-            3  => 'dataTotalSleep',
+            3 => 'dataTotalSleep',
             17 => 'dataAwakenings',
             18 => 'dataSleepQuality',
             10 => 'dataCaffeine',
@@ -72,7 +73,7 @@ new class extends Component {
 
         $resultData = array_fill_keys(array_values($questionMapping), []);
 
-        $sleepDiaries = $this->sleepDiaryService->get($this->therapy->id);
+        $sleepDiaries = $this->recordService->getSleepDiaries($this->therapy->id);
 
         foreach ($sleepDiaries as $entries) {
             foreach ($questionMapping as $questionId => $dataKey) {
@@ -83,9 +84,11 @@ new class extends Component {
             }
         }
 
+        $structuredQuestions = $this->getQuestions($sleepDiaries);
+
         return array_merge([
             'sleepDiaries' => $sleepDiaries,
-            'structuredQuestions' => $this->getQuestions($sleepDiaries),
+            'structuredQuestions' => $structuredQuestions,
         ], $resultData);
     }
 
@@ -109,14 +112,14 @@ new class extends Component {
                     </div>
                 </div>
 
-{{--                <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"--}}
-{{--                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
-{{--                    <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>--}}
-{{--                </button>--}}
-{{--                <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"--}}
-{{--                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
-{{--                    <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>--}}
-{{--                </button>--}}
+                {{--                <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"--}}
+                {{--                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
+                {{--                    <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>--}}
+                {{--                </button>--}}
+                {{--                <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"--}}
+                {{--                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
+                {{--                    <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>--}}
+                {{--                </button>--}}
 
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
                         class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-zinc-300 dark:hover:bg-zinc-600">
@@ -202,53 +205,61 @@ new class extends Component {
                                 @endforeach
                             </tr>
 
-                            <tr>
-                                <td class="p-2 text-center font-bold" colspan="8">Siang Hari</td>
-                            </tr>
-
-                            @foreach($structuredQuestions as $question)
+                            @if($structuredQuestions->isEmpty())
                                 <tr>
-                                    <td class="border p-2 text-center font-bold">{{ $question->question }}</td>
-                                    @foreach($sleepDiary as $diary)
-                                        @php
-                                            $entry = $diary->questionAnswers->firstWhere('question_id', $question->id);
-                                        @endphp
-                                        <td class="border p-2">
-                                            <div class="flex justify-center items-center h-full">
-                                                @if($entry->answer->type == QuestionType::BINARY->value)
-                                                    @if($entry->answer->answer)
-                                                        <flux:icon.check-circle class="text-green-500"/>
-                                                    @else
-                                                        <flux:icon.x-circle class="text-red-500"/>
-                                                    @endif
-                                                @else
-                                                    {{ $entry->answer->answer ?? '-' }}
-                                                @endif
-                                            </div>
-                                        </td>
-                                    @endforeach
+                                    <td class="border p-4 text-center" colspan="8">
+                                        <flux:heading>Belum ada catatan</flux:heading>
+                                    </td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td class="p-2 text-center font-bold" colspan="8">Siang Hari</td>
                                 </tr>
 
-                                @foreach($question->children as $child)
+                                @foreach($structuredQuestions as $question)
                                     <tr>
-                                        <td class="border p-2 text-left text-sm">{{ $child->question }}</td>
+                                        <td class="border p-2 text-center font-bold">{{ $question->question }}</td>
                                         @foreach($sleepDiary as $diary)
                                             @php
-                                                $entry = $diary->questionAnswers->firstWhere('question_id', $child->id);
+                                                $entry = $diary->questionAnswers->firstWhere('question_id', $question->id);
                                             @endphp
-                                            <td class="border p-2 text-center">
-                                                {{ $entry->answer->answer ?? '-' }}
+                                            <td class="border p-2">
+                                                <div class="flex justify-center items-center h-full">
+                                                    @if($entry->answer->type == QuestionType::BINARY->value)
+                                                        @if($entry->answer->answer)
+                                                            <flux:icon.check-circle class="text-green-500"/>
+                                                        @else
+                                                            <flux:icon.x-circle class="text-red-500"/>
+                                                        @endif
+                                                    @else
+                                                        {{ $entry->answer->answer ?? '-' }}
+                                                    @endif
+                                                </div>
                                             </td>
                                         @endforeach
                                     </tr>
-                                @endforeach
 
-                                @if($question->id == 13)
-                                    <tr>
-                                        <td class="p-2 text-center font-bold" colspan="8">Malam Hari</td>
-                                    </tr>
-                                @endif
-                            @endforeach
+                                    @foreach($question->children as $child)
+                                        <tr>
+                                            <td class="border p-2 text-left text-sm">{{ $child->question }}</td>
+                                            @foreach($sleepDiary as $diary)
+                                                @php
+                                                    $entry = $diary->questionAnswers->firstWhere('question_id', $child->id);
+                                                @endphp
+                                                <td class="border p-2 text-center">
+                                                    {{ $entry->answer->answer ?? '-' }}
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+
+                                    @if($question->id == 13)
+                                        <tr>
+                                            <td class="p-2 text-center font-bold" colspan="8">Malam Hari</td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            @endif
                             </tbody>
                         </table>
                     </div>
@@ -377,7 +388,7 @@ new class extends Component {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Tren Konsumsi Setelah Pukul 18:00',
+                        text: 'Total Konsumsi Setelah Pukul 18:00',
                         color: isDark ? '#ffffff' : '#000000',
                     },
                     legend: {

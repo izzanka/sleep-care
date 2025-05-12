@@ -33,7 +33,7 @@ class TherapySeeder extends Seeder
 
         Order::factory()->create([
             'therapy_id' => $therapyInProgress->id,
-            'status' => OrderStatus::SUCCESS->value,
+            'status' => OrderStatus::SETTLEMENT->value,
         ]);
 
         Chat::create([
@@ -51,7 +51,7 @@ class TherapySeeder extends Seeder
 
         Order::factory()->create([
             'therapy_id' => $therapyCompleted->id,
-            'status' => OrderStatus::SUCCESS->value,
+            'status' => OrderStatus::SETTLEMENT->value,
         ]);
 
         Chat::create([

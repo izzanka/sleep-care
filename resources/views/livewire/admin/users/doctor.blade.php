@@ -3,6 +3,7 @@
 use App\Enum\UserGender;
 use App\Enum\UserRole;
 use App\Models\User;
+use App\Service\UserService;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
@@ -10,6 +11,8 @@ use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
 new class extends Component {
+    protected UserService $userService;
+
     use WithPagination;
 
     #[Url]
@@ -20,18 +23,19 @@ new class extends Component {
     public ?string $filterGender = null;
     public ?bool $filterIsActive = null;
 
+    public function boot(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function getDoctors()
     {
-//        $query = $this->search !== ''
-//            ? User::search($this->search)->where('role', UserRole::DOCTOR->value)
-//            : User::query()->where('role', UserRole::DOCTOR->value);
-
         $query = User::query();
 
-        if ($this->search !== ''){
+        if ($this->search !== '') {
             $this->resetPage();
             $query = User::search($this->search)->where('role', UserRole::DOCTOR->value);
-        }else{
+        } else {
             $query->where('role', UserRole::DOCTOR->value);
         }
 
@@ -45,10 +49,10 @@ new class extends Component {
     protected function applyFilters($query)
     {
         return $query
-            ->when($this->filterMinAge, fn ($q) => $q->where('age', '>=', $this->filterMinAge))
-            ->when($this->filterMaxAge, fn ($q) => $q->where('age', '<=', $this->filterMaxAge))
-            ->when($this->filterGender, fn ($q) => $q->where('gender', $this->filterGender))
-            ->when(is_bool($this->filterIsActive), fn ($q) => $q->where('is_active', $this->filterIsActive));
+            ->when($this->filterMinAge, fn($q) => $q->where('age', '>=', $this->filterMinAge))
+            ->when($this->filterMaxAge, fn($q) => $q->where('age', '<=', $this->filterMaxAge))
+            ->when($this->filterGender, fn($q) => $q->where('gender', $this->filterGender))
+            ->when(is_bool($this->filterIsActive), fn($q) => $q->where('is_active', $this->filterIsActive));
     }
 
     public function updatedFilterIsActive($value)
@@ -80,16 +84,16 @@ new class extends Component {
 
     public function destroyDoctor(int $doctorID)
     {
-        $doctor = User::find($doctorID);
+        $doctor = $this->userService->get(role: UserRole::DOCTOR->value, id: $doctorID)->first();
 
         if (!$doctor) {
-            Session::flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
+            session()->flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
             return;
         }
 
         $doctor->delete();
 
-        Session::flash('status', ['message' => 'Psikolog berhasil dihapus.', 'success' => true]);
+        session()->flash('status', ['message' => 'Psikolog berhasil dihapus.', 'success' => true]);
 
         $this->redirectRoute('admin.users.doctor');
     }
@@ -177,7 +181,9 @@ new class extends Component {
                     <tr wire:key="{{$user->id}}">
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" icon="trash" variant="danger" wire:click="destroyDoctor({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus psikolog ini?"></flux:button>
+                                <flux:button size="xs" icon="trash" variant="danger"
+                                             wire:click="destroyDoctor({{$user->id}})"
+                                             wire:confirm="Apa anda yakin ingin menghapus psikolog ini?"></flux:button>
                             </div>
                         </td>
                         <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>

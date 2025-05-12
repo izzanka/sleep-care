@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Records;
 
-use App\Service\Records\ThoughtRecordService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -11,15 +11,15 @@ class ThoughtRecord extends Component
 {
     protected TherapyService $therapyService;
 
-    protected ThoughtRecordService $thoughtRecordService;
+    protected RecordService $recordService;
 
     public $thoughtRecords;
 
     public function boot(TherapyService $therapyService,
-        ThoughtRecordService $thoughtRecordService)
+        RecordService $recordService)
     {
         $this->therapyService = $therapyService;
-        $this->thoughtRecordService = $thoughtRecordService;
+        $this->recordService = $recordService;
     }
 
     public function mount(int $therapyId)
@@ -31,7 +31,7 @@ class ThoughtRecord extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->thoughtRecords = $this->thoughtRecordService->get($therapyId);
+        $this->thoughtRecords = $this->recordService->getThoughtRecords($therapyId);
     }
 
     protected function extractQuestions()

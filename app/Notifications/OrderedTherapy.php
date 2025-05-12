@@ -2,25 +2,24 @@
 
 namespace App\Notifications;
 
-use App\Enum\UserRole;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class RegisteredUser extends Notification
+class OrderedTherapy extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user)
+    public function __construct($therapy)
     {
-        $this->user = $user;
+        $this->therapy = $therapy;
     }
 
     public function databaseType(object $notifiable): string
     {
-        return 'registered-user';
+        return 'ordered-therapy';
     }
 
     /**
@@ -41,7 +40,9 @@ class RegisteredUser extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => $this->user->role == UserRole::DOCTOR->value ? 'Psikolog' : 'Pasien'.'('.$this->user->name.') baru saja melakukan registrasi.',
+            'message' => 'Pasien ('.$this->therapy->patient->name.
+                ') baru saja memilih '.' Psikolog ('.$this->therapy->doctor->user->name.
+                ') untuk melakukan terapi.',
         ];
     }
 }

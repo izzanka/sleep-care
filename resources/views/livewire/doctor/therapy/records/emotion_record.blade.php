@@ -3,7 +3,8 @@
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Service\ChartService;
-use App\Service\Records\EmotionRecordService;
+use App\Service\QuestionService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
 use Livewire\Volt\Component;
@@ -11,7 +12,8 @@ use Livewire\Volt\Component;
 new class extends Component {
     protected ChartService $chartService;
     protected TherapyService $therapyService;
-    protected EmotionRecordService $emotionRecordService;
+    protected RecordService $recordService;
+    protected QuestionService $questionService;
 
     public $therapy;
     public $emotionRecord;
@@ -20,27 +22,29 @@ new class extends Component {
     public $chartTitle;
     public $selectedWeek;
 
-    public function boot(ChartService         $chartService,
-                         TherapyService       $therapyService,
-                         EmotionRecordService $emotionRecordService)
+    public function boot(ChartService   $chartService,
+                         TherapyService $therapyService,
+                         RecordService  $recordService,
+                         QuestionService $questionService)
     {
         $this->chartService = $chartService;
-        $this->emotionRecordService = $emotionRecordService;
+        $this->recordService = $recordService;
         $this->therapyService = $therapyService;
+        $this->questionService = $questionService;
     }
 
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if(!$this->therapy){
+        if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->emotionRecord = $this->emotionRecordService->get($this->therapy->id);
+        $this->emotionRecord = $this->recordService->getEmotionRecords($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
         $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);
-        $this->chartTitle = 'Frekuensi Kemunculan Emosi';
+        $this->chartTitle = 'Total Frekuensi Kemunculan Emosi';
     }
 
     private function extractAnswerData($rows)
@@ -88,11 +92,7 @@ new class extends Component {
 
     public function with()
     {
-        $questions = $this->emotionRecord->questionAnswers
-            ->pluck('question.question')
-            ->unique()
-            ->values();
-
+        $questions = $this->questionService->get('emotion_record')->pluck('question')->toArray();
         $chunks = $this->emotionRecord->questionAnswers->chunk(count($questions))
             ->sortByDesc(fn($chunk) => Carbon::parse($chunk->keyBy(fn($qa) => $qa->question_id)[27]->answer->answer))
             ->values();
@@ -107,7 +107,8 @@ new class extends Component {
         $answerData = $this->extractAnswerData($chunks);
         $emotionFrequencies = $this->calculateWeeklyEmotionFrequencies($answerData);
         $chartDatasets = $this->buildChartDatasets($emotionFrequencies);
-        $maxValue = $this->chartService->calculateMaxValue($emotionFrequencies->flatten()->toArray());
+        $flattened = $emotionFrequencies->flatten()->toArray();
+        $maxValue = empty($flattened) ? 0 : $this->chartService->calculateMaxValue($flattened);
 
         return [
             'questions' => $questions,
@@ -180,8 +181,8 @@ new class extends Component {
                     </tr>
                 @empty
                     <tr>
-                        <td class="border p-4 text-center" colspan="{{ count($questions) + 1 }}">
-                            <flux:heading>Belum ada catatan emosi</flux:heading>
+                        <td class="border p-4 text-center" colspan="9">
+                            <flux:heading>Belum ada catatan</flux:heading>
                         </td>
                     </tr>
                 @endforelse

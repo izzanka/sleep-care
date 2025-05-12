@@ -3,7 +3,8 @@
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Service\ChartService;
-use App\Service\Records\ThoughtRecordService;
+use App\Service\QuestionService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -13,7 +14,8 @@ new class extends Component {
 
     protected ChartService $chartService;
     protected TherapyService $therapyService;
-    protected ThoughtRecordService $thoughtRecordService;
+    protected RecordService $recordService;
+    protected QuestionService $questionService;
 
     public $text;
     public $therapy;
@@ -22,35 +24,34 @@ new class extends Component {
     public $thoughtRecords;
     public $dropdownLabels;
 
-    public function boot(ChartService         $chartService,
-                         TherapyService       $therapyService,
-                         ThoughtRecordService $thoughtRecordService)
+    public function boot(ChartService   $chartService,
+                         TherapyService $therapyService,
+                         RecordService  $recordService,
+                         QuestionService $questionService)
     {
         $this->chartService = $chartService;
         $this->therapyService = $therapyService;
-        $this->thoughtRecordService = $thoughtRecordService;
+        $this->recordService = $recordService;
+        $this->questionService = $questionService;
     }
 
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if(!$this->therapy){
+        if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->thoughtRecords = $this->thoughtRecordService->get($this->therapy->id);
+        $this->thoughtRecords = $this->recordService->getThoughtRecords($this->therapy->id);
         $this->labels = $this->chartService->labels;
-        $this->selectedWeek = min((int) $this->therapy->start_date->diffInWeeks(now()) + 1, 6);
+        $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
-        $this->text = 'Frekuensi Kemunculan Pikiran';
+        $this->text = 'Total Frekuensi Kemunculan Pikiran';
     }
 
     private function extractQuestions()
     {
-        return $this->thoughtRecords->questionAnswers
-            ->pluck('question.question')
-            ->unique()
-            ->values();
+        return $this->questionService->get('thought_record')->pluck('question')->toArray();
     }
 
     private function countThoughtRecordDates($chunks)
@@ -95,7 +96,8 @@ new class extends Component {
 
         $dateCounts = $this->countThoughtRecordDates($chunks);
         $weeklyData = $this->groupCountsByWeek($dateCounts);
-        $maxValue = $this->chartService->calculateMaxValue($weeklyData->toArray());
+        $weeklySum = array_sum($weeklyData->toArray()) === 0;
+        $maxValue = $weeklySum ? 0 : $this->chartService->calculateMaxValue($weeklyData->toArray());
 
         return [
             'thoughtRecordQuestions' => $questions,
@@ -173,7 +175,7 @@ new class extends Component {
                 @empty
                     <tr>
                         <td class="border p-2 text-center" colspan="5">
-                            <flux:heading>Belum ada catatan pikiran</flux:heading>
+                            <flux:heading>Belum ada catatan</flux:heading>
                         </td>
                     </tr>
                 @endforelse
@@ -186,6 +188,8 @@ new class extends Component {
 @script
 <script>
     let chartInstance;
+    let jsonData = @json($data);
+    let hasNonZero = jsonData.some(value => value !== 0);
 
     function createChart() {
         const canvas = document.getElementById('thoughtRecordChart');
@@ -196,13 +200,13 @@ new class extends Component {
 
         const data = {
             labels: @json($labels),
-            datasets: [
+            datasets: hasNonZero ? [
                 {
                     label: 'Total',
                     data: @json($data),
                     borderWidth: 1,
                 }
-            ],
+            ] : [],
         };
 
         const config = {

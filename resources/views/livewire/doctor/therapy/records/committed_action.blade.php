@@ -2,31 +2,34 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
-use App\Service\Records\CommittedActionService;
+use App\Service\QuestionService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected TherapyService $therapyService;
-    protected CommittedActionService $committedActionService;
+    protected RecordService $recordService;
+    protected QuestionService $questionService;
 
     public $therapy;
     public $committedAction;
 
-    public function boot(TherapyService $therapyService, CommittedActionService $committedActionService)
+    public function boot(TherapyService $therapyService, RecordService $recordService, QuestionService $questionService)
     {
         $this->therapyService = $therapyService;
-        $this->committedActionService = $committedActionService;
+        $this->recordService = $recordService;
+        $this->questionService = $questionService;
     }
 
     public function mount()
     {
         $doctorId = auth()->user()->doctor->id;
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if(!$this->therapy){
+        if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->committedAction = $this->committedActionService->get($this->therapy->id);
+        $this->committedAction = $this->recordService->getCommittedActions($this->therapy->id);
     }
 
     public function prepareChartData()
@@ -47,7 +50,7 @@ new class extends Component {
     public function with()
     {
         $questionAnswers = $this->committedAction->questionAnswers;
-        $questionLabels = $questionAnswers->pluck('question.question')->unique()->values();
+        $questionLabels = $this->questionService->get('committed_action')->pluck('question');
         $tableRows = $questionAnswers->sortByDesc('answer.created_at')->chunk($questionLabels->count());
         $chart = $this->prepareChartData();
 
@@ -115,7 +118,7 @@ new class extends Component {
                 @empty
                     <tr>
                         <td class="border p-4 text-center" colspan="{{ count($questions) + 1 }}">
-                            <flux:heading>Belum ada data jawaban</flux:heading>
+                            <flux:heading>Belum ada catatan</flux:heading>
                         </td>
                     </tr>
                 @endforelse

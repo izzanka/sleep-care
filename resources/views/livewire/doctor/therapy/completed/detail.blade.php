@@ -35,50 +35,43 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Detail Riwayat'])
 
     <div class="flex flex-wrap gap-4 items-start mb-6">
-        <flux:radio.group class="mb-0" variant="segmented" label="Catatan:">
+        <flux:radio.group class="mb-0" variant="segmented" label="Catatan:" wire:model="history">
             <flux:radio
                 label="Tidur"
                 value="sleep_diary"
-                :checked="$history === 'sleep_diary'"
                 wire:click="setHistory('sleep_diary')"
             />
             <flux:radio
                 label="Nilai"
                 value="identify_value"
-                :checked="$history === 'identify_value'"
                 wire:click="setHistory('identify_value')"
             />
             <flux:radio
                 label="Pikiran"
                 value="thought_record"
-                :checked="$history === 'thought_record'"
                 wire:click="setHistory('thought_record')"
             />
             <flux:radio
                 label="Emosi"
                 value="emotion_record"
-                :checked="$history === 'emotion_record'"
                 wire:click="setHistory('emotion_record')"
             />
             <flux:radio
                 label="Tindakan"
                 value="committed_action"
-                :checked="$history === 'committed_action'"
                 wire:click="setHistory('committed_action')"
             />
         </flux:radio.group>
 
-        <flux:radio.group class="mb-0" variant="segmented" label="Lainnya:">
+        <flux:radio.group class="mb-0" variant="segmented" label="Lainnya:" wire:model="history">
             <flux:radio
                 label="Jadwal"
                 value="schedule"
-                :checked="$history === 'schedule'"
                 wire:click="setHistory('schedule')"
             />
             <flux:radio
                 label="Percakapan"
                 value="chat"
-                :checked="$history === 'chat'"
                 wire:click="setHistory('chat')"
             />
         </flux:radio.group>

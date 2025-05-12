@@ -6,23 +6,27 @@ use Illuminate\Support\Facades\DB;
 
 class TokenService
 {
-    public function getAvailableOtp(string $email)
+    public function get(?string $email = null, ?string $token = null)
     {
-        return DB::table('password_reset_tokens')->where('email', $email)->latest()->first();
+        $query = DB::table('password_reset_tokens');
+
+        if ($email) {
+            $query->where('email', $email);
+        }
+
+        if ($token) {
+            $query->where('token', $token);
+        }
+
+        return $query->latest()->first();
     }
 
-    public function checkOtp(string $email, string $token)
-    {
-        return DB::table('password_reset_tokens')->where('email', $email)
-            ->where('token', $token)->latest()->first();
-    }
-
-    public function generateOtp()
+    public function generate()
     {
         return rand(10000, 99999);
     }
 
-    public function storeOtp(string $email, string $otp)
+    public function store(string $email, string $otp)
     {
         return DB::table('password_reset_tokens')->insert([
             'email' => $email,
@@ -32,7 +36,7 @@ class TokenService
         ]);
     }
 
-    public function deleteOtp(?string $token = null, ?string $email = null)
+    public function delete(?string $token = null, ?string $email = null)
     {
         $query = DB::table('password_reset_tokens');
 

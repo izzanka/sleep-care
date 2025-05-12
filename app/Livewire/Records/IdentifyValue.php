@@ -3,7 +3,7 @@
 namespace App\Livewire\Records;
 
 use App\Enum\QuestionType;
-use App\Service\Records\IdentifyValueService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Livewire\Component;
 
@@ -11,16 +11,16 @@ class IdentifyValue extends Component
 {
     protected TherapyService $therapyService;
 
-    protected IdentifyValueService $identifyValueService;
+    protected RecordService $recordService;
 
     public $identifyValue;
 
     public $labels;
 
     public function boot(TherapyService $therapyService,
-        IdentifyValueService $identifyValueService)
+        RecordService $recordService)
     {
-        $this->identifyValueService = $identifyValueService;
+        $this->recordService = $recordService;
         $this->therapyService = $therapyService;
     }
 
@@ -33,7 +33,7 @@ class IdentifyValue extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->identifyValue = $this->identifyValueService->get($therapyId);
+        $this->identifyValue = $this->recordService->getIdentifyValues($therapyId);
         $this->labels = $this->extractUniqueNotes();
     }
 

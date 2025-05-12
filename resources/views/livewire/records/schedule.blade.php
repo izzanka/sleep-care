@@ -4,7 +4,7 @@
              x-data="{openTab: null}" wire:key="{{$schedule->id}}">
             <div class="flex items-center justify-between flex-wrap gap-y-2">
                 <div class="flex items-center gap-x-3">
-                    <flux:icon.video-camera></flux:icon.video-camera>
+{{--                    <flux:icon.video-camera></flux:icon.video-camera>--}}
                     <flux:heading size="lg">{{$schedule->title}}</flux:heading>
                     <flux:badge size="sm"
                                 color="{{$schedule->is_completed ? 'green' : 'zink'}}">{{$schedule->is_completed ? 'Sudah Dilaksanakan' : 'Belum Dilaksanakan'}}</flux:badge>
@@ -12,13 +12,13 @@
             </div>
             <div class="mt-5">
                 @if($schedule->link)
-                    <flux:input icon="link" value="{{$schedule->link}}" readonly copyable/>
+                    <flux:input value="{{$schedule->link}}" readonly copyable/>
                 @else
-                    <flux:input icon="link" value="-" disabled/>
+                    <flux:input value="-" disabled/>
                 @endif
             </div>
             <div class="flex items-center gap-2 mt-4">
-                <flux:icon.clock></flux:icon.clock>
+{{--                <flux:icon.clock></flux:icon.clock>--}}
                 <flux:text>{{$schedule->date->isoFormat('D MMMM Y')}} ({{\Carbon\Carbon::parse($schedule->time)->format('H:i')}} - {{\Carbon\Carbon::parse($schedule->time)->addHour()->format('H:i')}})</flux:text>
             </div>
             <div class="mt-4">

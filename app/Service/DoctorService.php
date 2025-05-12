@@ -6,17 +6,14 @@ use App\Models\Doctor;
 
 class DoctorService
 {
-    public function get(string $orderBy, string $sort, int $paginate = 15)
+    public function get(string $orderBy = 'created_at', string $sort = 'desc', int $paginate = 15, ?int $id = null)
     {
-        return Doctor::whereHas('user', function ($query) {
-            $query->where('is_active', true);
-        })->orderBy($orderBy, $sort)->paginate($paginate);
-    }
+        $query = Doctor::query();
 
-    public function find(int $id)
-    {
-        return Doctor::whereHas('user', function ($query) {
-            $query->where('is_active', true);
-        })->find($id);
+        if ($id) {
+            $query->where('id', $id);
+        }
+
+        return $query->orderBy($orderBy, $sort)->paginate($paginate);
     }
 }

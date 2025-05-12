@@ -28,16 +28,7 @@ new class extends Component {
         @forelse ($notifications as $notification)
             <div class="flex justify-between p-2 {{$notification->read_at ? '' : 'bg-zinc-500'}} rounded-lg mt-4">
                 <flux:heading>
-                    [{{ $notification->created_at }}]
-                    @switch($notification->data['role'])
-                        @case(UserRole::DOCTOR->value)
-                            Psikolog
-                            @break
-                        @case(UserRole::PATIENT->value)
-                            Pasien
-                            @break
-                    @endswitch
-                    {{ $notification->data['name'] }} ({{ $notification->data['email'] }}) {{ $notification->data['message'] }}
+                    [{{ $notification->created_at->format('d/m/Y H:i') }}] {{ $notification->data['message'] }}
                 </flux:heading>
 
                 @if (is_null($notification->read_at))

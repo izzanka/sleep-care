@@ -13,8 +13,6 @@ class ChatService
 
     public function store(array $validated)
     {
-        $validated['created_at'] = now();
-
         return Chat::create($validated);
     }
 }

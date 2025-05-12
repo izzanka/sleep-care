@@ -3,7 +3,7 @@
 namespace App\Livewire\Records;
 
 use App\Service\ChartService;
-use App\Service\Records\SleepDiaryService;
+use App\Service\RecordService;
 use App\Service\TherapyService;
 use Livewire\Component;
 
@@ -11,7 +11,7 @@ class SleepDiary extends Component
 {
     protected ChartService $chartService;
 
-    protected SleepDiaryService $sleepDiaryService;
+    protected RecordService $recordService;
 
     protected TherapyService $therapyService;
 
@@ -20,11 +20,11 @@ class SleepDiary extends Component
     public $dropdownLabels;
 
     public function boot(ChartService $chartService,
-        SleepDiaryService $sleepDiaryService,
+        RecordService $recordService,
         TherapyService $therapyService)
     {
         $this->chartService = $chartService;
-        $this->sleepDiaryService = $sleepDiaryService;
+        $this->recordService = $recordService;
         $this->therapyService = $therapyService;
     }
 
@@ -62,7 +62,7 @@ class SleepDiary extends Component
 
     public function render()
     {
-        $sleepDiaries = $this->sleepDiaryService->get($this->therapy->id);
+        $sleepDiaries = $this->recordService->getSleepDiaries($this->therapy->id);
         $structuredQuestions = $this->getQuestions($sleepDiaries);
 
         return view('livewire.records.sleep-diary', [
