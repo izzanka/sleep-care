@@ -40,7 +40,7 @@ new class extends Component {
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->emotionRecord = $this->recordService->getEmotionRecords($this->therapy->id);
+        $this->emotionRecord = $this->recordService->getEmotionRecord($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
         $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);

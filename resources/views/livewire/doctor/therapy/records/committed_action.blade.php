@@ -29,7 +29,7 @@ new class extends Component {
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->committedAction = $this->recordService->getCommittedActions($this->therapy->id);
+        $this->committedAction = $this->recordService->getCommittedAction($this->therapy->id);
     }
 
     public function prepareChartData()
@@ -78,7 +78,7 @@ new class extends Component {
 
         <flux:separator class="mt-4 mb-4"></flux:separator>
 
-        <div class="overflow-x-auto border mt-4">
+        <div class="overflow-x-auto mt-4">
             <table class="min-w-[800px] table-auto w-full text-sm text-left">
                 <thead>
                 <tr>

@@ -85,7 +85,7 @@ class TherapyController extends Controller
                 'application_fee' => $general->application_fee,
             ]);
 
-            Order::create([
+            $order = Order::create([
                 'therapy_id' => $therapy->id,
                 'status' => OrderStatus::SETTLEMENT->value,
                 'total_price' => $totalPrice,
@@ -109,7 +109,7 @@ class TherapyController extends Controller
             $this->recordService->generateThoughtRecord($therapy->id);
             $this->recordService->generateCommittedAction($therapy->id);
 
-            return Response::success(null, 'Berhasil memesan terapi.');
+            return Response::success($order, 'Berhasil memesan terapi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

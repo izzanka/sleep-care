@@ -21,7 +21,7 @@ new class extends Component {
     public $therapy;
     public $labels;
     public $selectedWeek;
-    public $thoughtRecords;
+    public $thoughtRecord;
     public $dropdownLabels;
 
     public function boot(ChartService   $chartService,
@@ -42,7 +42,7 @@ new class extends Component {
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->thoughtRecords = $this->recordService->getThoughtRecords($this->therapy->id);
+        $this->thoughtRecord = $this->recordService->getThoughtRecord($this->therapy->id);
         $this->labels = $this->chartService->labels;
         $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
@@ -83,7 +83,7 @@ new class extends Component {
     public function with()
     {
         $questions = $this->extractQuestions();
-        $chunks = $this->thoughtRecords->questionAnswers->chunk(count($questions))->sortByDesc(function ($chunk) {
+        $chunks = $this->thoughtRecord->questionAnswers->chunk(count($questions))->sortByDesc(function ($chunk) {
             $dateAnswer = optional($chunk->keyBy(fn($qa) => $qa->question_id)[23]->answer)->answer;
             return $dateAnswer ? Carbon::parse($dateAnswer) : null;
         })->values();

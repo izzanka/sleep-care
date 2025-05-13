@@ -30,7 +30,7 @@ class EmotionRecord extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->emotionRecord = $this->recordService->getEmotionRecords($therapyId);
+        $this->emotionRecord = $this->recordService->getEmotionRecord($therapyId);
     }
 
     public function render()

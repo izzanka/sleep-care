@@ -29,7 +29,7 @@ class CommittedAction extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->committedAction = $this->recordService->getCommittedActions($therapyId);
+        $this->committedAction = $this->recordService->getCommittedAction($therapyId);
     }
 
     public function render()

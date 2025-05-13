@@ -31,7 +31,7 @@ new class extends Component {
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->identifyValue = $this->recordService->getIdentifyValues($this->therapy->id);
+        $this->identifyValue = $this->recordService->getIdentifyValue($this->therapy->id);
         $this->labels = $this->getUniqueNotes();
     }
 

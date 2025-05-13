@@ -80,11 +80,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Therapy::class, 'patient_id');
     }
 
-    public function rooms()
-    {
-        return $this->hasMany(ChatRoom::class);
-    }
-
     public function sent()
     {
         return $this->hasMany(Chat::class, 'sender_id');

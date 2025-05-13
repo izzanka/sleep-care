@@ -31,7 +31,7 @@ class ThoughtRecord extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->thoughtRecords = $this->recordService->getThoughtRecords($therapyId);
+        $this->thoughtRecords = $this->recordService->getThoughtRecord($therapyId);
     }
 
     protected function extractQuestions()

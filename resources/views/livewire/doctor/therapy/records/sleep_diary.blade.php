@@ -3,7 +3,6 @@
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
 use App\Service\ChartService;
-use App\Service\Records\SleepDiaryService;
 use App\Service\RecordService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
@@ -72,7 +71,6 @@ new class extends Component {
         ];
 
         $resultData = array_fill_keys(array_values($questionMapping), []);
-
         $sleepDiaries = $this->recordService->getSleepDiaries($this->therapy->id);
 
         foreach ($sleepDiaries as $entries) {
@@ -225,14 +223,18 @@ new class extends Component {
                                             @endphp
                                             <td class="border p-2">
                                                 <div class="flex justify-center items-center h-full">
-                                                    @if($entry->answer->type == QuestionType::BINARY->value)
-                                                        @if($entry->answer->answer)
-                                                            <flux:icon.check-circle class="text-green-500"/>
+                                                    @if($entry && $entry->answer)
+                                                        @if($entry->answer->type == QuestionType::BINARY->value)
+                                                            @if($entry->answer->answer)
+                                                                <flux:icon.check-circle class="text-green-500"/>
+                                                            @else
+                                                                <flux:icon.x-circle class="text-red-500"/>
+                                                            @endif
                                                         @else
-                                                            <flux:icon.x-circle class="text-red-500"/>
+                                                            {{ $entry->answer->answer ?? '-' }}
                                                         @endif
                                                     @else
-                                                        {{ $entry->answer->answer ?? '-' }}
+                                                        -
                                                     @endif
                                                 </div>
                                             </td>
@@ -366,8 +368,8 @@ new class extends Component {
                         },
                     },
                     y: {
-                        beginAtZero: true,
-                        min: 1,
+                        beginAtZero: false,
+                        min: 0,
                         max: 60,
                         ticks: {
                             color: isDark ? '#ffffff' : '#000000',
@@ -376,7 +378,7 @@ new class extends Component {
                             display: true,
                         },
                     },
-                },
+                }
             }
         };
 

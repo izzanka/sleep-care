@@ -6,8 +6,18 @@ use App\Models\Question;
 
 class QuestionService
 {
-    public function get(string $record_type)
+    public function get(?string $record_type = null, ?int $id = null)
     {
-        return Question::where('record_type', $record_type)->get();
+        $query = Question::query();
+
+        if($record_type){
+            $query->where('record_type', $record_type);
+        }
+
+        if($id){
+            $query->where('id', $id);
+        }
+
+        return $query->get();
     }
 }

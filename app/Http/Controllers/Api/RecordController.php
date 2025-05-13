@@ -2,79 +2,140 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enum\QuestionType;
+use App\Enum\RecordType;
 use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Answer;
+use App\Service\QuestionService;
 use App\Service\RecordService;
 use App\Service\TherapyService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Enum;
+use Mockery\Exception;
 
 class RecordController extends Controller
 {
     public function __construct(protected RecordService $recordService,
-        protected TherapyService $therapyService) {}
+                                protected TherapyService $therapyService,
+                                protected QuestionService $questionService) {}
 
-    public function getCommittedActions()
+    private function getRecordByType(?string $recordType = null, ?int $therapyId = null, ?int $id = null)
     {
+        return match ($recordType) {
+            RecordType::COMMITTED_ACTION->value => $this->recordService->getCommittedAction($therapyId, $id),
+            RecordType::EMOTION_RECORD->value => $this->recordService->getEmotionRecord($therapyId, $id),
+            RecordType::IDENTIFY_VALUE->value => $this->recordService->getIdentifyValue($therapyId, $id),
+            RecordType::THOUGHT_RECORD->value => $this->recordService->getThoughtRecord($therapyId, $id),
+            RecordType::SLEEP_DIARY->value => $this->recordService->getSleepDiaryByID($therapyId, $id),
+            default => null,
+        };
+    }
+    public function get(Request $request)
+    {
+        $validated = $request->validate([
+            'record_type' => ['required', new Enum(RecordType::class)],
+        ]);
+
         try {
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
+            $therapy = $this->therapyService
+                ->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)
+                ->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            $committedActions = $this->recordService->getCommittedActions($therapy->id);
-            if (! $committedActions) {
-                return Response::error('Data committed action tidak ditemukan.', 404);
+            $record = $this->getRecordByType($validated['record_type'], $therapy->id);
+            if (! $record) {
+                return Response::error("Data {$validated['record_type']} tidak ditemukan.", 404);
             }
 
+            $questions = collect($record->questionAnswers)
+                ->pluck('question')
+                ->unique('id')
+                ->values();
+
+            $answers = collect($record->questionAnswers)->map(fn($qa) => [
+                'question_id' => $qa->question_id,
+                'answer' => $qa->answer,
+            ]);
+
             return Response::success([
-                'committed_actions' => $committedActions,
-            ], 'Berhasil mendapatkan data committed action.');
+                'id' => $record->id,
+                'therapy_id' => $therapy->id,
+                'questions' => $questions,
+                'answers' => $answers,
+            ], "Berhasil mendapatkan data {$validated['record_type']}.");
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
 
-    public function getEmotionRecords()
+    public function store(Request $request)
     {
+        $validated = $request->validate([
+            'record_type' => ['required', new Enum(RecordType::class)],
+            'record_id' => ['required', 'int'],
+            'answers' => ['required', 'array'],
+            'answers.*.question_id' => ['required', 'int'],
+            'answers.*.type' => ['required', new Enum(QuestionType::class)],
+            'answers.*.answer' => ['required'],
+            'answers.*.note' => ['nullable','string','max:225'],
+        ]);
+
         try {
             $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            $emotionRecords = $this->recordService->getEmotionRecords($therapy->id);
-            if (! $emotionRecords) {
-                return Response::error('Data committed action tidak ditemukan.', 404);
+            $record = $this->getRecordByType($validated['record_type'], $therapy->id, $validated['record_id']);
+            if (! $record) {
+                return Response::error("Data {$validated['record_type']} tidak ditemukan.", 404);
             }
 
-            return Response::success([
-                'emotion_records' => $emotionRecords,
-            ], 'Berhasil mendapatkan data emotion record.');
+            $savedAnswers = [];
+
+            DB::beginTransaction();
+
+            foreach ($validated['answers'] as $answerData) {
+                $question = $this->questionService->get($validated['record_type'], $answerData['question_id'])->first();
+                if (! $question) {
+                    DB::rollBack();
+                    return Response::error('Data pertanyaan tidak ditemukan (ID: ' . $answerData['question_id'] . ').', 404);
+                }
+
+                if ($question->type->value != $answerData['type']) {
+                    DB::rollBack();
+                    return Response::error('Tipe jawaban tidak sesuai untuk pertanyaan ID: ' . $question->id, 422);
+                }
+
+                $answer = Answer::create([
+                    'type' => $answerData['type'],
+                    'answer' => $answerData['answer'],
+                    'note' => $answerData['note'],
+                ]);
+
+                $table = $validated['record_type'] . '_question_answer';
+
+                DB::table($table)->insert([
+                    $validated['record_type'] . '_id' => $record->id,
+                    'question_id' => $question->id,
+                    'answer_id' => $answer->id,
+                ]);
+
+                $savedAnswers[] = $answer;
+            }
+
+            DB::commit();
+
+            return Response::success($savedAnswers, 'Berhasil menyimpan semua jawaban ' . $validated['record_type'] . '.');
 
         } catch (\Exception $exception) {
-            return Response::error($exception->getMessage(), 500);
-        }
-    }
-
-    public function getIdentifyValues()
-    {
-        try {
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
-            if (! $therapy) {
-                return Response::error('Terapi tidak ditemukan.', 404);
-            }
-
-            $identifyValues = $this->recordService->getIdentifyValues($therapy->id);
-            if (! $identifyValues) {
-                return Response::error('Data identify value tidak ditemukan.', 404);
-            }
-
-            return Response::success([
-                'identify_value' => $identifyValues,
-            ], 'Berhasil mendapatkan data identify value.');
-
-        } catch (\Exception $exception) {
+            DB::rollBack();
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -82,6 +143,7 @@ class RecordController extends Controller
     public function getSleepDiaries()
     {
         try {
+
             $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
@@ -89,14 +151,14 @@ class RecordController extends Controller
 
             $sleepDiaries = $this->recordService->getSleepDiaries($therapy->id);
             if (! $sleepDiaries) {
-                return Response::error('Data sleep diary tidak ditemukan.', 404);
+                return Response::error('Data sleep_diary tidak ditemukan.', 404);
             }
 
             return Response::success([
                 'sleep_diaries' => $sleepDiaries,
-            ], 'Berhasil mendapatkan data sleep diary.');
+            ], "Berhasil mendapatkan data sleep_diary.");
 
-        } catch (\Exception $exception) {
+        }catch (Exception $exception){
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -110,34 +172,27 @@ class RecordController extends Controller
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            $sleepDiary = $this->recordService->getSleepDiaryByID($id, $therapy->id);
+            $sleepDiary = $this->recordService->getSleepDiaryByID($therapy->id, $id);
             if (! $sleepDiary) {
-                return Response::error('Data sleep diary tidak ditemukan.', 404);
+                return Response::error('Data sleep_diary tidak ditemukan.', 404);
             }
 
-            return Response::success($sleepDiary, 'Berhasil mendapatkan data detail sleep diary.');
+            $questions = collect($sleepDiary->questionAnswers)
+                ->pluck('question')
+                ->unique('id')
+                ->values();
 
-        } catch (\Exception $exception) {
-            return Response::error($exception->getMessage(), 500);
-        }
-    }
-
-    public function getThoughtRecords()
-    {
-        try {
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
-            if (! $therapy) {
-                return Response::error('Terapi tidak ditemukan.', 404);
-            }
-
-            $thoughtRecords = $this->recordService->getThoughtRecords($therapy->id);
-            if (! $thoughtRecords) {
-                return Response::error('Data thought record tidak ditemukan.', 404);
-            }
+            $answers = collect($sleepDiary->questionAnswers)->map(fn($qa) => [
+                'question_id' => $qa->question_id,
+                'answer' => $qa->answer,
+            ]);
 
             return Response::success([
-                'though_records' => $thoughtRecords,
-            ], 'Berhasil mendapatkan data thought record.');
+                'id' => $sleepDiary->id,
+                'therapy_id' => $therapy->id,
+                'questions' => $questions,
+                'answers' => $answers,
+            ], "Berhasil mendapatkan data detail sleep_diary.");
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

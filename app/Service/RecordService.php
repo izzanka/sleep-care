@@ -10,9 +10,20 @@ use App\Models\ThoughtRecord;
 
 class RecordService
 {
-    public function getCommittedActions(int $therapyId)
+    public function getCommittedAction(?int $therapyId = null, ?int $committedActionId = null)
     {
-        return CommittedAction::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
+        $query = CommittedAction::query();
+        $query->with('questionAnswers.question', 'questionAnswers.answer');
+
+        if($therapyId){
+            $query->where('therapy_id', $therapyId);
+        }
+
+        if($committedActionId){
+            $query->where('id', $committedActionId);
+        }
+
+        return $query->first();
     }
 
     public function generateCommittedAction(int $therapyId)
@@ -20,9 +31,20 @@ class RecordService
         return CommittedAction::create(['therapy_id' => $therapyId]);
     }
 
-    public function getEmotionRecords(int $therapyId)
+    public function getEmotionRecord(?int $therapyId = null, ?int $emotionRecordId = null)
     {
-        return EmotionRecord::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
+        $query = EmotionRecord::query();
+        $query->with('questionAnswers.question', 'questionAnswers.answer');
+
+        if($therapyId){
+            $query->where('therapy_id', $therapyId);
+        }
+
+        if($emotionRecordId){
+            $query->where('id', $emotionRecordId);
+        }
+
+        return $query->first();
     }
 
     public function generateEmotionRecord(int $therapyId)
@@ -30,9 +52,20 @@ class RecordService
         return EmotionRecord::create(['therapy_id' => $therapyId]);
     }
 
-    public function getIdentifyValues(int $therapyId)
+    public function getIdentifyValue(?int $therapyId = null, ?int $identifyValueId = null)
     {
-        return IdentifyValue::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
+        $query = IdentifyValue::query();
+        $query->with('questionAnswers.question', 'questionAnswers.answer');
+
+        if($therapyId){
+            $query->where('therapy_id', $therapyId);
+        }
+
+        if($identifyValueId){
+            $query->where('id', $identifyValueId);
+        }
+
+        return $query->first();
     }
 
     public function generateIdentifyValue(int $therapyId)
@@ -66,14 +99,25 @@ class RecordService
         }
     }
 
-    public function getSleepDiaryByID(int $sleepDiaryId, int $therapyId)
+    public function getSleepDiaryByID(int $therapyId, int $sleepDiaryId)
     {
-        return SleepDiary::with('questionAnswers.question', 'questionAnswers.answer')->where('id', $sleepDiaryId)->where('therapy_id', $therapyId);
+        return SleepDiary::with('questionAnswers.question', 'questionAnswers.answer')->where('id', $sleepDiaryId)->where('therapy_id', $therapyId)->first();
     }
 
-    public function getThoughtRecords(int $therapyId)
+    public function getThoughtRecord(?int $therapyId = null, ?int $thoughtRecordId = null)
     {
-        return ThoughtRecord::with('questionAnswers.question', 'questionAnswers.answer')->where('therapy_id', $therapyId)->first();
+        $query = ThoughtRecord::query();
+        $query->with('questionAnswers.question', 'questionAnswers.answer');
+
+        if($therapyId){
+            $query->where('therapy_id', $therapyId);
+        }
+
+        if($thoughtRecordId){
+            $query->where('id', $thoughtRecordId);
+        }
+
+        return $query->first();
     }
 
     public function generateThoughtRecord(int $therapyId)

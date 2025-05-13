@@ -33,7 +33,7 @@ class IdentifyValue extends Component
 
             return $this->redirectRoute('doctor.therapies.completed.index');
         }
-        $this->identifyValue = $this->recordService->getIdentifyValues($therapyId);
+        $this->identifyValue = $this->recordService->getIdentifyValue($therapyId);
         $this->labels = $this->extractUniqueNotes();
     }
 

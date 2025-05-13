@@ -50,12 +50,20 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
             Route::get('/sleep-diaries', [RecordController::class, 'getSleepDiaries']);
             Route::get('/sleep-diaries/{id}', [RecordController::class, 'getSleepDiaryByID']);
 
-            Route::get('/thought-records', [RecordController::class, 'getThoughtRecords']);
-            Route::get('/identify-values', [RecordController::class, 'getIdentifyValues']);
-            Route::get('/emotion-records', [RecordController::class, 'getEmotionRecords']);
-            Route::get('/committed-actions', [RecordController::class, 'getCommittedActions']);
+            Route::get('/thought-records', [RecordController::class, 'getThoughtRecord']);
+            Route::post('/thought-records', [RecordController::class, 'storeThoughtRecord']);
+
+            Route::get('/identify-values', [RecordController::class, 'getIdentifyValue']);
+
+            Route::get('/emotion-records', [RecordController::class, 'getEmotionRecord']);
+            Route::post('/emotion-records', [RecordController::class, 'storeEmotionRecord']);
+
+            Route::get('/committed-actions', [RecordController::class, 'getCommittedAction']);
+            Route::post('/committed-actions', [RecordController::class, 'storeCommittedAction']);
 
             Route::get('/questions', [QuestionController::class, 'get']);
+            Route::get('/answers', [RecordController::class, 'get']);
+            Route::post('/answers', [RecordController::class, 'store']);
         });
     });
 });
