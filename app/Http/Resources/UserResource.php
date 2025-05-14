@@ -28,7 +28,7 @@ class UserResource extends JsonResource
             'is_online' => (bool) $this->is_online,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'avatar' => !$isPatient && $this->avatar ? asset('storage/'.$this->avatar) : null,
+            'avatar' => ! $isPatient && $this->avatar ? asset('storage/'.$this->avatar) : null,
             'is_therapy_in_progress' => $isPatient ? $this->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->exists() : null,
             'problems' => $isPatient && $this->problems ? json_decode($this->problems) : null,
         ];

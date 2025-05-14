@@ -18,7 +18,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         Password::sendResetLink($this->only('email'));
 
-        session()->flash('status', __('Link reset password akan dikirimkan jika akun tersebut ada.'));
+        session()->flash('status', __('Jika email anda terdaftar, kami akan mengirimkan link reset password.'));
     }
 }; ?>
 
@@ -40,7 +40,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             placeholder="email@example.com"
         />
 
-        <flux:button variant="primary" type="submit" class="w-full">{{ __('Email password reset link') }}</flux:button>
+        <flux:button variant="primary" type="submit" class="w-full">{{ __('Kirim email reset password') }}</flux:button>
     </form>
 
     <div class="space-x-1 text-center text-sm text-zinc-400">

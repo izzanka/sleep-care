@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\TherapySchedule;
+use App\Http\Resources\TherapyScheduleResource;
 use App\Service\TherapyScheduleService;
 use App\Service\TherapyService;
 use Illuminate\Http\Response;
@@ -29,7 +29,7 @@ class TherapyScheduleController extends Controller
             }
 
             return Response::success([
-                'schedules' => TherapySchedule::collection($schedules),
+                'schedules' => TherapyScheduleResource::collection($schedules),
             ], 'Berhasil mendapatkan data jadwal terapi.');
 
         } catch (\Exception $exception) {

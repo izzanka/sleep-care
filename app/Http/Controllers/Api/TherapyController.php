@@ -71,6 +71,10 @@ class TherapyController extends Controller
                 return Response::error('Psikolog sedang menjalankan terapi dengan pasien lain.', 404);
             }
 
+            if ($request->user()->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->exists()) {
+                return Response::error('Anda sedang menjalankan terapi.', 404);
+            }
+
             $startDate = now();
             $general = $this->generalService->get();
             $totalPrice = $general->doctor_fee + $general->application_fee;

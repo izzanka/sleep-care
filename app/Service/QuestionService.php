@@ -10,11 +10,11 @@ class QuestionService
     {
         $query = Question::query();
 
-        if($record_type){
+        if ($record_type) {
             $query->where('record_type', $record_type);
         }
 
-        if($id){
+        if ($id) {
             $query->where('id', $id);
         }
 

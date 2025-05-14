@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\UserRole;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -44,6 +45,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $status = Password::reset(
             $this->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) {
+                if ($user->role != UserRole::DOCTOR->value){
+                    return Password::INVALID_USER;
+                }
+
                 $user->forceFill([
                     'password' => Hash::make($this->password),
                     'remember_token' => Str::random(60),
@@ -64,15 +69,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         Session::flash('status', __($status));
 
-        $this->redirectRoute('login', navigate: true);
+        $this->redirectRoute('login');
     }
 }; ?>
 
 <div class="flex flex-col gap-6">
-    <x-auth-header title="Reset password" description="" />
+    <x-auth-header title="Reset password" description=""/>
 
     <!-- Session Status -->
-    <x-auth-session-status class="text-center" :status="session('status')" />
+    <x-auth-session-status class="text-center" :status="session('status')"/>
 
     <form wire:submit="resetPassword" class="flex flex-col gap-6">
         <!-- Email Address -->

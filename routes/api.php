@@ -43,8 +43,8 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
 
         Route::get('/schedules', [TherapyScheduleController::class, 'get']);
 
-        Route::get('/chat', [ChatController::class, 'get']);
-        Route::post('/chat', [ChatController::class, 'send']);
+        Route::get('/chats', [ChatController::class, 'get']);
+        Route::post('/chats', [ChatController::class, 'send']);
 
         Route::prefix('records')->group(function () {
             Route::get('/sleep-diaries', [RecordController::class, 'getSleepDiaries']);

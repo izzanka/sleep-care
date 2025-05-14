@@ -15,11 +15,11 @@ class RecordService
         $query = CommittedAction::query();
         $query->with('questionAnswers.question', 'questionAnswers.answer');
 
-        if($therapyId){
+        if ($therapyId) {
             $query->where('therapy_id', $therapyId);
         }
 
-        if($committedActionId){
+        if ($committedActionId) {
             $query->where('id', $committedActionId);
         }
 
@@ -36,11 +36,11 @@ class RecordService
         $query = EmotionRecord::query();
         $query->with('questionAnswers.question', 'questionAnswers.answer');
 
-        if($therapyId){
+        if ($therapyId) {
             $query->where('therapy_id', $therapyId);
         }
 
-        if($emotionRecordId){
+        if ($emotionRecordId) {
             $query->where('id', $emotionRecordId);
         }
 
@@ -57,11 +57,11 @@ class RecordService
         $query = IdentifyValue::query();
         $query->with('questionAnswers.question', 'questionAnswers.answer');
 
-        if($therapyId){
+        if ($therapyId) {
             $query->where('therapy_id', $therapyId);
         }
 
-        if($identifyValueId){
+        if ($identifyValueId) {
             $query->where('id', $identifyValueId);
         }
 
@@ -109,11 +109,11 @@ class RecordService
         $query = ThoughtRecord::query();
         $query->with('questionAnswers.question', 'questionAnswers.answer');
 
-        if($therapyId){
+        if ($therapyId) {
             $query->where('therapy_id', $therapyId);
         }
 
-        if($thoughtRecordId){
+        if ($thoughtRecordId) {
             $query->where('id', $thoughtRecordId);
         }
 

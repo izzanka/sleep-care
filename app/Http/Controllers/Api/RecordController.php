@@ -19,8 +19,8 @@ use Mockery\Exception;
 class RecordController extends Controller
 {
     public function __construct(protected RecordService $recordService,
-                                protected TherapyService $therapyService,
-                                protected QuestionService $questionService) {}
+        protected TherapyService $therapyService,
+        protected QuestionService $questionService) {}
 
     private function getRecordByType(?string $recordType = null, ?int $therapyId = null, ?int $id = null)
     {
@@ -33,6 +33,7 @@ class RecordController extends Controller
             default => null,
         };
     }
+
     public function get(Request $request)
     {
         $validated = $request->validate([
@@ -47,6 +48,10 @@ class RecordController extends Controller
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
+            if($validated['record_type'] === RecordType::SLEEP_DIARY->value){
+                return Response::error("Data {$validated['record_type']} tidak ditemukan.", 404);
+            }
+
             $record = $this->getRecordByType($validated['record_type'], $therapy->id);
             if (! $record) {
                 return Response::error("Data {$validated['record_type']} tidak ditemukan.", 404);
@@ -57,7 +62,7 @@ class RecordController extends Controller
                 ->unique('id')
                 ->values();
 
-            $answers = collect($record->questionAnswers)->map(fn($qa) => [
+            $answers = collect($record->questionAnswers)->map(fn ($qa) => [
                 'question_id' => $qa->question_id,
                 'answer' => $qa->answer,
             ]);
@@ -83,7 +88,7 @@ class RecordController extends Controller
             'answers.*.question_id' => ['required', 'int'],
             'answers.*.type' => ['required', new Enum(QuestionType::class)],
             'answers.*.answer' => ['required'],
-            'answers.*.note' => ['nullable','string','max:225'],
+            'answers.*.note' => ['nullable', 'string', 'max:225'],
         ]);
 
         try {
@@ -105,12 +110,14 @@ class RecordController extends Controller
                 $question = $this->questionService->get($validated['record_type'], $answerData['question_id'])->first();
                 if (! $question) {
                     DB::rollBack();
-                    return Response::error('Data pertanyaan tidak ditemukan (ID: ' . $answerData['question_id'] . ').', 404);
+
+                    return Response::error('Data pertanyaan tidak ditemukan (ID: '.$answerData['question_id'].').', 404);
                 }
 
                 if ($question->type->value != $answerData['type']) {
                     DB::rollBack();
-                    return Response::error('Tipe jawaban tidak sesuai untuk pertanyaan ID: ' . $question->id, 422);
+
+                    return Response::error('Tipe jawaban tidak sesuai untuk pertanyaan ID: '.$question->id, 422);
                 }
 
                 $answer = Answer::create([
@@ -119,10 +126,10 @@ class RecordController extends Controller
                     'note' => $answerData['note'],
                 ]);
 
-                $table = $validated['record_type'] . '_question_answer';
+                $table = $validated['record_type'].'_question_answer';
 
                 DB::table($table)->insert([
-                    $validated['record_type'] . '_id' => $record->id,
+                    $validated['record_type'].'_id' => $record->id,
                     'question_id' => $question->id,
                     'answer_id' => $answer->id,
                 ]);
@@ -132,10 +139,11 @@ class RecordController extends Controller
 
             DB::commit();
 
-            return Response::success($savedAnswers, 'Berhasil menyimpan semua jawaban ' . $validated['record_type'] . '.');
+            return Response::success($savedAnswers, 'Berhasil menyimpan semua jawaban '.$validated['record_type'].'.');
 
         } catch (\Exception $exception) {
             DB::rollBack();
+
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -156,9 +164,9 @@ class RecordController extends Controller
 
             return Response::success([
                 'sleep_diaries' => $sleepDiaries,
-            ], "Berhasil mendapatkan data sleep_diary.");
+            ], 'Berhasil mendapatkan data sleep_diary.');
 
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -182,7 +190,7 @@ class RecordController extends Controller
                 ->unique('id')
                 ->values();
 
-            $answers = collect($sleepDiary->questionAnswers)->map(fn($qa) => [
+            $answers = collect($sleepDiary->questionAnswers)->map(fn ($qa) => [
                 'question_id' => $qa->question_id,
                 'answer' => $qa->answer,
             ]);
@@ -192,7 +200,7 @@ class RecordController extends Controller
                 'therapy_id' => $therapy->id,
                 'questions' => $questions,
                 'answers' => $answers,
-            ], "Berhasil mendapatkan data detail sleep_diary.");
+            ], 'Berhasil mendapatkan data detail sleep_diary.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

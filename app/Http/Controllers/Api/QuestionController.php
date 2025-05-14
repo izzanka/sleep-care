@@ -33,7 +33,7 @@ class QuestionController extends Controller
 
             return Response::success([
                 'questions' => $questions,
-            ], 'Berhasil mendapatkan data pertanyaan ' . $validated['record_type'] . '.');
+            ], 'Berhasil mendapatkan data pertanyaan '.$validated['record_type'].'.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

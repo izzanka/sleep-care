@@ -19,6 +19,7 @@ new class extends Component {
     public ?string $phone = '';
     public ?string $name_title = '';
     public ?string $about = '';
+    public ?string $graduate = '';
     public int $age;
     public int $registered_year;
     public $avatar;
@@ -86,6 +87,7 @@ new class extends Component {
         $this->registered_year = $this->user->doctor->registered_year;
         $this->name_title = $this->user->doctor->name_title;
         $this->about = $this->user->doctor->about;
+        $this->graduate = $this->user->doctor->graduate;
     }
 
     protected function shouldUpdateDoctorInfo()
@@ -99,6 +101,7 @@ new class extends Component {
             'name_title' => ['nullable', 'string', 'max:225'],
             'phone' => ['nullable', 'string', 'max:225'],
             'about' => ['nullable', 'string', 'max:225'],
+            'graduate' => ['nullable', 'string', 'max:225'],
         ]);
 
         $this->user->doctor->update($validated);
@@ -129,27 +132,6 @@ new class extends Component {
             <div>
                 <flux:input wire:model="email" label="{{ __('Email') }}" type="email" name="email" required
                             autocomplete="email"/>
-
-{{--                @if (auth()->user() instanceof MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())--}}
-{{--                    <div>--}}
-{{--                        <p class="mt-2 text-sm text-red-800">--}}
-{{--                            {{ __('Email anda belum diverifikasi') }}--}}
-
-{{--                            <button--}}
-{{--                                wire:click.prevent="resendVerificationNotification"--}}
-{{--                                class="rounded-md text-sm text-blue-600 underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"--}}
-{{--                            >--}}
-{{--                                {{ __('Klik disini untuk mengirim ulang email verifikasi.') }}--}}
-{{--                            </button>--}}
-{{--                        </p>--}}
-
-{{--                        @if (session('status') === 'verification-link-sent')--}}
-{{--                            <p class="mt-2 text-sm font-medium text-green-600">--}}
-{{--                                {{ __('A new verification link has been sent to your email address.') }}--}}
-{{--                            </p>--}}
-{{--                        @endif--}}
-{{--                    </div>--}}
-{{--                @endif--}}
             </div>
 
             <flux:input type="number" label="Usia" name="age" wire:model="age"></flux:input>
@@ -159,6 +141,8 @@ new class extends Component {
                     <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
                 @endforeach
             </flux:select>
+
+            <flux:input type="text" label="Lulusan" name="graduate" wire:model="graduate" placeholder="-"></flux:input>
 
             <flux:textarea
                 label="Tentang"
@@ -182,19 +166,14 @@ new class extends Component {
                         label="Telepon" placeholder="-"></flux:input>
 
             <flux:input readonly variant="filled" wire:model="registered_year"
-                        label="Tahun terdaftar HIMPSI"></flux:input>
+                        label="Tahun terdaftar di HIMPSI"></flux:input>
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
                     <flux:button variant="primary" type="submit" class="w-full">{{ __('Simpan') }}</flux:button>
                 </div>
-
-                {{--                <x-action-message class="me-3 text-green-600" on="profile-updated">--}}
-                {{--                    {{ __('Tersimpan.') }}--}}
-                {{--                </x-action-message>--}}
             </div>
         </form>
 
-        {{--        <livewire:settings.delete-user-form />--}}
     </x-settings.layout>
 </section>

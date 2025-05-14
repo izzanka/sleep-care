@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Enum\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TherapySchedule extends JsonResource
+class TherapyScheduleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
