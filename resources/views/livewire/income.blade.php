@@ -77,67 +77,35 @@ new class extends Component {
                                 @currency($order->therapy->doctor_fee)
                             @endcan
                         </flux:heading>
-                        <flux:subheading>{{$order->created_at->format('d F Y')}}
+                        <flux:subheading> {{$order->created_at->format('d F Y')}}
                             @can('isAdmin', Auth::user())
-                                (Biaya Jasa Aplikasi)
+                                , Order ID #{{$order->id}} (Biaya Jasa Aplikasi)
                             @elsecan('isDoctor', Auth::user())
-                                (Biaya Jasa Terapi)
+                                , Therapy ID #{{$order->therapy_id}}(Biaya Jasa Terapi)
                             @endcan
                         </flux:subheading>
                     </div>
 
-                    <div class="ml-auto">
-                        <flux:button
-                            icon-trailing="arrow-up-right"
-                            wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">
-                            Detail
-                        </flux:button>
-                    </div>
-
-                    {{--                        <flux:modal :name="'detail-order-'.$order->id" class="md:w-100">--}}
-                    {{--                            <div class="space-y-6">--}}
-                    {{--                                <div>--}}
-                    {{--                                    <flux:heading size="lg">Detail</flux:heading>--}}
-                    {{--                                </div>--}}
-
-                    {{--                                <flux:heading>Pasien</flux:heading>--}}
-                    {{--                                <flux:subheading>--}}
-                    {{--                                    <flux:link wire:navigate href="#">--}}
-                    {{--                                        {{$order->therapy->patient->name}}--}}
-                    {{--                                    </flux:link>--}}
-                    {{--                                </flux:subheading>--}}
-
-                    {{--                                <flux:heading>Psikolog</flux:heading>--}}
-                    {{--                                <flux:subheading>--}}
-                    {{--                                    <flux:link wire:navigate href="#">--}}
-                    {{--                                        {{$order->therapy->doctor->user->name}}--}}
-                    {{--                                    </flux:link>--}}
-                    {{--                                </flux:subheading>--}}
-
-                    {{--                                <flux:heading>Status</flux:heading>--}}
-                    {{--                                <flux:subheading>--}}
-                    {{--                                    {{$order->status->label()}}--}}
-                    {{--                                </flux:subheading>--}}
-
-                    {{--                                <flux:heading>Status Pembayaran</flux:heading>--}}
-                    {{--                                <flux:subheading>--}}
-                    {{--                                    {{$order->payment_status->label()}}--}}
-                    {{--                                </flux:subheading>--}}
-
-                    {{--                                <flux:heading>Metode Pembayaran</flux:heading>--}}
-                    {{--                                <flux:subheading>--}}
-                    {{--                                    {{$order->payment_method}}--}}
-                    {{--                                </flux:subheading>--}}
-
-                    {{--                                <flux:heading>Total Harga</flux:heading>--}}
-                    {{--                                <flux:subheading>--}}
-                    {{--                                    @currency($order->total_price)--}}
-                    {{--                                </flux:subheading>--}}
-                    {{--                            </div>--}}
-                    {{--                        </flux:modal>--}}
+                    @can('isDoctor', Auth::user())
+                        <div class="ml-auto">
+                            <flux:button
+                                icon-trailing="arrow-up-right"
+                                wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">
+                                Detail
+                            </flux:button>
+                        </div>
+                    @endcan
+                    <flux:modal :name="'detail-order-'.$order->id" class="max-w-4xl w-full">
+                        <div class="space-y-6">
+                            <div>
+                                <flux:heading size="lg">Detail</flux:heading>
+                            </div>
+                        </div>
+                    </flux:modal>
                 </div>
                 <flux:separator class="mt-6"/>
             @endforeach
+
             <div class="mt-auto">
                 {{$orders->links()}}
             </div>

@@ -41,6 +41,7 @@
                         </flux:navlist.group>
                     @endcan
                     @can('isAdmin', auth()->user())
+                        <flux:navlist.item icon="document" :href="route('admin.therapies')" :current="request()->routeIs('admin.therapies')" wire:navigate badge="{{\App\Models\Therapy::count()}}">Terapi</flux:navlist.item>
                         <flux:navlist.group expandable heading="Pengguna">
                             <flux:navlist.item :href="route('admin.users.doctor')" :current="request()->routeIs('admin.users.doctor')" wire:navigate badge="{{\App\Models\User::where('role', \App\Enum\UserRole::DOCTOR->value)->count()}}">Psikolog</flux:navlist.item>
                             <flux:navlist.item :href="route('admin.users.patient')" :current="request()->routeIs('admin.users.patient')" wire:navigate badge="{{\App\Models\User::where('role', \App\Enum\UserRole::PATIENT->value)->count()}}">Pasien</flux:navlist.item>
@@ -57,41 +58,13 @@
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="bottom" align="start">
-{{--                @if(auth()->user()->avatar)--}}
-{{--                    <flux:profile--}}
-{{--                        :name="auth()->user()->name"--}}
-{{--                        avatar="{{asset('storage/' . auth()->user()->avatar)}}"--}}
-{{--                        icon-trailing="chevrons-up-down"--}}
-{{--                    />--}}
-{{--                @else--}}
                     <flux:profile
                         :name="auth()->user()->name"
                         :initials="auth()->user()->initials()"
                         icon-trailing="chevrons-up-down"
                     />
-{{--                @endif--}}
 
                 <flux:menu class="w-[220px]">
-{{--                    <flux:menu.radio.group>--}}
-{{--                        <div class="p-0 text-sm font-normal">--}}
-{{--                            <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">--}}
-{{--                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">--}}
-{{--                                    <span--}}
-{{--                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"--}}
-{{--                                    >--}}
-{{--                                        {{ auth()->user()->initials() }}--}}
-{{--                                    </span>--}}
-{{--                                </span>--}}
-
-{{--                                <div class="grid flex-1 text-left text-sm leading-tight">--}}
-{{--                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>--}}
-{{--                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </flux:menu.radio.group>--}}
-
-{{--                    <flux:menu.separator />--}}
 
                     @can('isDoctor', auth()->user())
                         <flux:menu.radio.group>
@@ -115,61 +88,7 @@
         <!-- Mobile User Menu -->
         <flux:header class="lg:hidden">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-
             <flux:spacer />
-
-{{--            <flux:dropdown position="top" align="end">--}}
-{{--                @if(auth()->user()->avatar)--}}
-{{--                    <flux:profile--}}
-{{--                        :name="auth()->user()->name"--}}
-{{--                        avatar="{{asset('storage/' . auth()->user()->avatar)}}"--}}
-{{--                        icon-trailing="chevrons-up-down"--}}
-{{--                    />--}}
-{{--                @else--}}
-{{--                    <flux:profile--}}
-{{--                        :name="auth()->user()->name"--}}
-{{--                        :initials="auth()->user()->initials()"--}}
-{{--                        icon-trailing="chevrons-up-down"--}}
-{{--                    />--}}
-{{--                @endif--}}
-
-{{--                <flux:menu>--}}
-{{--                    <flux:menu.radio.group>--}}
-{{--                        <div class="p-0 text-sm font-normal">--}}
-{{--                            <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">--}}
-{{--                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">--}}
-{{--                                    <span--}}
-{{--                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"--}}
-{{--                                    >--}}
-{{--                                        {{ auth()->user()->initials() }}--}}
-{{--                                    </span>--}}
-{{--                                </span>--}}
-
-{{--                                <div class="grid flex-1 text-left text-sm leading-tight">--}}
-{{--                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>--}}
-{{--                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </flux:menu.radio.group>--}}
-
-{{--                    <flux:menu.separator />--}}
-
-{{--                    @can('isDoctor', auth()->user())--}}
-{{--                        <flux:menu.radio.group>--}}
-{{--                            <flux:menu.item href="/settings/profile" icon="user" wire:navigate>{{ __('Profile') }}</flux:menu.item>--}}
-{{--                        </flux:menu.radio.group>--}}
-{{--                        <flux:menu.separator />--}}
-{{--                    @endcan--}}
-
-{{--                    <form method="POST" action="{{ route('logout') }}" class="w-full">--}}
-{{--                        @csrf--}}
-{{--                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">--}}
-{{--                            {{ __('Log Out') }}--}}
-{{--                        </flux:menu.item>--}}
-{{--                    </form>--}}
-{{--                </flux:menu>--}}
-{{--            </flux:dropdown>--}}
         </flux:header>
 
         {{ $slot }}

@@ -18,10 +18,15 @@ new class extends Component {
     #[Url]
     public string $search = '';
 
-    public ?int $filterMinAge = null;
-    public ?int $filterMaxAge = null;
-    public ?string $filterGender = null;
-    public ?bool $filterIsActive = null;
+    public int $id;
+    public string $name;
+    public string $email;
+    public bool $is_active;
+
+    public ?string $graduated_from;
+    public ?string $phone;
+    public ?string $about;
+    public ?string $name_title;
 
     public function boot(UserService $userService)
     {
@@ -39,50 +44,62 @@ new class extends Component {
             $query->where('role', UserRole::DOCTOR->value);
         }
 
-        $query = $this->applyFilters($query);
-
-        $users = $query->latest()->paginate(15);
-
-        return $users;
+        return $query->latest()->paginate(15);
     }
 
-    protected function applyFilters($query)
+    public function editDoctor(int $doctorId)
     {
-        return $query
-            ->when($this->filterMinAge, fn($q) => $q->where('age', '>=', $this->filterMinAge))
-            ->when($this->filterMaxAge, fn($q) => $q->where('age', '<=', $this->filterMaxAge))
-            ->when($this->filterGender, fn($q) => $q->where('gender', $this->filterGender))
-            ->when(is_bool($this->filterIsActive), fn($q) => $q->where('is_active', $this->filterIsActive));
+        $doctor = $this->userService->get(role: UserRole::DOCTOR->value,id: $doctorId)->first();
+
+        if (!$doctor) {
+            session()->flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
+            return;
+        }
+
+        $this->fillDoctorData($doctor);
+
+        $this->modal('editDoctor')->show();
     }
 
-    public function updatedFilterIsActive($value)
+    public function fillDoctorData($doctor)
     {
-        $this->filterIsActive = match ($value) {
-            'true' => true,
-            'false' => false,
-            default => null,
-        };
+        $this->id = $doctor->id;
+        $this->name = $doctor->name;
+        $this->email = $doctor->email;
+        $this->is_active = $doctor->is_active;
+        $this->name_title = $doctor->doctor->name_title;
+        $this->graduated_from = $doctor->doctor->graduated_from;
+        $this->phone = $doctor->doctor->phone;
+        $this->about = $doctor->doctor->about;
     }
 
-    public function filter()
+    public function updateDoctor(int $doctorId)
     {
-        $this->validate([
-            'filterMinAge' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'filterMaxAge' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'filterGender' => ['nullable', 'string'],
-            'filterIsActive' => ['nullable', 'boolean'],
+        $validated = $this->validate([
+            'is_active' => ['required', 'boolean'],
+            'name_title' => ['nullable', 'string'],
+            'graduated_from' => ['nullable', 'string', 'max:225'],
+            'phone' => ['nullable', 'string'],
+            'about' => ['nullable', 'string', 'max:225']
         ]);
 
-        $this->resetPage();
+        $doctor = $this->userService->get(role: UserRole::DOCTOR->value, id: $doctorId)->first();
+
+        if (!$doctor) {
+            session()->flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
+            return;
+        }
+
+        $doctor->update(['is_active' => $validated['is_active']]);
+        unset($validated['is_active']);
+        $doctor->doctor->update($validated);
+
+        session()->flash('status', ['message' => 'Data psikolog berhasil diubah.', 'success' => true]);
+
+        $this->redirectRoute('admin.users.doctor');
     }
 
-    public function resetFilter()
-    {
-        $this->reset(['filterMinAge', 'filterMaxAge', 'filterGender', 'filterIsActive']);
-        $this->resetValidation(['filterMinAge', 'filterMaxAge', 'filterGender', 'filterIsActive']);
-    }
-
-    public function destroyDoctor(int $doctorID)
+    public function deleteDoctor(int $doctorID)
     {
         $doctor = $this->userService->get(role: UserRole::DOCTOR->value, id: $doctorID)->first();
 
@@ -92,6 +109,7 @@ new class extends Component {
         }
 
         $doctor->delete();
+        $doctor->doctor->delete();
 
         session()->flash('status', ['message' => 'Psikolog berhasil dihapus.', 'success' => true]);
 
@@ -111,57 +129,50 @@ new class extends Component {
     <section class="w-full">
         @include('partials.main-heading', ['title' => 'Psikolog'])
 
-        <div x-data="{showFilter: false}">
+        <div>
             <div class="flex items-center">
                 <flux:input icon="magnifying-glass" placeholder="Cari psikolog" wire:model.live="search"/>
-                {{--                <flux:button class="ml-2" variant="primary">Cari</flux:button>--}}
             </div>
-            <flux:button @click="showFilter = !showFilter" class="mt-4 w-full">
-                Filter
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-4 h-4 transition-transform duration-300"
-                    :class="showFilter ? 'rotate-180' : ''"
-                >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                </svg>
-            </flux:button>
             <flux:separator class="mt-4 mb-4"/>
-            <div x-show="showFilter" x-transition>
-                <form wire:submit="filter">
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <flux:input label="Usia Minimal" wire:model="filterMinAge" placeholder="1"/>
-                        </div>
-                        <div>
-                            <flux:input label="Usia Maksimal" wire:model="filterMaxAge" placeholder="100"/>
-                        </div>
-                        <div>
-                            <flux:select label="Gender" wire:model="filterGender">
-                                <flux:select.option value="">Semua</flux:select.option>
-                                @foreach(UserGender::cases() as $gender)
-                                    <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
-                                @endforeach
-                            </flux:select>
-                        </div>
-                        <div>
-                            <flux:select label="Aktif" wire:model="filterIsActive">
-                                <flux:select.option value="">Semua</flux:select.option>
-                                <flux:select.option value="true">Ya</flux:select.option>
-                                <flux:select.option value="false">Tidak</flux:select.option>
-                            </flux:select>
-                        </div>
-                    </div>
-                    <flux:button variant="primary" type="submit">Filter</flux:button>
-                    <flux:button class="ms-2" variant="danger" wire:click="resetFilter">Reset</flux:button>
-                </form>
-                <flux:separator class="mt-4 mb-4"/>
-            </div>
         </div>
+
+        <flux:modal name="editDoctor" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-6">
+                <form wire:submit="updateDoctor({{$id}})">
+                    <div>
+                        <flux:heading size="lg">Ubah Data Psikolog</flux:heading>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                        <flux:input wire:model="name" label="Nama" disabled></flux:input>
+                        <flux:input wire:model="email" label="Email" disabled></flux:input>
+                    </div>
+
+                    <flux:separator class="mt-4 mb-4"></flux:separator>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                        <flux:input wire:model="graduated_from" label="Lulusan" placeholder="-"></flux:input>
+                        <flux:input wire:model="name_title" label="Nama Gelar" placeholder="-"></flux:input>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                        <flux:input wire:model="phone" label="Telepon" placeholder="-"></flux:input>
+                        <flux:field>
+                            <flux:label>Aktif</flux:label>
+                            <flux:switch wire:model="is_active" />
+                            <flux:error name="is_active" />
+                        </flux:field>
+                    </div>
+
+                    <div class="mt-4 mb-4">
+                        <flux:textarea wire:model="about" label="Tentang" placeholder="-"></flux:textarea>
+                    </div>
+
+                    <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
+                </form>
+            </div>
+        </flux:modal>
+
         <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">
             <table class="min-w-full table-auto text-sm text-gray-900 dark:text-gray-100">
                 <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
@@ -173,7 +184,13 @@ new class extends Component {
                     <th class="px-6 py-3 text-left font-medium">Email</th>
                     <th class="px-6 py-3 text-left font-medium">Telepon</th>
                     <th class="px-6 py-3 text-left font-medium">Usia</th>
-                    <th class="px-6 py-3 text-left font-medium">Gender</th>
+                    <th class="px-6 py-3 text-left font-medium">Jenis Kelamin</th>
+                    <th class="px-6 py-3 text-left font-medium">Lulusan</th>
+                    <th class="px-6 py-3 text-left font-medium">Tahun Terdaftar di HIMPSI</th>
+                    <th class="px-6 py-3 text-left font-medium">Dibuat Pada</th>
+                    <th class="px-6 py-3 text-left font-medium">Diperbarui Pada</th>
+                    <th class="px-6 py-3 text-left font-medium">Dihapus Pada</th>
+
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
@@ -181,25 +198,29 @@ new class extends Component {
                     <tr wire:key="{{$user->id}}">
                         <td class="px-6 py-4">
                             <div class="flex space-x-2">
+                                <flux:button size="xs" icon="pencil-square" wire:click="editDoctor({{$user->id}})">
+                                </flux:button>
                                 <flux:button size="xs" icon="trash" variant="danger"
-                                             wire:click="destroyDoctor({{$user->id}})"
+                                             wire:click="deleteDoctor({{$user->id}})"
                                              wire:confirm="Apa anda yakin ingin menghapus psikolog ini?"></flux:button>
                             </div>
                         </td>
-                        <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
-                        <td class="px-6 py-4">
-                            <livewire:status :id="$user->id" :is_active="$user->is_active"
-                                             :key="$user->id"></livewire:status>
-                        </td>
+                        <td class="px-6 py-4 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
+                        <td class="px-6 py-4 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
                         <td class="px-6 py-4">{{$user->doctor->name_title ?? $user->name}}</td>
                         <td class="px-6 py-4">{{$user->email}}</td>
                         <td class="px-6 py-4">{{$user->doctor->phone}}</td>
-                        <td class="px-6 py-4">{{$user->age}}</td>
+                        <td class="px-6 py-4 text-center">{{$user->age}}</td>
                         <td class="px-6 py-4">{{$user->gender->label()}}</td>
+                        <td class="px-6 py-4">{{$user->doctor->graduated_from ?? '-'}}</td>
+                        <td class="px-6 py-4 text-center">{{$user->doctor->registered_year}}</td>
+                        <td class="px-6 py-4">{{$user->created_at->format('d/m/Y H:i')}}</td>
+                        <td class="px-6 py-4">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>
+                        <td class="px-6 py-4">{{$user->deleted_at ? $user->deleted_at->format('d/m/Y H:i') : '-'}}</td>
                     </tr>
                 @empty
                     <tr class="text-center">
-                        <td colspan="8" class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <td colspan="13" class="px-6 py-4 text-gray-500 dark:text-gray-400">
                             Kosong
                         </td>
                     </tr>

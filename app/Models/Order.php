@@ -24,11 +24,4 @@ class Order extends Model
     {
         return $this->belongsTo(Therapy::class);
     }
-
-    //    protected function createdAt(): Attribute
-    //    {
-    //        return Attribute::make(
-    //            get: fn (string $value) => Carbon::createFromTimestamp($value)->format('d F Y H:i')
-    //        );
-    //    }
 }

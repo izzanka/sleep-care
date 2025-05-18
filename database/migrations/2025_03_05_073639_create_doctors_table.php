@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->integer('registered_year');
-            $table->string('graduate')->nullable();
+            $table->string('graduated_from')->nullable();
             $table->string('phone')->nullable();
             $table->string('name_title')->nullable();
             $table->string('about')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

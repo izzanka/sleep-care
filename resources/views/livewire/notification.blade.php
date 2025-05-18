@@ -26,14 +26,21 @@ new class extends Component {
         @include('partials.main-heading', ['title' => 'Notifikasi'])
 
         @forelse ($notifications as $notification)
-            <div class="flex justify-between p-2 {{$notification->read_at ? '' : 'bg-zinc-500'}} rounded-lg mt-4">
+            <div class="flex justify-between p-2 rounded-lg mt-4 {{ $notification->read_at ? 'bg-white dark:bg-zinc-800' : 'bg-zinc-100 text-white dark:bg-zinc-700' }}">
+
                 <flux:heading>
                     [{{ $notification->created_at->format('d/m/Y H:i') }}] {{ $notification->data['message'] }}
                 </flux:heading>
 
                 @if (is_null($notification->read_at))
-                    <flux:button size="sm" icon="x-mark" variant="ghost" inset
-                                 wire:click="mark('{{ $notification->id }}')" />
+                    <flux:button
+                        size="sm"
+                        icon="x-mark"
+                        variant="ghost"
+                        inset
+                        wire:click="mark('{{ $notification->id }}')"
+                        class="dark:text-white"
+                    />
                 @endif
             </div>
         @empty

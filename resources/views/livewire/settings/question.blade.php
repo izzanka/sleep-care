@@ -175,13 +175,6 @@ new class extends Component {
                     <div>
                         <flux:heading size="lg">Ubah Pertanyaan Catatan Terapi</flux:heading>
                     </div>
-
-                    <div class="mt-4">
-                        <flux:heading>ID</flux:heading>
-                        <flux:text class="mb-4">{{$ID}}</flux:text>
-                        <flux:textarea wire:model="question" label="Pertanyaan"></flux:textarea>
-                    </div>
-
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
                         <flux:select label="Jenis Pertanyaan" wire:model="type">
                             @foreach(QuestionType::cases() as $questionType)
@@ -203,7 +196,7 @@ new class extends Component {
                             <flux:select.option value="true">Ya
                             </flux:select.option>
                         </flux:select>
-                        <flux:input wire:model="parent_id" label="ID Pertanyaan Induk"></flux:input>
+                        <flux:input wire:model="parent_id" label="ID Pertanyaan Induk" placeholder="-"></flux:input>
                     </div>
 
                     <div class="mt-4 mb-4">
@@ -215,30 +208,10 @@ new class extends Component {
             </div>
         </flux:modal>
 
-        <flux:modal name="deleteQuestion" class="min-w-[22rem]">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Hapus pertanyaan?</flux:heading>
-                </div>
-
-                <div class="flex gap-2">
-                    <flux:spacer />
-
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Batal</flux:button>
-                    </flux:modal.close>
-                    <form wire:submit="destroyQuestion({{$ID}})">
-                        <flux:button type="submit" variant="danger">Hapus pertanyaan</flux:button>
-                    </form>
-                </div>
-            </div>
-        </flux:modal>
-
         <div x-data="{showFilter: false}">
             <div class="flex items-center">
                 <flux:input icon="magnifying-glass" placeholder="Cari pertanyaan catatan terapi"
                             wire:model.live="search"/>
-                {{--                <flux:button class="ml-2" variant="primary">Cari</flux:button>--}}
             </div>
             <div>
                 <flux:button @click="showFilter = !showFilter" class="mt-4 w-full">
@@ -308,32 +281,26 @@ new class extends Component {
                 <tr class="border-b">
                     <th class="px-6 py-3 text-left font-medium">Aksi</th>
                     <th class="px-6 py-3 text-left font-medium">No</th>
-{{--                    <th class="px-6 py-3 text-left font-medium">Tampilkan</th>--}}
                     <th class="px-6 py-3 text-left font-medium">Pertanyaan</th>
                     <th class="px-6 py-3 text-left font-medium">Pertanyaan Induk</th>
                     <th class="px-6 py-3 text-left font-medium">ID Pertanyaan Induk</th>
                     <th class="px-6 py-3 text-left font-medium">Jenis Pertanyaan</th>
                     <th class="px-6 py-3 text-left font-medium">Jenis Catatan Terapi</th>
                     <th class="px-6 py-3 text-left font-medium">Catatan</th>
+                    <th class="px-6 py-3 text-left font-medium">Dibuat Pada</th>
+                    <th class="px-6 py-3 text-left font-medium">Diperbarui Pada</th>
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
                 @forelse($questions as $question)
                     <tr wire:key="{{$question->id}}">
                         <td class="px-6 py-4">
-{{--                            <div class="flex space-x-2">--}}
                                 <flux:button size="xs" icon="pencil-square" class="me-1" wire:click="editQuestion({{$question->id}})"></flux:button>
-{{--                                <flux:button size="xs" variant="danger" icon="trash" wire:click="destroyQuestion({{$question->id}})" wire:confirm="Apa anda yakin ingin menghapus pertanyaan ini?"></flux:button>--}}
-{{--                            </div>--}}
                         </td>
-                        <td class="px-6 py-4">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
-{{--                        <td class="px-6 py-4">--}}
-{{--                            <livewire:show :id="$question->id" :is_show="$question->is_show"--}}
-{{--                                             :key="$question->id"></livewire:show>--}}
-{{--                        </td>--}}
+                        <td class="px-6 py-4 text-center">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
                         <td class="px-6 py-4">{{$question->question}}</td>
-                        <td class="px-6 py-4">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 text-center">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
+                        <td class="px-6 py-4 text-center">
                             @if($question->parent_id)
                                 <flux:link wire:click.prevent="filterByParentID({{$question->parent_id}})" href="#">
                                     {{$question->parent_id}}
@@ -345,10 +312,14 @@ new class extends Component {
                         <td class="px-6 py-4">{{$question->type->label()}}</td>
                         <td class="px-6 py-4">{{$question->record_type->label()}}</td>
                         <td class="px-6 py-4">{{$question->note ?? '-'}}</td>
+                        <td class="px-6 py-4">{{$question->created_at->format('d/m/Y H:i')}}</td>
+                        <td class="px-6 py-4">
+                            {{ $question->updated_at ? $question->updated_at->format('d/m/Y H:i') : '-' }}
+                        </td>
                     </tr>
                 @empty
                     <tr class="text-center">
-                        <td colspan="8" class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <td colspan="10" class="px-6 py-4 text-gray-500 dark:text-gray-400">
                             Kosong
                         </td>
                     </tr>

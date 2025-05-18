@@ -87,9 +87,8 @@ new class extends Component {
 
         $schedule->update($validated);
 
-//        $this->modal('editSchedule')->close();
-
         session()->flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
+
         $this->redirectRoute('doctor.therapies.in_progress.schedule');
     }
 }; ?>

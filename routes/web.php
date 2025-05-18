@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Volt::route('users/patient', 'admin.users.patient')->name('users.patient');
         Volt::route('users/doctor', 'admin.users.doctor')->name('users.doctor');
+        Volt::route('therapies', 'admin.therapies')->name('therapies');
     });
 
     Route::middleware(['can:isDoctor, App\Models\User'])->group(function () {

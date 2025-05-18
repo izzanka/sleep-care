@@ -107,7 +107,7 @@ new class extends Component {
                         <flux:text>{{$therapy->patient->age}}</flux:text>
                     </div>
                     <div>
-                        <flux:heading>Gender</flux:heading>
+                        <flux:heading>Jenis Kelamin</flux:heading>
                         <flux:text>{{$therapy->patient->gender->label()}}</flux:text>
                     </div>
                 </div>

@@ -21,12 +21,12 @@ class Therapy extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(Doctor::class)->withTrashed();
     }
 
     public function patient()
     {
-        return $this->belongsTo(User::class, 'patient_id');
+        return $this->belongsTo(User::class, 'patient_id')->withTrashed();
     }
 
     public function schedules()
@@ -68,18 +68,4 @@ class Therapy extends Model
     {
         return $this->hasMany(CommittedAction::class);
     }
-
-    //    protected function startDate(): Attribute
-    //    {
-    //        return Attribute::make(
-    //            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
-    //        );
-    //    }
-    //
-    //    protected function endDate(): Attribute
-    //    {
-    //        return Attribute::make(
-    //            get: fn (string $value) => Carbon::parse($value)->format('d F Y')
-    //        );
-    //    }
 }

@@ -19,7 +19,7 @@ new class extends Component {
     public ?string $phone = '';
     public ?string $name_title = '';
     public ?string $about = '';
-    public ?string $graduate = '';
+    public ?string $graduated_from = '';
     public int $age;
     public int $registered_year;
     public $avatar;
@@ -87,7 +87,7 @@ new class extends Component {
         $this->registered_year = $this->user->doctor->registered_year;
         $this->name_title = $this->user->doctor->name_title;
         $this->about = $this->user->doctor->about;
-        $this->graduate = $this->user->doctor->graduate;
+        $this->graduated_from = $this->user->doctor->graduated_from;
     }
 
     protected function shouldUpdateDoctorInfo()
@@ -101,7 +101,7 @@ new class extends Component {
             'name_title' => ['nullable', 'string', 'max:225'],
             'phone' => ['nullable', 'string', 'max:225'],
             'about' => ['nullable', 'string', 'max:225'],
-            'graduate' => ['nullable', 'string', 'max:225'],
+            'graduated_from' => ['nullable', 'string', 'max:225'],
         ]);
 
         $this->user->doctor->update($validated);
@@ -136,13 +136,13 @@ new class extends Component {
 
             <flux:input type="number" label="Usia" name="age" wire:model="age"></flux:input>
 
-            <flux:select wire:model="gender" placeholder="Pilih gender..." label="Gender">
+            <flux:select wire:model="gender" placeholder="Pilih Jenis Kelamin..." label="Jenis Kelamin">
                 @foreach(UserGender::cases() as $gender)
                     <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
                 @endforeach
             </flux:select>
 
-            <flux:input type="text" label="Lulusan" name="graduate" wire:model="graduate" placeholder="-"></flux:input>
+            <flux:input type="text" label="Lulusan" name="graduated_from" wire:model="graduate" placeholder="-"></flux:input>
 
             <flux:textarea
                 label="Tentang"

@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
     Route::get('/therapies', [TherapyController::class, 'get']);
 
     Route::prefix('therapy')->group(function () {
+        Route::post('/rating', [TherapyController::class, 'storeRating']);
         Route::post('/order', [TherapyController::class, 'order']);
 
         Route::get('/schedules', [TherapyScheduleController::class, 'get']);

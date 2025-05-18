@@ -18,6 +18,7 @@ use App\Service\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rules\Enum;
+use Mockery\Exception;
 
 class TherapyController extends Controller
 {
@@ -113,9 +114,37 @@ class TherapyController extends Controller
             $this->recordService->generateThoughtRecord($therapy->id);
             $this->recordService->generateCommittedAction($therapy->id);
 
-            return Response::success($order, 'Berhasil memesan terapi.');
+            return Response::success(null, 'Berhasil memesan terapi.');
 
         } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function storeRating(Request $request)
+    {
+        $validated = $request->validate([
+            'therapy_id' => ['required', 'int'],
+            'rating' => ['required', 'int'],
+            'comment' => ['nullable', 'string','max:225'],
+        ]);
+
+        try {
+
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::COMPLETED->value, id: $validated['therapy_id'])->first();
+            if (! $therapy) {
+                return Response::error('Terapi tidak ditemukan.', 404);
+            }
+
+            $therapy->doctor->rate($validated['rating']);
+
+            $therapy->update([
+               'comment' => $validated['comment']
+            ]);
+
+            return Response::success(null, 'Berhasil memberikan rating.');
+
+        }catch (Exception $exception){
             return Response::error($exception->getMessage(), 500);
         }
     }
