@@ -2,10 +2,10 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
+use App\Models\SleepDiaryQuestionAnswer;
 use App\Service\ChartService;
 use App\Service\RecordService;
 use App\Service\TherapyService;
-use Carbon\Carbon;
 use Livewire\Volt\Component;
 
 new class extends Component {
@@ -17,9 +17,9 @@ new class extends Component {
     public $labels;
     public $dropdownLabels;
 
-    public function boot(ChartService      $chartService,
-                         RecordService $recordService,
-                         TherapyService    $therapyService)
+    public function boot(ChartService   $chartService,
+                         RecordService  $recordService,
+                         TherapyService $therapyService)
     {
         $this->chartService = $chartService;
         $this->recordService = $recordService;
@@ -73,14 +73,22 @@ new class extends Component {
         $resultData = array_fill_keys(array_values($questionMapping), []);
         $sleepDiaries = $this->recordService->getSleepDiaries($this->therapy->id);
 
+        $ids = [];
+
         foreach ($sleepDiaries as $entries) {
             foreach ($questionMapping as $questionId => $dataKey) {
-                $sum = $entries->sum(function ($diary) use ($questionId) {
+                $sum = $entries->sum(function ($diary) use ($questionId, &$ids) {
+                    $questionAnswers = $diary->questionAnswers->firstWhere('is_read', null);
+                    if ($questionAnswers){
+                        $ids[] = $diary->id;
+                    }
                     return $diary->questionAnswers->firstWhere('question_id', $questionId)->answer->answer ?? 0;
                 });
                 $resultData[$dataKey][] = $sum;
             }
         }
+
+        SleepDiaryQuestionAnswer::whereIn('sleep_diary_id', $ids)->whereNull('is_read')->update(['is_read' => true]);
 
         $structuredQuestions = $this->getQuestions($sleepDiaries);
 
@@ -150,7 +158,7 @@ new class extends Component {
                 x-ref="card{{ $index }}"
             >
                 <div class="flex items-center w-full">
-                    <flux:icon.calendar class="mr-2"/>
+{{--                    <flux:icon.calendar class="mr-2"/>--}}
 
                     <flux:button
                         variant="ghost"

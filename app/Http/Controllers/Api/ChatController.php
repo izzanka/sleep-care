@@ -8,6 +8,7 @@ use App\Service\ChatService;
 use App\Service\TherapyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Mockery\Exception;
 
 class ChatController extends Controller
 {
@@ -24,6 +25,9 @@ class ChatController extends Controller
             }
 
             $chats = $this->chatService->get($therapy->id);
+            if (! $chats) {
+                return Response::error('Gagal mendapatkan pesan.', 500);
+            }
 
             return Response::success([
                 'chats' => $chats,
@@ -56,11 +60,32 @@ class ChatController extends Controller
                 return Response::error('Gagal mengirimkan pesan.', 500);
             }
 
-            return Response::success([
-                'chat' => $chat,
-            ], 'Berhasil mengirimkan pesan.');
+            return Response::success($chat, 'Berhasil mengirimkan pesan.');
 
         } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function update(int $id)
+    {
+        try {
+
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::IN_PROGRESS->value)->first();
+            if (! $therapy) {
+                return Response::error('Terapi tidak ditemukan.', 404);
+            }
+
+            $chat = $this->chatService->get($therapy->id, $id, auth()->id(), $therapy->doctor->user->id)->first();
+            if (! $chat) {
+                return Response::error('Pesan tidak ditemukan.', 404);
+            }
+
+            $this->chatService->markAsRead($therapy->id, $therapy->doctor->user->id);
+
+            return Response::success($chat, 'Berhasil mengubah pesan.');
+
+        }catch (Exception $exception){
             return Response::error($exception->getMessage(), 500);
         }
     }

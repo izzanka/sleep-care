@@ -19,9 +19,7 @@ class PatientController extends Controller
 
             $problems = array_map(fn ($case) => $case->value, Problem::cases());
 
-            return Response::success([
-                'problems' => $problems,
-            ], 'Berhasil mendapatkan daftar masalah.');
+            return Response::success($problems, 'Berhasil mendapatkan daftar masalah.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

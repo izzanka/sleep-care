@@ -61,6 +61,7 @@ new class extends Component {
 
     public function with()
     {
+        $chat = $this->chatService->markAsRead($this->therapy->id, auth()->id());
         $chats = $this->chatService->get($this->therapy->id);
         $this->dispatch('scroll-to-bottom');
 
@@ -91,7 +92,7 @@ new class extends Component {
                         <div class="bg-green-500 text-white p-3 rounded-lg max-w-xs">
                             <p class="text-sm break-words">{{$chat->message}}</p>
                             <span
-                                class="text-xs text-gray-200 block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
+                                class="text-xs text-gray-200 block text-right mt-1">{{$chat->created_at->format('H:i')}}{{$chat->read_at ? ' (Dibaca)' : ''}}</span>
                         </div>
                     </div>
                 @else

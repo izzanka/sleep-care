@@ -2,6 +2,7 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
+use App\Models\ThoughtRecordQuestionAnswer;
 use App\Service\ChartService;
 use App\Service\QuestionService;
 use App\Service\RecordService;
@@ -24,9 +25,9 @@ new class extends Component {
     public $thoughtRecord;
     public $dropdownLabels;
 
-    public function boot(ChartService   $chartService,
-                         TherapyService $therapyService,
-                         RecordService  $recordService,
+    public function boot(ChartService    $chartService,
+                         TherapyService  $therapyService,
+                         RecordService   $recordService,
                          QuestionService $questionService)
     {
         $this->chartService = $chartService;
@@ -98,6 +99,8 @@ new class extends Component {
         $weeklyData = $this->groupCountsByWeek($dateCounts);
         $weeklySum = array_sum($weeklyData->toArray()) === 0;
         $maxValue = $weeklySum ? 0 : $this->chartService->calculateMaxValue($weeklyData->toArray());
+
+        ThoughtRecordQuestionAnswer::where('thought_record_id', $this->thoughtRecord->id)->whereNull('is_read')->update(['is_read' => true]);
 
         return [
             'thoughtRecordQuestions' => $questions,

@@ -1,5 +1,5 @@
-<div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-    <div class="overflow-x-auto border mt-4">
+<div class="relative rounded-lg px-6 py-4 bg-white dark:bg-zinc-700 dark:border-transparent mb-5">
+    <div class="overflow-x-auto mt-4">
         <table class="min-w-[800px] table-auto w-full text-sm text-left">
             <thead>
             <tr>

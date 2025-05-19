@@ -1,6 +1,6 @@
 <div class="relative mb-6 w-full">
     @if(session('status'))
-        <flux:callout icon="check-circle" variant="{{session('status')['success'] ? 'success' : 'danger'}}" inline
+        <flux:callout icon="{{session('status')['success'] ? 'check-circle' : 'x-circle'}}" variant="{{session('status')['success'] ? 'success' : 'danger'}}" inline
                       x-data="{ visible: true }" x-show="visible"
                       class="mb-4"
                       heading="{{ session('status')['message'] }}"

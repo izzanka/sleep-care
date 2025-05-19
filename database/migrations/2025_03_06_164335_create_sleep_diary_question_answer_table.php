@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('sleep_diary_id')->constrained();
             $table->foreignId('question_id')->constrained();
             $table->foreignId('answer_id')->constrained();
+            $table->boolean('is_read')->nullable();
         });
     }
 

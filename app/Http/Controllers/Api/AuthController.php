@@ -30,7 +30,7 @@ class AuthController extends Controller
         ]);
 
         try {
-            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, false)->first();
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: true, is_active: true)->first();
 
             if (! $user || ! Hash::check($validated['password'], $user->password)) {
                 return Response::error('Email atau password yang anda masukan salah.', 401);
@@ -106,7 +106,7 @@ class AuthController extends Controller
         ]);
 
         try {
-            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, true)->first();
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: true, is_active: true)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan.', 404);
             }
@@ -147,7 +147,7 @@ class AuthController extends Controller
                 return Response::error('Kode OTP tidak valid atau sudah kedaluwarsa.', 422);
             }
 
-            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, true)->first();
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: true, is_active: true)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan.', 404);
             }

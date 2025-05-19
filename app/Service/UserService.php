@@ -6,7 +6,7 @@ use App\Models\User;
 
 class UserService
 {
-    public function get(?string $email = null, ?int $role = null, ?bool $verified = null, ?int $id = null)
+    public function get(?string $email = null, ?int $role = null, ?bool $verified = null, ?bool $is_active = null, ?int $id = null)
     {
         $query = User::query();
 
@@ -18,8 +18,16 @@ class UserService
             $query->where('role', $role);
         }
 
-        if ($verified) {
-            $query->whereNotNull('email_verified_at');
+        if($is_active){
+            $query->where('is_active', true);
+        }
+
+        if (!is_null($verified)) {
+            if ($verified) {
+                $query->whereNotNull('email_verified_at');
+            } else {
+                $query->whereNull('email_verified_at');
+            }
         }
 
         if ($id) {

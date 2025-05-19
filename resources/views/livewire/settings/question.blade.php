@@ -175,6 +175,12 @@ new class extends Component {
                     <div>
                         <flux:heading size="lg">Ubah Pertanyaan Catatan Terapi</flux:heading>
                     </div>
+
+                    <div class="mt-4 mb-4">
+                        <flux:input label="ID" disabled value="{{$ID}}"></flux:input>
+                    </div>
+
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
                         <flux:select label="Jenis Pertanyaan" wire:model="type">
                             @foreach(QuestionType::cases() as $questionType)

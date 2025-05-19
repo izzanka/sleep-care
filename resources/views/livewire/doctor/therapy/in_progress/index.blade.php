@@ -25,6 +25,17 @@ new class extends Component {
         }
     }
 
+    public function updateTherapy()
+    {
+        if(now()->greaterThan($this->therapy->end_date)){
+            $this->therapy->update(['status' => TherapyStatus::COMPLETED->value]);
+            session()->flash('status', ['message' => 'Berhasil mengubah status terapi menjadi selesai.', 'success' => true]);
+        }else{
+            session()->flash('status', ['message' => 'Terapi belum bisa diselesaikan karena belum melewati tanggal selesai.', 'success' => false]);
+        }
+        $this->redirectRoute('doctor.therapies.completed.index');
+    }
+
     protected function formatPatientProblems(?string $problems)
     {
         if (!$problems) {
@@ -39,7 +50,6 @@ new class extends Component {
 
 <section>
     @include('partials.main-heading', ['title' => 'Halaman Utama'])
-    {{--    <x-therapies.on-going-layout>--}}
     <div>
         @if($therapy)
             <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
@@ -115,16 +125,9 @@ new class extends Component {
                     <flux:heading>Gangguan Lainnya</flux:heading>
                     <flux:text>{{$problems}}</flux:text>
                 </div>
-                {{--                    <div class="mt-4">--}}
-                {{--                        <flux:button--}}
-                {{--                            href="{{route('doctor.therapies.in_progress.chat')}}"--}}
-                {{--                            icon:trailing="arrow-up-right"--}}
-                {{--                            class="w-full"--}}
-                {{--                            wire:navigate--}}
-                {{--                        >--}}
-                {{--                            Chat dengan pasien--}}
-                {{--                        </flux:button>--}}
-                {{--                    </div>--}}
+            </div>
+            <div class="mt-4">
+                <flux:button variant="danger" class="w-full" wire:click="updateTherapy" wire:confirm="Apa anda yakin ingin mengubah status terapi menjadi selesai?">Selesaikan Terapi</flux:button>
             </div>
         @else
             <flux:heading>

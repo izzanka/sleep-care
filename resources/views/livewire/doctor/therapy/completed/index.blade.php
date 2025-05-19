@@ -24,37 +24,44 @@ new class extends Component {
 <section>
     @include('partials.main-heading', ['title' => 'Riwayat'])
     @if($therapies->isNotEmpty())
-        <div class="overflow-x-auto mt-4">
-            <table class="min-w-[800px] w-full text-sm text-left">
-                <thead>
-                <tr class="text-center">
-                    <th class="border p-3">No</th>
-                    <th class="border p-3">ID</th>
-                    <th class="border p-3">Tanggal Mulai</th>
-                    <th class="border p-3">Tanggal Selesai</th>
-                    <th class="border p-3">Biaya Jasa Psikolog</th>
-                    <th class="border p-3">Biaya Jasa Aplikasi</th>
-                    <th class="border p-3">Status</th>
-                    <th class="border p-3">Aksi</th>
+        <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">
+            <table class="min-w-full table-auto text-sm text-gray-900 dark:text-gray-100">
+                <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
+                <tr class="border-b">
+                    <th class="px-6 py-3 text-left font-medium">No</th>
+                    <th class="px-6 py-3 text-left font-medium">ID</th>
+                    <th class="px-6 py-3 text-left font-medium">Tanggal Mulai</th>
+                    <th class="px-6 py-3 text-left font-medium">Tanggal Selesai</th>
+                    <th class="px-6 py-3 text-left font-medium">Biaya Jasa Psikolog</th>
+                    <th class="px-6 py-3 text-left font-medium">Biaya Jasa Aplikasi</th>
+                    <th class="px-6 py-3 text-left font-medium">Status</th>
+                    <th class="px-6 py-3 text-left font-medium">Aksi</th>
                 </tr>
                 </thead>
-                <tbody>
-                @foreach($therapies as $therapy)
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
+                @forelse($therapies as $therapy)
                     <tr>
-                        <td class="border p-3 text-center">{{ $loop->iteration }}</td>
-                        <td class="border p-3 text-center">{{ $therapy->id }}</td>
-                        <td class="border p-3">{{ $therapy->start_date->isoFormat('D MMMM Y') }}</td>
-                        <td class="border p-3">{{ $therapy->end_date->isoFormat('D MMMM Y') }}</td>
-                        <td class="border p-3">@currency($therapy->doctor_fee)</td>
-                        <td class="border p-3">@currency($therapy->application_fee)</td>
-                        <td class="border p-3">{{ $therapy->status->label() }}</td>
-                        <td class="border p-3 text-center">
-                            <flux:button size="xs" wire:navigate :href="route('doctor.therapies.completed.detail', $therapy->id)">
+                        <td class="px-6 py-4 text-center">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4">{{$therapy->id}}</td>
+                        <td class="px-6 py-4">{{$therapy->start_date->format('d/m/Y')}}</td>
+                        <td class="px-6 py-4">{{$therapy->end_date->format('d/m/Y')}}</td>
+                        <td class="px-6 py-4">@currency($therapy->doctor_fee)</td>
+                        <td class="px-6 py-4">@currency($therapy->application_fee)</td>
+                        <td class="px-6 py-4">{{$therapy->status->label()}}</td>
+                        <td class="px-6 py-4">
+                            <flux:button size="xs" wire:navigate
+                                         :href="route('doctor.therapies.completed.detail', $therapy->id)">
                                 Detail
                             </flux:button>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr class="text-center">
+                        <td colspan="8" class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                            Belum ada terapi
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>

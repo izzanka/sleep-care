@@ -24,7 +24,7 @@
             <div class="mt-4">
                 <flux:button.group>
                     <flux:button @click="openTab = openTab === 'desc' ? null : 'desc'">
-                        Deskripsi
+                        Panduan
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -57,7 +57,7 @@
             </div>
             <div x-show="openTab === 'desc'" x-transition.duration.200ms class="mt-4">
                 <flux:text>
-                    Deskripsi:
+                    Panduan (Rekomendasi):
                 </flux:text>
                 <ul class="list-disc list-inside mt-2">
                     @foreach(json_decode($schedule->description) as $description)

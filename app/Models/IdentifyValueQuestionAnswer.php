@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class IdentifyValueQuestionAnswer extends Model
 {
+    public $timestamps = false;
     protected $table = 'identify_value_question_answer';
 
     public function identifyValue()

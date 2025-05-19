@@ -22,7 +22,7 @@ class DoctorResource extends JsonResource
             'phone' => $this->phone,
             'name_title' => $this->name_title,
             'total_rating' => $this->timesRated() ?? 0,
-            'avg_rating' => number_format($this->averageRating, 1) ?? "0",
+            'avg_rating' => number_format($this->averageRating, 1) ?? '0',
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'user' => new UserResource($this->user),

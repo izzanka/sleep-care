@@ -2,6 +2,7 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
+use App\Models\EmotionRecordQuestionAnswer;
 use App\Service\ChartService;
 use App\Service\QuestionService;
 use App\Service\RecordService;
@@ -22,9 +23,9 @@ new class extends Component {
     public $chartTitle;
     public $selectedWeek;
 
-    public function boot(ChartService   $chartService,
-                         TherapyService $therapyService,
-                         RecordService  $recordService,
+    public function boot(ChartService    $chartService,
+                         TherapyService  $therapyService,
+                         RecordService   $recordService,
                          QuestionService $questionService)
     {
         $this->chartService = $chartService;
@@ -109,6 +110,8 @@ new class extends Component {
         $chartDatasets = $this->buildChartDatasets($emotionFrequencies);
         $flattened = $emotionFrequencies->flatten()->toArray();
         $maxValue = empty($flattened) ? 0 : $this->chartService->calculateMaxValue($flattened);
+
+        EmotionRecordQuestionAnswer::where('emotion_record_id', $this->emotionRecord->id)->whereNull('is_read')->update(['is_read' => true]);
 
         return [
             'questions' => $questions,

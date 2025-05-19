@@ -2,6 +2,7 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
+use App\Models\IdentifyValueQuestionAnswer;
 use App\Service\QuestionService;
 use App\Service\RecordService;
 use App\Service\TherapyService;
@@ -72,6 +73,8 @@ new class extends Component {
         $dataset = $this->getDatasetLabels();
         $numberAnswers = $this->getNumberAnswers();
         $textAnswers = $this->getTextAnswers();
+
+        IdentifyValueQuestionAnswer::where('identify_value_id', $this->identifyValue->id)->whereNull('is_read')->update(['is_read' => true]);
 
         return [
             'datasetLabels' => $dataset,

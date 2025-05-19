@@ -35,7 +35,7 @@ class OtpController extends Controller
                 }
             }
 
-            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, false)->first();
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: false)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan atau sudah terverifikasi.', 404);
             }
@@ -61,7 +61,7 @@ class OtpController extends Controller
 
         try {
 
-            $user = $this->userService->get($validated['email'], UserRole::PATIENT->value, false)->first();
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: false)->first();
             if (! $user) {
                 return Response::error('Akun tidak ditemukan atau sudah terverifikasi.', 404);
             }

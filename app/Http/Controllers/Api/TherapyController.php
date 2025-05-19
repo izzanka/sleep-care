@@ -37,14 +37,16 @@ class TherapyController extends Controller
 
         try {
 
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: $validated['status'])->first();
-            if (! $therapy) {
+            $therapies = $this->therapyService->get(patientId: auth()->id(), status: $validated['status']);
+            if (! $therapies) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            return Response::success([
-                'therapy' => $therapy,
-            ], 'Berhasil mendapatkan data terapi.');
+            if($validated['status'] == TherapyStatus::IN_PROGRESS){
+                $therapies->first();
+            }
+
+            return Response::success($therapies, 'Berhasil mendapatkan data terapi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
@@ -90,7 +92,7 @@ class TherapyController extends Controller
                 'application_fee' => $general->application_fee,
             ]);
 
-            $order = Order::create([
+            Order::create([
                 'therapy_id' => $therapy->id,
                 'status' => OrderStatus::SETTLEMENT->value,
                 'total_price' => $totalPrice,
@@ -126,25 +128,27 @@ class TherapyController extends Controller
         $validated = $request->validate([
             'therapy_id' => ['required', 'int'],
             'rating' => ['required', 'int'],
-            'comment' => ['nullable', 'string','max:225'],
+            'comment' => ['nullable', 'string', 'max:225'],
         ]);
 
         try {
 
-            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::COMPLETED->value, id: $validated['therapy_id'])->first();
+            $therapy = $this->therapyService->get(patientId: auth()->id(), id: $validated['therapy_id'])->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
             $therapy->doctor->rate($validated['rating']);
 
-            $therapy->update([
-               'comment' => $validated['comment']
-            ]);
+            if($validated['comment']){
+                $therapy->update([
+                    'comment' => $validated['comment'],
+                ]);
+            }
 
-            return Response::success(null, 'Berhasil memberikan rating.');
+            return Response::success($validated, 'Berhasil memberikan rating.');
 
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }

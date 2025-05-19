@@ -2,6 +2,7 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
+use App\Models\CommittedActionQuestionAnswer;
 use App\Service\QuestionService;
 use App\Service\RecordService;
 use App\Service\TherapyService;
@@ -41,8 +42,8 @@ new class extends Component {
             'labels' => ['Terlaksana', 'Tidak Terlaksana'],
             'title' => 'Status Tindakan',
             'data' => [
-                $executionAnswers->where('answer.answer', 1)->count(),
-                $executionAnswers->where('answer.answer', 0)->count(),
+                $executionAnswers->where('answer.answer', true)->count(),
+                $executionAnswers->where('answer.answer', false)->count(),
             ],
         ];
     }
@@ -53,6 +54,8 @@ new class extends Component {
         $questionLabels = $this->questionService->get('committed_action')->pluck('question');
         $tableRows = $questionAnswers->sortByDesc('answer.created_at')->chunk($questionLabels->count());
         $chart = $this->prepareChartData();
+
+        CommittedActionQuestionAnswer::where('committed_action_id', $this->committedAction->id)->whereNull('is_read')->update(['is_read' => true]);
 
         return [
             'questions' => $questionLabels,
@@ -71,11 +74,6 @@ new class extends Component {
                 <canvas id="committedActionChart" class="w-full h-80 mb-4"></canvas>
             </div>
         </div>
-
-        {{--        <div class="relative w-full max-w-md mx-auto">--}}
-        {{--            <canvas id="committedActionChart" class="w-full h-full"></canvas>--}}
-        {{--        </div>--}}
-
         <flux:separator class="mt-4 mb-4"></flux:separator>
 
         <div class="overflow-x-auto mt-4">

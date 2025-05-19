@@ -23,8 +23,9 @@ Route::post('/otp/verify', [OtpController::class, 'verify']);
 
 Route::get('/problems', [PatientController::class, 'getProblems']);
 
+Route::post('/charge', [MidtransController::class, 'charge']);
+
 Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
-    Route::post('/charge', [MidtransController::class, 'charge']);
 
     Route::get('/patient/profile', [PatientController::class, 'getProfile']);
 
@@ -42,12 +43,16 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
         Route::post('/rating', [TherapyController::class, 'storeRating']);
         Route::post('/order', [TherapyController::class, 'order']);
 
-        Route::get('/schedules', [TherapyScheduleController::class, 'get']);
+        Route::get('/schedules/{id}', [TherapyScheduleController::class, 'get']);
 
         Route::get('/chats', [ChatController::class, 'get']);
         Route::post('/chats', [ChatController::class, 'send']);
+        Route::put('/chats/{id}', [ChatController::class, 'update']);
 
         Route::prefix('records')->group(function () {
+            Route::get('/identify-values/areas', [RecordController::class, 'getIdentifyValueArea']);
+            Route::get('/emotion-records/emotions', [RecordController::class, 'getEmotionRecordEmotion']);
+
             Route::get('/sleep-diaries', [RecordController::class, 'getSleepDiaries']);
             Route::get('/sleep-diaries/{id}', [RecordController::class, 'getSleepDiaryByID']);
 
