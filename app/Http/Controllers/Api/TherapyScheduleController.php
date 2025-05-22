@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TherapyScheduleResource;
 use App\Service\TherapyScheduleService;
 use App\Service\TherapyService;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class TherapyScheduleController extends Controller

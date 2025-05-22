@@ -17,13 +17,10 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
-        $status = fake()->randomElement(OrderStatus::cases())->value;
-
         return [
-            'status' => $status,
-            'payment_status' => $status,
-            'payment_method' => 'Bank Transfer',
-            'payment_token' => 'payment_token',
+            'status' => OrderStatus::SUCCESS->value,
+            'payment_status' => OrderStatus::SETTLEMENT->value,
+            'payment_type' => 'bank_transfer',
             'total_price' => 370000,
             'created_at' => now(),
         ];

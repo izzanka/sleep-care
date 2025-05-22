@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enum\OrderStatus;
 use App\Enum\TherapyStatus;
 use App\Enum\UserRole;
 use App\Models\Chat;
@@ -22,8 +21,12 @@ class TherapySeeder extends Seeder
         $doctor = Doctor::whereHas('user', function ($query) {
             $query->where('name', 'psikolog');
         })->with('user')->first();
+        $doctor->user->is_therapy_in_progress = true;
+        $doctor->save();
 
         $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->first();
+        $patient->is_therapy_in_progress = true;
+        $patient->save();
 
         $therapyInProgress = Therapy::factory()->create([
             'doctor_id' => $doctor->id,
@@ -31,10 +34,7 @@ class TherapySeeder extends Seeder
             'status' => TherapyStatus::IN_PROGRESS->value,
         ]);
 
-        Order::factory()->create([
-            'therapy_id' => $therapyInProgress->id,
-            'status' => OrderStatus::SETTLEMENT->value,
-        ]);
+        Order::factory()->create(['therapy_id' => $therapyInProgress->id]);
 
         Chat::create([
             'therapy_id' => $therapyInProgress->id,
@@ -49,10 +49,7 @@ class TherapySeeder extends Seeder
             'status' => TherapyStatus::COMPLETED->value,
         ]);
 
-        Order::factory()->create([
-            'therapy_id' => $therapyCompleted->id,
-            'status' => OrderStatus::SETTLEMENT->value,
-        ]);
+        Order::factory()->create(['therapy_id' => $therapyCompleted->id]);
 
         Chat::create([
             'therapy_id' => $therapyCompleted->id,

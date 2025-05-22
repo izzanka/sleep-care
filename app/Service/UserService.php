@@ -18,11 +18,11 @@ class UserService
             $query->where('role', $role);
         }
 
-        if($is_active){
+        if ($is_active) {
             $query->where('is_active', true);
         }
 
-        if (!is_null($verified)) {
+        if (! is_null($verified)) {
             if ($verified) {
                 $query->whereNotNull('email_verified_at');
             } else {

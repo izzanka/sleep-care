@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('balance')->default(0);
             $table->boolean('is_active')->default(true);
             $table->boolean('is_online')->default(false);
+            $table->boolean('is_therapy_in_progress')->default(false);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

@@ -37,7 +37,7 @@ new class extends Component {
     protected function getAdminOrders()
     {
         return [
-            'orders' => Order::where('status', OrderStatus::SETTLEMENT->value)
+            'orders' => Order::where('status', OrderStatus::SUCCESS->value)
                 ->latest()
                 ->paginate(15),
         ];
@@ -46,10 +46,9 @@ new class extends Component {
     protected function getDoctorOrders($user)
     {
         return [
-            'orders' => Order::where('status', OrderStatus::SETTLEMENT->value)
+            'orders' => Order::where('status', OrderStatus::SUCCESS->value)
                 ->whereHas('therapy', function ($query) use ($user) {
-                    $query->where('doctor_id', $user->doctor->id)
-                        ->where('status', TherapyStatus::COMPLETED->value);
+                    $query->where('doctor_id', $user->doctor->id);
                 })
                 ->latest()
                 ->paginate(15),
@@ -77,9 +76,9 @@ new class extends Component {
                                 @currency($order->therapy->doctor_fee)
                             @endcan
                         </flux:heading>
-                        <flux:subheading> {{$order->created_at->format('d F Y')}}
+                        <flux:subheading> {{$order->created_at->isoFormat('D MMMM Y')}}
                             @can('isAdmin', Auth::user())
-                                , Order ID #{{$order->id}} (Biaya Jasa Aplikasi)
+                                (Biaya Jasa Aplikasi)
                             @elsecan('isDoctor', Auth::user())
                                 (Biaya Jasa Terapi)
                             @endcan

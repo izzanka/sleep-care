@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SleepDiaryQuestionAnswer extends Model
 {
     public $timestamps = false;
+
     protected $table = 'sleep_diary_question_answer';
 
     public function sleepDiary()

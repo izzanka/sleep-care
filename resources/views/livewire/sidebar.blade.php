@@ -12,7 +12,7 @@
                             <flux:navlist.item :href="route('doctor.therapies.in_progress.schedule')" :current="request()->routeIs('doctor.therapies.in_progress.schedule')" wire:navigate>Jadwal</flux:navlist.item>
                             <flux:navlist.item :href="route('doctor.therapies.in_progress.chat')" :current="request()->routeIs('doctor.therapies.in_progress.chat')" wire:navigate badge="{{$unreadChatsCount}}">Percakapan</flux:navlist.item>
                             <flux:navlist.group expandable heading="Catatan">
-                                <flux:navlist.item :href="route('doctor.therapies.records.sleep_diary')" :current="request()->routeIs('doctor.therapies.records.sleep_diary')" wire:navigate>Tidur</flux:navlist.item>
+                                <flux:navlist.item :href="route('doctor.therapies.records.sleep_diary')" :current="request()->routeIs('doctor.therapies.records.sleep_diary')" wire:navigate badge="{{$unreadSleepDiary ? 'Baru' : ''}}">Tidur</flux:navlist.item>
                                 <flux:navlist.item :href="route('doctor.therapies.records.identify_value')" :current="request()->routeIs('doctor.therapies.records.identify_value')" wire:navigate badge="{{$unreadIdentifyValue ? 'Baru' : ''}}">Nilai</flux:navlist.item>
                                 <flux:navlist.item :href="route('doctor.therapies.records.thought_record')" :current="request()->routeIs('doctor.therapies.records.thought_record')" wire:navigate badge="{{$unreadThoughtRecord ? 'Baru' : ''}}">Pikiran</flux:navlist.item>
                                 <flux:navlist.item :href="route('doctor.therapies.records.emotion_record')" :current="request()->routeIs('doctor.therapies.records.emotion_record')" wire:navigate badge="{{$unreadEmotionRecord ? 'Baru' : ''}}">Emosi</flux:navlist.item>
@@ -24,7 +24,7 @@
                 </flux:navlist.group>
             @endcan
             @can('isAdmin', $user)
-                <flux:navlist.item icon="document" :href="route('admin.therapies')" :current="request()->routeIs('admin.therapies')" wire:navigate badge="{{ $allTherapyCount }}">Terapi</flux:navlist.item>
+{{--                <flux:navlist.item icon="document" :href="route('admin.therapies')" :current="request()->routeIs('admin.therapies')" wire:navigate badge="{{ $allTherapyCount }}">Terapi</flux:navlist.item>--}}
                 <flux:navlist.group expandable heading="Pengguna">
                     <flux:navlist.item :href="route('admin.users.doctor')" :current="request()->routeIs('admin.users.doctor')" wire:navigate badge="{{ $doctorCount }}">Psikolog</flux:navlist.item>
                     <flux:navlist.item :href="route('admin.users.patient')" :current="request()->routeIs('admin.users.patient')" wire:navigate badge="{{ $patientCount }}">Pasien</flux:navlist.item>

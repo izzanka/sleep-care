@@ -85,7 +85,7 @@ class ChatController extends Controller
 
             return Response::success($chat, 'Berhasil mengubah pesan.');
 
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }

@@ -4,6 +4,7 @@ namespace App\Enum;
 
 enum OrderStatus: string
 {
+    case SUCCESS = 'success';
     case SETTLEMENT = 'settlement';
     case DENY = 'deny';
     case PENDING = 'pending';
@@ -14,6 +15,7 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
+            self::SUCCESS => 'Berhasil',
             self::EXPIRE => 'Kedaluwarsa',
             self::CANCEL => 'Dibatalkan',
             self::PENDING => 'Tertunda',

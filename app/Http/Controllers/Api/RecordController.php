@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Enum\QuestionType;
 use App\Enum\RecordType;
-use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Answer;
 use App\Service\AnswerService;
@@ -92,6 +91,7 @@ class RecordController extends Controller
     public function getEmotionRecordEmotion()
     {
         $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut', 'Lainnya'];
+
         return Response::success($emotions, 'Berhasil mendapatkan daftar emosi emotion_record.');
     }
 
@@ -184,8 +184,8 @@ class RecordController extends Controller
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            if (!now()->between($therapy->start_date, $therapy->end_date)) {
-                return Response::error("Tanggal tidak valid.", 400);
+            if (! now()->between($therapy->start_date, $therapy->end_date)) {
+                return Response::error('Tanggal tidak valid.', 400);
             }
 
             $record = $this->getRecordByType($validated['record_type'], $therapy->id, $validated['record_id']);
@@ -231,6 +231,67 @@ class RecordController extends Controller
         } catch (\Exception $exception) {
             DB::rollBack();
 
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'therapy_id' => ['required', 'int'],
+            'record_type' => ['required', new Enum(RecordType::class)],
+            'record_id' => ['required', 'int'],
+            'answers' => ['required', 'array'],
+            'answers.*.id' => ['required', 'int'],
+            'answers.*.question_id' => ['required', 'int'],
+            'answers.*.type' => ['required', new Enum(QuestionType::class)],
+            'answers.*.answer' => ['required'],
+            'answers.*.note' => ['nullable', 'string', 'max:225'],
+        ]);
+
+        try {
+            $therapy = $this->therapyService->get(
+                patientId: auth()->id(), id: $validated['therapy_id']
+            )->first();
+
+            if (! $therapy) {
+                return Response::error('Terapi tidak ditemukan.', 404);
+            }
+
+            if (! now()->between($therapy->start_date, $therapy->end_date)) {
+                return Response::error('Tanggal tidak valid.', 400);
+            }
+
+            $record = $this->getRecordByType($validated['record_type'], $therapy->id, $validated['record_id']);
+            if (! $record) {
+                return Response::error("Data {$validated['record_type']} tidak ditemukan.", 404);
+            }
+
+            foreach ($validated['answers'] as $answerData) {
+                $answer = $this->answerService->get($answerData['id']);
+                if (! $answer) {
+                    return Response::error("Jawaban tidak ditemukan (ID: {$answerData['id']}).", 404);
+                }
+
+                $question = $this->questionService->get($validated['record_type'], $answerData['question_id'])->first();
+                if (! $question) {
+                    return Response::error("Pertanyaan tidak ditemukan (ID: {$answerData['question_id']}).", 404);
+                }
+
+                if ($question->type->value != $answerData['type']) {
+                    return Response::error("Tipe jawaban tidak sesuai untuk pertanyaan ID: {$question->id}", 422);
+                }
+
+                $answer->update([
+                    'type' => $answerData['type'],
+                    'answer' => $answerData['answer'],
+                    'note' => $answerData['note'],
+                ]);
+            }
+
+            return Response::success(null, 'Jawaban berhasil diubah.');
+
+        } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }

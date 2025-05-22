@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\MidtransController;
+use App\Http\Controllers\api\OrderController;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\QuestionController;
@@ -23,7 +24,10 @@ Route::post('/otp/verify', [OtpController::class, 'verify']);
 
 Route::get('/problems', [PatientController::class, 'getProblems']);
 
-Route::post('/charge', [MidtransController::class, 'charge']);
+Route::prefix('midtrans')->group(function () {
+    Route::post('/charge', [MidtransController::class, 'charge']);
+    Route::post('/notification', [MidtransController::class, 'notification']);
+});
 
 Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
 
@@ -41,7 +45,8 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
 
     Route::prefix('therapy')->group(function () {
         Route::post('/rating', [TherapyController::class, 'storeRating']);
-        Route::post('/order', [TherapyController::class, 'order']);
+        Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders', [OrderController::class, 'get']);
 
         Route::get('/schedules/{id}', [TherapyScheduleController::class, 'get']);
 
@@ -70,6 +75,7 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
             Route::get('/questions', [QuestionController::class, 'get']);
             Route::get('/answers', [RecordController::class, 'get']);
             Route::post('/answers', [RecordController::class, 'store']);
+            Route::put('/answers', [RecordController::class, 'update']);
         });
     });
 });

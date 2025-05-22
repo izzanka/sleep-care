@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ThoughtRecordQuestionAnswer extends Model
 {
     public $timestamps = false;
+
     protected $table = 'thought_record_question_answer';
 
     public function thoughtRecord()

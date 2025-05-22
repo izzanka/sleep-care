@@ -127,8 +127,8 @@ new class extends Component {
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                        <flux:input wire:model="name" label="Nama" disabled></flux:input>
-                        <flux:input wire:model="email" label="Email" disabled></flux:input>
+                        <flux:input wire:model="name" label="Nama" readonly></flux:input>
+                        <flux:input wire:model="email" label="Email" readonly></flux:input>
                     </div>
 
                     <flux:separator class="mt-4 mb-4"></flux:separator>

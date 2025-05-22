@@ -15,19 +15,31 @@ use Livewire\Component;
 class Sidebar extends Component
 {
     public $unreadNotificationsCount;
+
     public $hasOngoingTherapy;
+
     public $completedTherapiesCount;
+
     public $allTherapyCount;
+
     public $doctorCount;
+
     public $patientCount;
+
     public $generalSettingCount;
+
     public $questionCount;
+
     public $user;
 
     public $unreadChatsCount;
+
     public $unreadThoughtRecord;
+
     public $unreadSleepDiary;
+
     public $unreadCommittedAction;
+
     public $unreadEmotionRecord;
 
     public $unreadIdentifyValue;
@@ -45,22 +57,20 @@ class Sidebar extends Component
                     ->where('status', TherapyStatus::IN_PROGRESS->value)
                     ->first();
                 $this->hasOngoingTherapy = $ongoingTherapy !== null;
-                if($this->hasOngoingTherapy){
+                if ($this->hasOngoingTherapy) {
                     $thoughtRecord = $ongoingTherapy->thoughtRecords->first();
                     $committedAction = $ongoingTherapy->committedActions->first();
                     $emotionRecord = $ongoingTherapy->emotionRecords->first();
                     $identifyValue = $ongoingTherapy->identifyValues->first();
 
                     $this->unreadChatsCount = $doctor->user->received()->where('therapy_id', $ongoingTherapy->id)->whereNull('read_at')->count();
-                    $this->unreadThoughtRecord = $thoughtRecord->questionAnswers()->whereNull('is_read')->exists();
-                    $this->unreadCommittedAction = $committedAction->questionAnswers()->whereNull('is_read')->exists();
-                    $this->unreadEmotionRecord = $emotionRecord->questionAnswers()->whereNull('is_read')->exists();
-                    $this->unreadIdentifyValue = $identifyValue->questionAnswers()->whereNull('is_read')->exists();
-                    $this->unreadSleepDiary = $ongoingTherapy->sleepDiaries()
-                        ->whereHas('questionAnswers', function ($query) {
-                            $query->whereNull('is_read');
-                        })
-                        ->exists();
+                    $this->unreadThoughtRecord = $thoughtRecord?->questionAnswers()?->whereNull('is_read')->exists();
+                    $this->unreadCommittedAction = $committedAction?->questionAnswers()?->whereNull('is_read')->exists();
+                    $this->unreadEmotionRecord = $emotionRecord?->questionAnswers()?->whereNull('is_read')->exists();
+                    $this->unreadIdentifyValue = $identifyValue?->questionAnswers()?->whereNull('is_read')->exists();
+                    $this->unreadSleepDiary = $ongoingTherapy?->sleepDiaries()?->whereHas('questionAnswers', function ($query) {
+                        $query->whereNull('is_read');
+                    })->exists();
                 }
                 $this->completedTherapiesCount = $doctor->therapies->where('status', TherapyStatus::COMPLETED->value)->count();
             }

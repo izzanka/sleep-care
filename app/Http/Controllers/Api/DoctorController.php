@@ -15,7 +15,7 @@ class DoctorController extends Controller
 
     public function getAll(Request $request)
     {
-        $allowedColumns = ['registered_year', 'created_at'];
+        $allowedColumns = ['registered_year', 'created_at', 'is_therapy_in_progress'];
         $allowedSorts = ['asc', 'desc'];
 
         $validated = $request->validate([

@@ -29,7 +29,6 @@ new class extends Component {
                 <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
                 <tr class="border-b">
                     <th class="px-6 py-3 text-left font-medium">No</th>
-                    <th class="px-6 py-3 text-left font-medium">ID</th>
                     <th class="px-6 py-3 text-left font-medium">Tanggal Mulai</th>
                     <th class="px-6 py-3 text-left font-medium">Tanggal Selesai</th>
                     <th class="px-6 py-3 text-left font-medium">Biaya Jasa Psikolog</th>
@@ -42,7 +41,6 @@ new class extends Component {
                 @forelse($therapies as $therapy)
                     <tr>
                         <td class="px-6 py-4 text-center">{{ $loop->iteration }}</td>
-                        <td class="px-6 py-4">{{$therapy->id}}</td>
                         <td class="px-6 py-4">{{$therapy->start_date->format('d/m/Y')}}</td>
                         <td class="px-6 py-4">{{$therapy->end_date->format('d/m/Y')}}</td>
                         <td class="px-6 py-4">@currency($therapy->doctor_fee)</td>

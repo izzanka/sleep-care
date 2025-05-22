@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CommittedActionQuestionAnswer extends Model
 {
     public $timestamps = false;
+
     protected $table = 'committed_action_question_answer';
 
     public function committedAction()

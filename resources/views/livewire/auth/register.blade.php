@@ -179,7 +179,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         <flux:input type="number" label="Usia" name="age" wire:model="age" placeholder="Usia" min="1"></flux:input>
 
-        <flux:select wire:model="gender" placeholder="Pilih gender..." label="Gender">
+        <flux:select wire:model="gender" placeholder="Pilih jenis kelamin..." label="Jenis Kelamin">
             @foreach(UserGender::cases() as $gender)
                 <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
             @endforeach

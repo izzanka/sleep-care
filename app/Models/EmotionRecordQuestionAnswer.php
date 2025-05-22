@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class EmotionRecordQuestionAnswer extends Model
 {
     public $timestamps = false;
+
     protected $table = 'emotion_record_question_answer';
 
     public function emotionRecord()

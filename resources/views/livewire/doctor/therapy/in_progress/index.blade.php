@@ -29,10 +29,13 @@ new class extends Component {
     {
         if(now()->greaterThan($this->therapy->end_date)){
             $this->therapy->update(['status' => TherapyStatus::COMPLETED->value]);
+            $this->therapy->patient->update(['is_therapy_in_progress' => false]);
+            $this->therapy->doctor->user->update(['is_therapy_in_progress' => false]);
             session()->flash('status', ['message' => 'Berhasil mengubah status terapi menjadi selesai.', 'success' => true]);
         }else{
             session()->flash('status', ['message' => 'Terapi belum bisa diselesaikan karena belum melewati tanggal selesai.', 'success' => false]);
         }
+
         $this->redirectRoute('doctor.therapies.completed.index');
     }
 

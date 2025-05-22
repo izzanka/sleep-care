@@ -47,21 +47,6 @@ new class extends Component {
         $this->total_rating = $user->doctor->averageRating ?? 0;
     }
 
-    public function with()
-    {
-        $user = Auth::user();
-
-        if (Gate::allows('isAdmin', $user)) {
-            return $this->getAdminData();
-        }
-
-        if (Gate::allows('isDoctor', $user)) {
-            return $this->getDoctorData($user);
-        }
-
-        return [];
-    }
-
     protected function getAdminData(): array
     {
         return [
@@ -75,6 +60,21 @@ new class extends Component {
             'therapies' => Therapy::where('doctor_id', $user->doctor->id)
                 ->latest()->paginate(15),
         ];
+    }
+
+    public function with()
+    {
+        $user = Auth::user();
+
+        if (Gate::allows('isAdmin', $user)) {
+            return $this->getAdminData();
+        }
+
+        if (Gate::allows('isDoctor', $user)) {
+            return $this->getDoctorData($user);
+        }
+
+        return [];
     }
 }; ?>
 
@@ -141,11 +141,12 @@ new class extends Component {
                         <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
                         <tr class="border-b">
                             <th class="px-6 py-3 text-left font-medium">No</th>
-                            <th class="px-6 py-3 text-left font-medium">Terapi ID</th>
+                            <th class="px-6 py-3 text-left font-medium">Aksi</th>
+                            <th class="px-6 py-3 text-left font-medium">ID</th>
                             <th class="px-6 py-3 text-left font-medium">Pasien</th>
                             <th class="px-6 py-3 text-left font-medium">Metode Pembayaran</th>
-                            <th class="px-6 py-3 text-left font-medium">Status Pembayaran</th>
                             <th class="px-6 py-3 text-left font-medium">Total Pembayaran</th>
+                            <th class="px-6 py-3 text-left font-medium">Status Pembayaran</th>
                             <th class="px-6 py-3 text-left font-medium">Status</th>
                             <th class="px-6 py-3 text-left font-medium">Dibuat Pada</th>
                             <th class="px-6 py-3 text-left font-medium">Diperbarui Pada</th>
@@ -153,17 +154,44 @@ new class extends Component {
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
                         @forelse($orders as $order)
-                            <tr>
+                            <flux:modal :name="'detail-terapi-'.$order->therapy->id" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+                                <div class="space-y-6">
+                                    <div>
+                                        <flux:heading size="lg">Detail Terapi</flux:heading>
+                                    </div>
+
+                                    <flux:input readonly value="{{$order->therapy->doctor->user->name}}" label="Psikolog"></flux:input>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                                        <flux:input value="{{$order->therapy->start_date->format('d/m/Y')}}" label="Tanggal Mulai"></flux:input>
+                                        <flux:input value="{{$order->therapy->end_date->format('d/m/Y')}}" label="Tanggal Selesai"></flux:input>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                                        <flux:input value="{{ 'Rp ' . number_format($order->therapy->doctor_fee, 0, ',', '.') }}" label="Biaya Jasa Psikolog"></flux:input>
+                                        <flux:input value="{{ 'Rp ' . number_format($order->therapy->application_fee, 0, ',', '.') }}" label="Biaya Jasa Aplikasi"></flux:input>
+                                    </div>
+
+                                    <flux:input readonly value="{{$order->therapy->status->label()}}" label="Status"></flux:input>
+
+                                </div>
+                            </flux:modal>
+
+                            <tr wire:key="{{$order->id}}">
                                 <td class="px-6 py-4 text-center">{{$loop->iteration}}</td>
-                                <td class="px-6 py-4 text-center">{{$order->therapy_id}}</td>
                                 <td class="px-6 py-4">
-                                    <flux:link wire:navigate href="#">
-                                        {{$order->therapy->patient->name ?? '-'}}
-                                    </flux:link>
+                                    <flux:modal.trigger :name="'detail-terapi-'.$order->therapy->id">
+                                        <flux:button size="xs">
+                                            Terapi
+                                        </flux:button>
+                                    </flux:modal.trigger>
+
                                 </td>
-                                <td class="px-6 py-4">{{$order->payment_method}}</td>
-                                <td class="px-6 py-4">{{$order->payment_status->label()}}</td>
+                                <td class="px-6 py-4">{{$order->id}}</td>
+                                <td class="px-6 py-4">{{$order->therapy->patient->name ?? '-'}}</td>
+                                <td class="px-6 py-4">{{$order->payment_type}}</td>
                                 <td class="px-6 py-4 text-center">@currency($order->total_price)</td>
+                                <td class="px-6 py-4">{{$order->payment_status->label()}}</td>
                                 <td class="px-6 py-4">{{$order->status->label()}}</td>
                                 <td class="px-6 py-4">{{$order->created_at->format('d/m/Y H:i')}}</td>
                                 <td class="px-6 py-4">{{ $order->updated_at ? $order->updated_at->format('d/m/Y H:i') : '-' }}</td>

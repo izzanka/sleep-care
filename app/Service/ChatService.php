@@ -10,19 +10,19 @@ class ChatService
     {
         $query = Chat::query();
 
-        if($therapyId){
+        if ($therapyId) {
             $query->where('therapy_id', $therapyId);
         }
 
-        if($id){
+        if ($id) {
             $query->where('id', $id);
         }
 
-        if($sender_id){
+        if ($sender_id) {
             $query->where('sender_id', $sender_id);
         }
 
-        if($receiver_id){
+        if ($receiver_id) {
             $query->where('receiver_id', $receiver_id);
         }
 

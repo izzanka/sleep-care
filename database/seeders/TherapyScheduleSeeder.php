@@ -22,16 +22,16 @@ class TherapyScheduleSeeder extends Seeder
             [
                 'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan pendekatan ACT.',
                 'Psikolog menyusun kesepakatan bersama dengan pasien',
-                'Psikolog meminta pasien untuk mengisi sleep diary setiap hari selama terapi berlangsung.',
+                'Psikolog mengingatkan pasien untuk mengisi catatan tidur (sleep diary) setiap hari selama terapi berlangsung.',
                 'Psikolog meminta pasien untuk menyampaikan permasalahan insomnia yang dialami.',
             ],
             [
-                'Psikolog meminta pasien untuk mengisi identify value.',
+                'Psikolog mengingatkan pasien untuk mengisi catatan identifikasi nilai (identify value).',
                 'Psikolog mengajarkan teknik pernapasan kepada pasien dan membimbing latihan praktiknya.',
             ],
             [
                 'Psikolog menjelaskan berbagai bentuk pikiran yang mengganggu.',
-                'Psikolog meminta pasien untuk mulai mengisi emotion record dan thought record.',
+                'Psikolog mengingatkan pasien untuk mengisi catatan emosi (emotion record) dan catatan pikiran (thought record).',
                 'Psikolog membimbing pasien untuk mempraktikkan cara-cara mengatasi pikiran yang mengganggu.',
                 'Psikolog mengarahkan pasien untuk melakukan latihan observasi diri sebagai konteks (self-as-context).',
             ],
@@ -40,13 +40,13 @@ class TherapyScheduleSeeder extends Seeder
                 'Psikolog membimbing pasien dalam mempraktikkan teknik acceptance dan mindfulness.',
             ],
             [
-                'Psikolog menjelaskan konsep committed action.',
-                'Psikolog meminta pasien untuk mengisi committed action berdasarkan nilai-nilai (value) yang dimiliki.',
+                'Psikolog menjelaskan konsep tindakan berkomitmen (committed action).',
+                'Psikolog mengingatkan pasien untuk mengisi catatan tindakan berkomitmen (committed action) berdasarkan nilai-nilai (value) yang dimiliki.',
             ],
             [
-                'Psikolog dan pasien mendiskusikan hasil dari committed action yang telah dilakukan.',
+                'Psikolog dan pasien mendiskusikan hasil dari catatan tindakan berkomitmen (committed action) yang telah dilakukan.',
                 'Psikolog meminta pasien untuk merangkum keseluruhan sesi terapi',
-                'Psikolog meminta pasien untuk memberikan umpan balik kepada psikolog dan terhadap proses terapi.',
+                'Psikolog meminta pasien untuk memberikan ulasan kepada psikolog dan terhadap proses terapi.',
             ],
         ];
 

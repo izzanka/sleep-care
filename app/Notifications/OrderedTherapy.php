@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class OrderedTherapy extends Notification
@@ -29,6 +30,12 @@ class OrderedTherapy extends Notification
      */
     public function via(object $notifiable): array
     {
+        $doctorId = $this->therapy->doctor->user->id;
+
+        if ($notifiable->id === $doctorId) {
+            return ['mail', 'database'];
+        }
+
         return ['database'];
     }
 
@@ -37,12 +44,22 @@ class OrderedTherapy extends Notification
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable)
     {
         return [
             'message' => 'Pasien ('.$this->therapy->patient->name.
                 ') baru saja memilih '.' Psikolog ('.$this->therapy->doctor->user->name.
                 ') untuk melakukan terapi.',
         ];
+    }
+
+    public function toMail(object $notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Terapi Baru Dipesan')
+            ->greeting('Halo '.$notifiable->name.',')
+            ->line('Pasien '.$this->therapy->patient->name.' telah memilih anda sebagai Psikolog untuk melakukan terapi.')
+            ->action('Lihat Terapi', route('doctor.therapies.in_progress.index'))
+            ->line('Terima kasih telah menggunakan layanan kami!');
     }
 }
