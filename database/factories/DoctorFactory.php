@@ -19,7 +19,7 @@ class DoctorFactory extends Factory
         return [
             'registered_year' => fake()->year(),
             'phone' => '081382635593',
-            'created_at' => now(),
+            'is_available' => true,
         ];
     }
 }
