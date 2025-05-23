@@ -5,6 +5,7 @@ use App\Enum\UserRole;
 use App\Models\User;
 use App\Service\UserService;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
@@ -22,6 +23,7 @@ new class extends Component {
     public string $name;
     public string $email;
     public bool $is_active;
+    public ?string $avatar;
 
     public ?string $graduated_from;
     public ?string $phone;
@@ -48,7 +50,7 @@ new class extends Component {
 
     public function editDoctor(int $doctorId)
     {
-        $doctor = $this->userService->get(role: UserRole::DOCTOR->value,id: $doctorId)->first();
+        $doctor = $this->userService->get(role: UserRole::DOCTOR->value, id: $doctorId)->first();
 
         if (!$doctor) {
             session()->flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
@@ -66,9 +68,30 @@ new class extends Component {
         $this->name = $doctor->name;
         $this->email = $doctor->email;
         $this->is_active = $doctor->is_active;
+        $this->avatar = $doctor->avatar;
         $this->graduated_from = $doctor->doctor->graduated_from;
         $this->phone = $doctor->doctor->phone;
         $this->about = $doctor->doctor->about;
+    }
+
+    public function deleteAvatarDoctor(int $doctorId)
+    {
+        $doctor = $this->userService->get(role: UserRole::DOCTOR->value, id: $doctorId)->first();
+
+        if (!$doctor) {
+            session()->flash('status', ['message' => 'Psikolog tidak dapat ditemukan.', 'success' => false]);
+            return;
+        }
+
+        if (Storage::disk('public')->exists($this->avatar)) {
+            Storage::disk('public')->delete($this->avatar);
+            $doctor->update(['avatar' => null]);
+            session()->flash('status', ['message' => 'Avatar psikolog berhasil dihapus.', 'success' => true]);
+        } else {
+            session()->flash('status', ['message' => 'Avatar psikolog tidak ditemukan.', 'success' => false]);
+        }
+
+        $this->redirectRoute('admin.users.doctor');
     }
 
     public function updateDoctor(int $doctorId)
@@ -150,19 +173,30 @@ new class extends Component {
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
                         <flux:input wire:model="graduated_from" label="Lulusan" placeholder="-"></flux:input>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
                         <flux:input wire:model="phone" label="Telepon" placeholder="-"></flux:input>
-                        <flux:field>
-                            <flux:label>Aktif</flux:label>
-                            <flux:switch wire:model="is_active" />
-                            <flux:error name="is_active" />
-                        </flux:field>
                     </div>
 
                     <div class="mt-4 mb-4">
                         <flux:textarea wire:model="about" label="Tentang" placeholder="-"></flux:textarea>
+                    </div>
+
+                    @if($avatar != null)
+                        <flux:heading>Avatar</flux:heading>
+                        <div class="mt-4 mb-4 flex justify-center">
+                            <img src="{{asset('storage/' . $avatar)}}" alt="Avatar"
+                                 class="w-full max-w-xs h-auto rounded-md object-cover">
+                        </div>
+                        <flux:button variant="danger" class="w-full" wire:click="deleteAvatarDoctor({{$id}})"
+                                     wire:confirm="Apa anda yakin ingin menghapus avatar psikolog ini?">Hapus avatar
+                        </flux:button>
+                    @endif
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
+                        <flux:field>
+                            <flux:label>Aktif</flux:label>
+                            <flux:switch wire:model="is_active"/>
+                            <flux:error name="is_active"/>
+                        </flux:field>
                     </div>
 
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>

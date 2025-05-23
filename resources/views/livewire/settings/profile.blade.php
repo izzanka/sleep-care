@@ -101,7 +101,7 @@ new class extends Component {
             'phone' => ['nullable', 'string', 'max:225'],
             'about' => ['nullable', 'string', 'max:225'],
             'graduated_from' => ['nullable', 'string', 'max:225'],
-            'is_available' => ['required', 'booelan'],
+            'is_available' => ['required', 'boolean'],
         ]);
 
         $this->user->doctor->update($validated);
@@ -156,7 +156,7 @@ new class extends Component {
                 <div class="flex justify-center items-center">
                     <img
                         src="{{ $avatar ? $avatar->temporaryUrl() : ($avatar_url ? asset('storage/' . $avatar_url) : '') }}"
-                        alt="{{ $avatar ? 'preview-avatar' : 'avatar' }}" class="w-20 h-20 object-cover rounded-md">
+                        alt="{{ $avatar ? 'preview-avatar' : 'avatar' }}" class="w-40 h-40 object-cover rounded-md">
                 </div>
             @endif
 
