@@ -17,8 +17,8 @@ return new class extends Migration
             $table->integer('registered_year');
             $table->string('graduated_from')->nullable();
             $table->string('phone')->nullable();
-            $table->string('name_title')->nullable();
             $table->string('about')->nullable();
+            $table->boolean('is_available')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

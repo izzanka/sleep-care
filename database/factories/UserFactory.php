@@ -29,7 +29,6 @@ class UserFactory extends Factory
         $gender = fake()->randomElement(UserGender::cases())->value;
 
         return [
-            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -64,6 +63,7 @@ class UserFactory extends Factory
     public function doctor()
     {
         return $this->state([
+            'name' => fake()->name().' M.Psi',
             'role' => UserRole::DOCTOR->value,
         ]);
     }
@@ -78,6 +78,7 @@ class UserFactory extends Factory
         $jsonProblems = json_encode($problems);
 
         return $this->state([
+            'name' => fake()->name(),
             'role' => UserRole::PATIENT->value,
             'problems' => $jsonProblems,
             'email_verified_at' => now(),

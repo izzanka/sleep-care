@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->integer('role')->default(UserRole::PATIENT->value);
             $table->string('avatar')->nullable();
-            $table->integer('age');
+            $table->integer('age')->nullable();
             $table->string('gender');
             $table->string('problems')->nullable();
             $table->integer('balance')->default(0);

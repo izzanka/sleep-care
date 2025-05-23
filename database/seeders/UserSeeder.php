@@ -30,13 +30,12 @@ class UserSeeder extends Seeder
         User::factory()->admin()->create();
         $userDoctor = User::factory()->doctor()->create([
             'name' => 'psikolog',
-            'email' => 'psikolog@sleepcares.xyz',
+            'email' => 'info@sleepcares.xyz',
             'balance' => 350000,
         ]);
 
         Doctor::factory()->create([
             'user_id' => $userDoctor->id,
-            'name_title' => fake()->randomElement(['Dr.', 'Prof.', 'Mr.', 'Ms.']).' '.$userDoctor->name,
         ]);
     }
 }

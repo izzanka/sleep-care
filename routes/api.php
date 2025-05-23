@@ -4,7 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\MidtransController;
-use App\Http\Controllers\api\OrderController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\QuestionController;
@@ -23,6 +23,8 @@ Route::post('/otp/request', [OtpController::class, 'request']);
 Route::post('/otp/verify', [OtpController::class, 'verify']);
 
 Route::get('/problems', [PatientController::class, 'getProblems']);
+Route::get('areas', [RecordController::class, 'getIdentifyValueArea']);
+Route::get('emotions', [RecordController::class, 'getEmotionRecordEmotion']);
 
 Route::prefix('midtrans')->group(function () {
     Route::post('/charge', [MidtransController::class, 'charge']);
@@ -55,8 +57,6 @@ Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {
         Route::put('/chats/{id}', [ChatController::class, 'update']);
 
         Route::prefix('records')->group(function () {
-            Route::get('/identify-values/areas', [RecordController::class, 'getIdentifyValueArea']);
-            Route::get('/emotion-records/emotions', [RecordController::class, 'getEmotionRecordEmotion']);
 
             Route::get('/sleep-diaries', [RecordController::class, 'getSleepDiaries']);
             Route::get('/sleep-diaries/{id}', [RecordController::class, 'getSleepDiaryByID']);

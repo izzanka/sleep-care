@@ -17,14 +17,14 @@ new class extends Component {
     public string $email = '';
     public string $gender = '';
     public ?string $phone = '';
-    public ?string $name_title = '';
     public ?string $about = '';
     public ?string $graduated_from = '';
-    public int $age;
+    public ?int $age = null;
     public int $registered_year;
     public $avatar;
     public $avatar_url;
     public $user;
+    public $is_available;
 
     public function mount(): void
     {
@@ -85,23 +85,23 @@ new class extends Component {
     {
         $this->phone = $this->user->doctor->phone;
         $this->registered_year = $this->user->doctor->registered_year;
-        $this->name_title = $this->user->doctor->name_title;
         $this->about = $this->user->doctor->about;
         $this->graduated_from = $this->user->doctor->graduated_from;
+        $this->is_available = $this->user->doctor->is_available;
     }
 
     protected function shouldUpdateDoctorInfo()
     {
-        return $this->name_title !== '' || $this->phone !== '';
+        return $this->phone !== '';
     }
 
     public function updateDoctorInformation()
     {
         $validated = $this->validate([
-            'name_title' => ['nullable', 'string', 'max:225'],
             'phone' => ['nullable', 'string', 'max:225'],
             'about' => ['nullable', 'string', 'max:225'],
             'graduated_from' => ['nullable', 'string', 'max:225'],
+            'is_available' => ['required', 'booelan'],
         ]);
 
         $this->user->doctor->update($validated);
@@ -134,13 +134,13 @@ new class extends Component {
                             autocomplete="email"/>
             </div>
 
-            <flux:input type="number" label="Usia" name="age" wire:model="age"></flux:input>
-
             <flux:select wire:model="gender" placeholder="Pilih Jenis Kelamin..." label="Jenis Kelamin">
                 @foreach(UserGender::cases() as $gender)
                     <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
                 @endforeach
             </flux:select>
+
+            <flux:input type="number" label="Usia" name="age" wire:model="age" placeholder="-"></flux:input>
 
             <flux:input type="text" label="Lulusan" name="graduated_from" wire:model="graduate" placeholder="-"></flux:input>
 
@@ -160,13 +160,17 @@ new class extends Component {
                 </div>
             @endif
 
-            <flux:input type="text" name="name_title" wire:model="name_title" label="Gelar" placeholder="-"></flux:input>
-
             <flux:input type="text" name="phone" wire:model="phone" mask="9999 9999 9999"
                         label="Telepon" placeholder="-"></flux:input>
 
             <flux:input readonly variant="filled" wire:model="registered_year"
                         label="Tahun terdaftar di HIMPSI"></flux:input>
+
+            <div class="w-full">
+                <flux:checkbox wire:model="is_available" label="Tersedia"
+                               description="Jika diaktifkan, anda dapat ditemukan dan dipesan oleh pasien untuk menjalani terapi."
+                />
+            </div>
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">

@@ -24,6 +24,34 @@ class TherapyController extends Controller
         protected TherapyScheduleService $therapyScheduleService,
         protected RecordService $recordService) {}
 
+    public function get(Request $request)
+    {
+        $validated = $request->validate([
+            'status' => ['required', new Enum(TherapyStatus::class)],
+        ]);
+
+        try {
+
+            $therapies = $this->therapyService->get(patientId: auth()->id(), status: $validated['status']);
+            if (! $therapies) {
+                return Response::error('Terapi tidak ditemukan.', 404);
+            }
+
+            if ($validated['status'] === TherapyStatus::IN_PROGRESS->value) {
+                $therapy = $therapies->first();
+
+                return Response::success($therapy, 'Berhasil mendapatkan data terapi.');
+            }
+
+            return Response::success([
+                'therapies' => $therapies,
+            ], 'Berhasil mendapatkan data terapi.');
+
+        } catch (\Exception $exception) {
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

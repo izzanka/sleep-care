@@ -83,7 +83,10 @@ class RecordController extends Controller
 
     public function getIdentifyValueArea()
     {
-        $areas = ['Keluarga', 'Pernikahan', 'Pertemanan', 'Pekerjaan', 'Pendidikan', 'Rekreasi', 'Spiritualitas', 'Komunitas', 'Lingkungan', 'Kesehatan'];
+        $areas = [
+            'Keluarga', 'Pernikahan/Relasi', 'Pertemanan', 'Pekerjaan/Karir', 'Pendidikan/Pengembangan Diri',
+            'Rekreasi/Hiburan/Waktu Luang', 'Spiritualitas', 'Komunitas/Relawan', 'Lingkungan/Alam', 'Kesehatan',
+        ];
 
         return Response::success($areas, 'Berhasil mendapatkan data area identify_value.');
     }

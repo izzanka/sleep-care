@@ -26,7 +26,6 @@ new class extends Component {
     public ?string $graduated_from;
     public ?string $phone;
     public ?string $about;
-    public ?string $name_title;
 
     public function boot(UserService $userService)
     {
@@ -67,7 +66,6 @@ new class extends Component {
         $this->name = $doctor->name;
         $this->email = $doctor->email;
         $this->is_active = $doctor->is_active;
-        $this->name_title = $doctor->doctor->name_title;
         $this->graduated_from = $doctor->doctor->graduated_from;
         $this->phone = $doctor->doctor->phone;
         $this->about = $doctor->doctor->about;
@@ -76,8 +74,8 @@ new class extends Component {
     public function updateDoctor(int $doctorId)
     {
         $validated = $this->validate([
+            'name' => ['required', 'string', 'max:225'],
             'is_active' => ['required', 'boolean'],
-            'name_title' => ['nullable', 'string'],
             'graduated_from' => ['nullable', 'string', 'max:225'],
             'phone' => ['nullable', 'string'],
             'about' => ['nullable', 'string', 'max:225']
@@ -152,7 +150,6 @@ new class extends Component {
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
                         <flux:input wire:model="graduated_from" label="Lulusan" placeholder="-"></flux:input>
-                        <flux:input wire:model="name_title" label="Nama Gelar" placeholder="-"></flux:input>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
@@ -207,7 +204,7 @@ new class extends Component {
                         </td>
                         <td class="px-6 py-4 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
                         <td class="px-6 py-4 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
-                        <td class="px-6 py-4">{{$user->doctor->name_title ?? $user->name}}</td>
+                        <td class="px-6 py-4">{{$user->name}}</td>
                         <td class="px-6 py-4">{{$user->email}}</td>
                         <td class="px-6 py-4">{{$user->doctor->phone}}</td>
                         <td class="px-6 py-4 text-center">{{$user->age}}</td>

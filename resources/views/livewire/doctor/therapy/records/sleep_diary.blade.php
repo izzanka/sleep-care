@@ -158,7 +158,7 @@ new class extends Component {
                 x-ref="card{{ $index }}"
             >
                 <div class="flex items-center w-full">
-{{--                    <flux:icon.calendar class="mr-2"/>--}}
+                    <flux:icon.calendar/>
 
                     <flux:button
                         variant="ghost"

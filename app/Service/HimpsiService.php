@@ -9,10 +9,7 @@ class HimpsiService
     public function get(string $name, string $email)
     {
         $response = Http::timeout(env('HIMPSI_TIMEOUT'))
-            ->get(env('HIMPSI_URL'), [
-                'filter[email]' => $email,
-                'filter[nama]' => $name,
-            ]);
+            ->get(env('HIMPSI_URL'), ['filter[email]' => $email]);
 
         if ($response->failed()) {
             return false;
@@ -27,7 +24,6 @@ class HimpsiService
         return collect($data)->map(function ($item) {
             return [
                 'registered_year' => $item['tahun_terdaftar'] ?? null,
-                'name_title' => $item['nama_gelar'] ?? null,
                 'phone' => $item['no_hp_decode'] ?? null,
             ];
         })->all();

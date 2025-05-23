@@ -6,7 +6,7 @@ use App\Models\Order;
 
 class OrderService
 {
-    public function get(?int $therapyId = null, ?int $patientId = null, ?string $id = null)
+    public function get(?int $therapyId = null, ?int $patientId = null, ?string $payment_status = null, ?string $id = null)
     {
         $query = Order::query();
 
@@ -20,10 +20,14 @@ class OrderService
             });
         }
 
+        if ($payment_status) {
+            $query->where('payment_status', $payment_status);
+        }
+
         if ($id) {
             $query->where('id', $id);
         }
 
-        return $query->latest()->get();
+        return $query->latest()->first();
     }
 }

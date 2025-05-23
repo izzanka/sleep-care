@@ -89,7 +89,7 @@ new class extends Component {
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="flex">
-            <div class="w-full max-w-md flex-shrink-0 mx-auto">
+            <div class="w-full max-w-lg flex-shrink-0 mx-auto">
                 <canvas id="identifyValueChart" class="w-full h-80 mb-4"></canvas>
             </div>
         </div>

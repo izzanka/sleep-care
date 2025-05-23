@@ -37,7 +37,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             ]);
         }
 
-        if (Gate::allows('isPatient', Auth::user())) {
+        if (Gate::allows('isPatient', Auth::user() || !Auth::user()->is_active)) {
             Auth::guard('web')->logout();
 
             Session::invalidate();

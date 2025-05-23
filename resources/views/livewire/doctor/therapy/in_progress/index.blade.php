@@ -10,6 +10,7 @@ new class extends Component {
 
     public $therapy;
     public $problems;
+    public $isEndDate = false;
 
     public function boot(TherapyService $therapyService)
     {
@@ -23,6 +24,7 @@ new class extends Component {
         if($this->therapy){
             $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
         }
+        $this->isEndDate = now()->greaterThan($this->therapy->end_date);
     }
 
     public function updateTherapy()
@@ -110,27 +112,26 @@ new class extends Component {
                         <flux:text>{{$therapy->patient->name}}</flux:text>
                     </div>
                     <div>
-                        <flux:heading>Email</flux:heading>
-                        <flux:text>{{$therapy->patient->email}}</flux:text>
+                        <flux:heading>Usia</flux:heading>
+                        <flux:text>{{$therapy->patient->age}}</flux:text>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div>
-                        <flux:heading>Usia</flux:heading>
-                        <flux:text>{{$therapy->patient->age}}</flux:text>
-                    </div>
-                    <div>
                         <flux:heading>Jenis Kelamin</flux:heading>
                         <flux:text>{{$therapy->patient->gender->label()}}</flux:text>
                     </div>
+                    <div>
+                        <flux:heading>Gangguan Lainnya</flux:heading>
+                        <flux:text>{{$problems}}</flux:text>
+                    </div>
                 </div>
-                <div class="mt-4">
-                    <flux:heading>Gangguan Lainnya</flux:heading>
-                    <flux:text>{{$problems}}</flux:text>
-                </div>
+
             </div>
             <div class="mt-4">
-                <flux:button variant="danger" class="w-full" wire:click="updateTherapy" wire:confirm="Apa anda yakin ingin mengubah status terapi menjadi selesai?">Selesaikan Terapi</flux:button>
+                <flux:button variant="danger" class="w-full" wire:click="updateTherapy" wire:confirm="Apa anda yakin ingin mengubah status terapi menjadi selesai?">
+                    Selesaikan Terapi
+                </flux:button>
             </div>
         @else
             <flux:heading>

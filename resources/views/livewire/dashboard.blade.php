@@ -35,7 +35,7 @@ new class extends Component {
     {
         $this->total_doctor = User::where('role', UserRole::DOCTOR->value)->count();
         $this->total_patient = User::where('role', UserRole::PATIENT->value)->count();
-        $this->count_therapy = DB::table('therapies')->selectRaw("
+        $this->count_therapy = DB::table('therapies')->whereNotNull('status')->selectRaw("
                                     COUNT(*) as total,
                                     COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress,
                                     COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed
@@ -50,7 +50,7 @@ new class extends Component {
     protected function getAdminData(): array
     {
         return [
-            'orders' => Order::latest()->paginate(15),
+            'orders' => Order::whereNotNull('status')->latest()->paginate(15),
         ];
     }
 
@@ -172,7 +172,7 @@ new class extends Component {
                                         <flux:input value="{{ 'Rp ' . number_format($order->therapy->application_fee, 0, ',', '.') }}" label="Biaya Jasa Aplikasi"></flux:input>
                                     </div>
 
-                                    <flux:input readonly value="{{$order->therapy->status->label()}}" label="Status"></flux:input>
+                                    <flux:input readonly value="{{$order->therapy->status?->label() ?? '-'}}" label="Status"></flux:input>
 
                                 </div>
                             </flux:modal>
@@ -189,7 +189,7 @@ new class extends Component {
                                 </td>
                                 <td class="px-6 py-4">{{$order->id}}</td>
                                 <td class="px-6 py-4">{{$order->therapy->patient->name ?? '-'}}</td>
-                                <td class="px-6 py-4">{{$order->payment_type}}</td>
+                                <td class="px-6 py-4">{{$order->payment_type ?? '-'}}</td>
                                 <td class="px-6 py-4 text-center">@currency($order->total_price)</td>
                                 <td class="px-6 py-4">{{$order->payment_status->label()}}</td>
                                 <td class="px-6 py-4">{{$order->status->label()}}</td>

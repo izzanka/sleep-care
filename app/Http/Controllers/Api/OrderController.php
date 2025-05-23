@@ -14,6 +14,7 @@ use App\Service\OrderService;
 use App\Service\TherapyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rules\Enum;
 
 class OrderController extends Controller
 {
@@ -22,16 +23,20 @@ class OrderController extends Controller
         protected GeneralService $generalService,
         protected OrderService $orderService) {}
 
-    public function get()
+    public function get(Request $request)
     {
+        $validated = $request->validate([
+            'payment_status' => ['required', new Enum(OrderStatus::class)],
+        ]);
+
         try {
 
-            $orders = $this->orderService->get(patientId: auth()->id());
-            if (! $orders) {
+            $order = $this->orderService->get(patientId: auth()->id(), payment_status: $validated['payment_status']);
+            if (! $order) {
                 return Response::error('Order tidak ditemukan', 404);
             }
 
-            return Response::success(OrderResource::collection($orders), 'Berhasil mendapatkan daftar order terapi.');
+            return Response::success(new OrderResource($order), 'Berhasil mendapatkan order terapi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

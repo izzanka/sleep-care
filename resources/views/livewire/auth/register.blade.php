@@ -21,7 +21,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password = '';
     public string $password_confirmation = '';
     public string $gender = '';
-    public int $age;
     public bool $is_himpsi;
 
     public function mount()
@@ -36,15 +35,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'gender' => ['required', 'string', 'max:10'],
-            'age' => ['required', 'int', 'min:1'],
         ]);
 
         if($this->is_himpsi){
-            $himpsiData = $this->verifyHimpsiAccount($validated['name'], $validated['email']);
+            $himpsiData = $this->verifyHimpsiAccount($validated['email']);
         }else{
             $himpsiData = [
                 'registered_year' => '2000',
-                'name_title' => null,
                 'phone' => null,
             ];
         }
@@ -59,10 +56,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
 
-    protected function verifyHimpsiAccount(string $name, string $email)
+    protected function verifyHimpsiAccount(string $email)
     {
         $himpsiService = new HimpsiService();
-        $result = $himpsiService->get($name, $email);
+        $result = $himpsiService->get($email);
 
         if ($result === false) {
             throw ValidationException::withMessages([
@@ -92,7 +89,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         Doctor::create([
             'user_id' => $userID,
             'registered_year' => $himpsiData['registered_year'],
-            'name_title' => $himpsiData['name_title'],
             'phone' => $himpsiData['phone'],
         ]);
     }
@@ -119,13 +115,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <flux:input
             wire:model="name"
             id="name"
-            label="{{ __('Nama') }}"
+            label="{{ __('Nama dengan gelar') }}"
             type="text"
             name="name"
             required
             autofocus
             autocomplete="name"
-            placeholder="Nama lengkap"
+            placeholder="Nama dengan gelar"
         />
         <!-- Email Address -->
         <flux:input
@@ -176,8 +172,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             placeholder="Konfirmasi password"
             viewable
         />
-
-        <flux:input type="number" label="Usia" name="age" wire:model="age" placeholder="Usia" min="1"></flux:input>
 
         <flux:select wire:model="gender" placeholder="Pilih jenis kelamin..." label="Jenis Kelamin">
             @foreach(UserGender::cases() as $gender)

@@ -102,7 +102,63 @@ class AnswerSeeder extends Seeder
             ['id' => 22, 'type' => QuestionType::NUMBER->value],
         ];
 
-        $categories = ['Keluarga', 'Pernikahan', 'Pertemanan', 'Pekerjaan', 'Pendidikan', 'Rekreasi', 'Spiritualitas', 'Komunitas', 'Lingkungan', 'Kesehatan'];
+        $categories = [
+            'Keluarga', 'Pernikahan/Relasi', 'Pertemanan', 'Pekerjaan/Karir', 'Pendidikan/Pengembangan Diri',
+            'Rekreasi/Hiburan/Waktu Luang', 'Spiritualitas', 'Komunitas/Relawan', 'Lingkungan/Alam', 'Kesehatan',
+        ];
+
+        $realSentences = [
+            'Keluarga' => [
+                'Aku ingin jadi pribadi yang lebih peduli dan hadir untuk keluargaku.',
+                'Aku ingin jadi pribadi yang mampu menjaga keharmonisan keluarga.',
+                'Aku ingin jadi pribadi yang menjadi teladan bagi anak-anakku.',
+            ],
+            'Pernikahan/Relasi' => [
+                'Aku ingin jadi pasangan yang sabar dan penuh pengertian.',
+                'Aku ingin jadi pribadi yang setia dan menjaga komitmen.',
+                'Aku ingin jadi pribadi yang selalu mendukung pasanganku.',
+            ],
+            'Pertemanan' => [
+                'Aku ingin jadi teman yang setia dan bisa dipercaya.',
+                'Aku ingin jadi pribadi yang menghargai perbedaan dalam pertemanan.',
+                'Aku ingin jadi pribadi yang hadir saat dibutuhkan teman.',
+            ],
+            'Pekerjaan/Karir' => [
+                'Aku ingin jadi pribadi yang profesional dan berdedikasi.',
+                'Aku ingin jadi pribadi yang produktif dan bertanggung jawab.',
+                'Aku ingin jadi pribadi yang terus berkembang dalam karier.',
+            ],
+            'Pendidikan/Pengembangan Diri' => [
+                'Aku ingin jadi pribadi yang haus ilmu dan terus belajar.',
+                'Aku ingin jadi pribadi yang disiplin dalam menuntut ilmu.',
+                'Aku ingin jadi pribadi yang berbagi ilmu kepada orang lain.',
+            ],
+            'Rekreasi/Hiburan/Waktu Luang' => [
+                'Aku ingin jadi pribadi yang tahu cara menikmati hidup.',
+                'Aku ingin jadi pribadi yang seimbang antara kerja dan hiburan.',
+                'Aku ingin jadi pribadi yang menghargai waktu untuk bersantai.',
+            ],
+            'Spiritualitas' => [
+                'Aku ingin jadi pribadi yang dekat dengan Tuhan.',
+                'Aku ingin jadi pribadi yang bersyukur dan penuh iman.',
+                'Aku ingin jadi pribadi yang menjalani hidup sesuai nilai-nilai spiritual.',
+            ],
+            'Komunitas/Relawan' => [
+                'Aku ingin jadi pribadi yang aktif dalam kegiatan sosial.',
+                'Aku ingin jadi pribadi yang membawa dampak positif bagi masyarakat.',
+                'Aku ingin jadi pribadi yang peduli terhadap sesama.',
+            ],
+            'Lingkungan/Alam' => [
+                'Aku ingin jadi pribadi yang peduli lingkungan.',
+                'Aku ingin jadi pribadi yang menjaga kebersihan dan alam.',
+                'Aku ingin jadi pribadi yang mengurangi penggunaan plastik.',
+            ],
+            'Kesehatan' => [
+                'Aku ingin jadi pribadi yang menjaga kesehatan fisik dan mental.',
+                'Aku ingin jadi pribadi yang hidup sehat dan bugar.',
+                'Aku ingin jadi pribadi yang sadar pentingnya pola makan dan olahraga.',
+            ],
+        ];
 
         $relations = [];
 
@@ -110,7 +166,7 @@ class AnswerSeeder extends Seeder
             foreach ($questions as $question) {
                 $randomAnswer = match ($question['type']) {
                     QuestionType::NUMBER->value => fake()->numberBetween(1, 10),
-                    QuestionType::TEXT->value => fake()->sentence(),
+                    QuestionType::TEXT->value => $realSentences[$category][array_rand($realSentences[$category])],
                     default => null,
                 };
 
@@ -139,20 +195,39 @@ class AnswerSeeder extends Seeder
             'created_at' => $timestamp,
         ]);
 
+        $realEvents = [
+            'Saya ditegur atasan karena terlambat datang ke kantor.',
+            'Teman saya tidak membalas pesan saya sepanjang hari.',
+            'Saya gagal dalam presentasi proyek di depan tim.',
+            'Saya melihat mantan saya sedang bersama orang lain.',
+            'Saya mendapat nilai buruk dalam ujian yang saya pikir bisa saya kerjakan.',
+        ];
+
+        $realThoughts = [
+            'Saya merasa saya tidak cukup baik.',
+            'Mungkin saya memang tidak penting bagi orang lain.',
+            'Saya tidak akan pernah berhasil.',
+            'Saya tidak layak dicintai.',
+            'Saya tidak cukup pintar untuk berhasil.',
+            'Saya selalu gagal dalam hal penting.',
+            'Saya pasti akan dipecat.',
+            'Semua orang pasti menilai saya buruk.',
+            'Saya pasti akan sendiri selamanya.',
+            'Saya selalu membuat kesalahan.',
+        ];
+
         for ($week = 0; $week < 6; $week++) {
             $recordsThisWeek = rand(0, 7);
 
             for ($i = 0; $i < $recordsThisWeek; $i++) {
-                $isJsonAnswer = rand(0, 1) === 1;
-                $answer25 = $isJsonAnswer
-                    ? json_encode([fake()->sentence(), fake()->sentence()])
-                    : fake()->sentence();
+                $event = $realEvents[array_rand($realEvents)];
+                $thought = $realThoughts[array_rand($realThoughts)];
 
                 $questions = [
                     ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->toDateString()],
                     ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-                    ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => $answer25],
+                    ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => $event],
+                    ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => $thought],
                 ];
 
                 $pivotData = [];
@@ -177,26 +252,49 @@ class AnswerSeeder extends Seeder
 
     private function seedEmotionRecords(Therapy $therapy, $timestamp)
     {
-        $positive = ['Bahagia', 'Gembira', 'Syukur', 'Tenang', 'Bangga'];
-        $negative = ['Cemas', 'Malu', 'Frustasi', 'Bingung', 'Kecewa'];
+        $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut', 'Lainnya'];
+        $realEvents = [
+            'Saya dimarahi atasan di depan rekan kerja.',
+            'Saya menerima kabar duka dari keluarga.',
+            'Saya mendapatkan kabar baik tentang kelulusan saya.',
+            'Saya mengalami kemacetan parah saat perjalanan ke kantor.',
+            'Saya bertengkar dengan pasangan saya pagi ini.',
+        ];
 
-        $emotionRecord = EmotionRecord::create(['therapy_id' => $therapy->id, 'created_at' => $timestamp]);
+        $realThoughts = [
+            'Saya merasa tidak berguna.',
+            'Saya takut hal buruk akan terjadi.',
+            'Mungkin saya memang tidak cukup baik.',
+            'Saya sangat senang dan bersyukur.',
+            'Saya merasa kesepian dan tidak dipedulikan.',
+        ];
+
+        $copingStrategies = [
+            'Saya mencoba menarik napas dalam dan menenangkan diri.',
+            'Saya menelepon teman untuk bercerita.',
+            'Saya menulis perasaan saya di jurnal.',
+            'Saya mendengarkan musik yang menenangkan.',
+            'Saya berjalan-jalan sebentar untuk meredakan emosi.',
+        ];
+
+        $emotionRecord = EmotionRecord::create([
+            'therapy_id' => $therapy->id,
+            'created_at' => $timestamp,
+        ]);
 
         for ($week = 0; $week < 6; $week++) {
             $recordsThisWeek = rand(0, 7);
 
             for ($i = 0; $i < $recordsThisWeek; $i++) {
-                $emotion31 = rand(0, 1) === 1 ? $positive[0] : $negative[0];
-
                 $emotionQuestions = [
                     ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->toDateString()],
                     ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-                    ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => $emotion31],
-                    ['id' => 32, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 10)],
-                    ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 34, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 10)],
+                    ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => $realEvents[array_rand($realEvents)]], // Kejadian
+                    ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => $realThoughts[array_rand($realThoughts)]], // Pemikiran
+                    ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => $emotions[array_rand($emotions)]], // Emosi
+                    ['id' => 32, 'type' => QuestionType::NUMBER->value, 'answer' => rand(6, 10)], // Intensitas sebelum
+                    ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => $copingStrategies[array_rand($copingStrategies)]], // Cara mengatasi
+                    ['id' => 34, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 5)], // Intensitas sesudah
                 ];
 
                 $emotionRecords = [];
@@ -221,39 +319,82 @@ class AnswerSeeder extends Seeder
 
     private function seedCommittedActions(Therapy $therapy, $timestamp)
     {
+        $categories = [
+            'Keluarga', 'Pernikahan/Relasi', 'Pertemanan', 'Pekerjaan/Karir', 'Pendidikan/Pengembangan Diri',
+            'Rekreasi/Hiburan/Waktu Luang', 'Spiritualitas', 'Komunitas/Relawan', 'Lingkungan/Alam', 'Kesehatan',
+        ];
+
+        $goals = [
+            'Menghabiskan waktu berkualitas dengan keluarga.',
+            'Meningkatkan komunikasi dengan pasangan.',
+            'Menjalin kembali hubungan dengan teman lama.',
+            'Menyelesaikan tugas kerja tepat waktu.',
+            'Belajar topik baru untuk pengembangan diri.',
+            'Melakukan aktivitas menyenangkan di akhir pekan.',
+            'Melakukan meditasi secara rutin.',
+            'Berpartisipasi dalam kegiatan sosial.',
+            'Membersihkan lingkungan sekitar rumah.',
+            'Menjaga pola makan sehat.',
+        ];
+
+        $plans = [
+            'Merencanakan piknik keluarga di akhir pekan.',
+            'Mengatur jadwal ngobrol santai dengan pasangan setiap malam.',
+            'Menghubungi teman lama melalui pesan singkat.',
+            'Membuat to-do list harian dan menyelesaikannya.',
+            'Mengikuti kursus online selama 1 minggu.',
+            'Menonton film favorit bersama teman.',
+            'Meluangkan 10 menit untuk meditasi setiap pagi.',
+            'Bergabung dalam kegiatan gotong royong RT.',
+            'Menanam pohon di halaman rumah.',
+            'Memasak makanan sehat di rumah setiap hari.',
+        ];
+
+        $barriers = [
+            'Waktu yang terbatas.',
+            'Perasaan malas atau tidak termotivasi.',
+            'Cuaca yang tidak mendukung.',
+            'Konflik dengan orang lain.',
+            'Terlalu banyak pekerjaan lain.',
+        ];
+
+        $solutions = [
+            'Mengatur waktu lebih baik dengan membuat jadwal.',
+            'Memotivasi diri dengan mengingat manfaat kegiatan.',
+            'Mencari alternatif kegiatan dalam ruangan.',
+            'Bicara dan mencari solusi bersama orang terkait.',
+            'Membagi tugas agar lebih ringan.',
+        ];
+
         $committedAction = CommittedAction::create(['therapy_id' => $therapy->id]);
 
-        for ($week = 0; $week < 6; $week++) {
-            $recordsThisWeek = rand(0, 7);
+        foreach ($categories as $index => $category) {
+            $committedQuestions = [
+                ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => $category],
+                ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => $goals[$index]],
+                ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => $plans[$index]],
+                ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => 'Hari Sabtu sore pukul 16:00'],
+                ['id' => 39, 'type' => QuestionType::BINARY->value, 'answer' => rand(0, 1)],
+                ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => $barriers[array_rand($barriers)]],
+                ['id' => 41, 'type' => QuestionType::TEXT->value, 'answer' => $solutions[array_rand($solutions)]],
+            ];
 
-            for ($i = 0; $i < $recordsThisWeek; $i++) {
-                $committedQuestions = [
-                    ['id' => 35, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 39, 'type' => QuestionType::BINARY->value, 'answer' => rand(0, 1)],
-                    ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
-                    ['id' => 41, 'type' => QuestionType::TEXT->value, 'answer' => fake()->sentence()],
+            $committedRecords = [];
+            foreach ($committedQuestions as $question) {
+                $answer = Answer::create([
+                    'type' => $question['type'],
+                    'answer' => $question['answer'],
+                    'created_at' => $timestamp,
+                ]);
+
+                $committedRecords[] = [
+                    'committed_action_id' => $committedAction->id,
+                    'question_id' => $question['id'],
+                    'answer_id' => $answer->id,
                 ];
-
-                $committedRecords = [];
-                foreach ($committedQuestions as $question) {
-                    $answer = Answer::create([
-                        'type' => $question['type'],
-                        'answer' => $question['answer'],
-                        'created_at' => $timestamp,
-                    ]);
-
-                    $committedRecords[] = [
-                        'committed_action_id' => $committedAction->id,
-                        'question_id' => $question['id'],
-                        'answer_id' => $answer->id,
-                    ];
-                }
-
-                DB::table('committed_action_question_answer')->insert($committedRecords);
             }
+
+            DB::table('committed_action_question_answer')->insert($committedRecords);
         }
     }
 }

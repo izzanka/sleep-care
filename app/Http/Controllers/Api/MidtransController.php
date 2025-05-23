@@ -61,6 +61,7 @@ class MidtransController extends Controller
         if (! $order) {
             return Response::error('Order tidak ditemukan.', 404);
         }
+
         if ($order->status !== OrderStatus::PENDING) {
             return Response::error('Pembayaran untuk order ini sudah dilakukan.', 404);
         }
@@ -70,9 +71,8 @@ class MidtransController extends Controller
             return Response::error('Customer tidak ditemukan.', 404);
         }
 
-        $checkOrder = $this->orderService->get(patientId: $patient->id)->first();
-        if (! $checkOrder) {
-            return Response::error('Data customer dengan data order tidak valid.', 404);
+        if ($order->therapy->patient->email != $email) {
+            return Response::error('Data customer tidak sama dengan yang melakukan pembayaran.', 400);
         }
 
         $general = $this->generalService->get();
@@ -98,6 +98,7 @@ class MidtransController extends Controller
             $notification = new Notification;
             $status = $notification->transaction_status;
             $paymentType = $notification->payment_type;
+            $paymentId = $notification->transaction_id;
             $orderId = $notification->order_id;
 
             $order = $this->orderService->get(id: $orderId)->first();
@@ -107,7 +108,7 @@ class MidtransController extends Controller
                 return Response::error('Order tidak ditemukan.', 400);
             }
 
-            $this->updateOrderStatus($order, $status, $paymentType);
+            $this->updateOrderStatus($order, $status, $paymentType, $paymentId);
             DB::commit();
 
             return Response::success(null, 'Notifikasi midtrans berhasil.');
@@ -118,9 +119,10 @@ class MidtransController extends Controller
         }
     }
 
-    private function updateOrderStatus($order, string $status, string $paymentType)
+    private function updateOrderStatus($order, string $status, string $paymentType, string $paymentId)
     {
         $order->payment_type = $paymentType;
+        $order->payment_id = $paymentId;
 
         switch ($status) {
             case 'settlement':

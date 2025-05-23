@@ -127,7 +127,7 @@ new class extends Component {
              x-data="{openTab: null}" wire:key="{{$schedule->id}}">
             <div class="flex items-center justify-between flex-wrap gap-y-2">
                 <div class="flex items-center gap-x-3">
-{{--                    <flux:icon.video-camera></flux:icon.video-camera>--}}
+                    <flux:icon.video-camera></flux:icon.video-camera>
                     <flux:heading size="lg">{{$schedule->title}}</flux:heading>
                     <flux:badge size="sm"
                                 color="{{$schedule->is_completed ? 'green' : 'zink'}}">{{$schedule->is_completed ? 'Sudah Dilaksanakan' : 'Belum Dilaksanakan'}}</flux:badge>
