@@ -117,22 +117,12 @@ new class extends Component {
                         <canvas id="barChart" class="w-full h-80 mb-4"></canvas>
                     </div>
                 </div>
-
-                {{--                <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"--}}
-                {{--                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
-                {{--                    <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>--}}
-                {{--                </button>--}}
-                {{--                <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"--}}
-                {{--                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-800 dark:bg-zinc-600 text-white px-3 py-1 rounded-full shadow hover:bg-zinc-700 dark:hover:bg-zinc-500">--}}
-                {{--                    <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>--}}
-                {{--                </button>--}}
-
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
-                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-zinc-300 dark:hover:bg-zinc-600">
+                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-zinc-600">
                     <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>
                 </button>
                 <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"
-                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-zinc-300 dark:hover:bg-zinc-600">
+                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-zinc-600">
                     <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>
                 </button>
 
@@ -141,8 +131,8 @@ new class extends Component {
                     <template x-for="index in 2" :key="index">
                         <button @click="activeSlide = index - 1"
                                 :class="{
-                            'bg-blue-600 dark:bg-blue-400': activeSlide === index - 1,
-                            'bg-zinc-400 dark:bg-zinc-500': activeSlide !== index - 1
+                            'bg-blue-500 dark:bg-blue-400': activeSlide === index - 1,
+                            'bg-zinc-500 dark:bg-zinc-400': activeSlide !== index - 1
                         }"
                                 class="w-3 h-3 rounded-full transition-colors duration-300"></button>
                     </template>
@@ -191,29 +181,28 @@ new class extends Component {
                     </flux:button>
                 </div>
 
-                {{-- Expandable Table Section --}}
                 <div x-show="openIndex === {{ $index }}" x-transition.duration.200ms class="mt-4">
                     <div class="overflow-x-auto">
-                        <table class="table-auto w-full text-sm border mb-2 mt-2">
-                            <thead>
+                        <table class="table-auto w-full text-sm mb-2 mt-2 rounded-lg border overflow-hidden">
+                            <thead class="bg-blue-400 text-white dark:bg-blue-600">
                             <tr>
-                                <th class="border p-2 text-center">Hari</th>
+                                <th class="p-2 text-center">Hari</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="border p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
+                                    <th class="p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
                                 @endforeach
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y">
                             <tr>
-                                <th class="border p-2 text-center">Tanggal</th>
+                                <th class="p-2 text-center">Tanggal</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="border p-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
+                                    <th class="p-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
                                 @endforeach
                             </tr>
 
                             @if($structuredQuestions->isEmpty())
                                 <tr>
-                                    <td class="border p-4 text-center" colspan="8">
+                                    <td class="p-4 text-center" colspan="8">
                                         <flux:heading>Belum ada catatan</flux:heading>
                                     </td>
                                 </tr>
@@ -224,12 +213,12 @@ new class extends Component {
 
                                 @foreach($structuredQuestions as $question)
                                     <tr>
-                                        <td class="border p-2 text-center font-bold">{{ $question->question }}</td>
+                                        <td class="p-2 text-center font-bold">{{ $question->question }}</td>
                                         @foreach($sleepDiary as $diary)
                                             @php
                                                 $entry = $diary->questionAnswers->firstWhere('question_id', $question->id);
                                             @endphp
-                                            <td class="border p-2">
+                                            <td class="p-2">
                                                 <div class="flex justify-center items-center h-full">
                                                     @if($entry && $entry->answer)
                                                         @if($entry->answer->type == QuestionType::BINARY->value)
@@ -251,12 +240,12 @@ new class extends Component {
 
                                     @foreach($question->children as $child)
                                         <tr>
-                                            <td class="border p-2 text-left text-sm">{{ $child->question }}</td>
+                                            <td class="p-2 text-left text-sm">{{ $child->question }}</td>
                                             @foreach($sleepDiary as $diary)
                                                 @php
                                                     $entry = $diary->questionAnswers->firstWhere('question_id', $child->id);
                                                 @endphp
-                                                <td class="border p-2 text-center">
+                                                <td class="p-2 text-center">
                                                     {{ $entry->answer->answer ?? '-' }}
                                                 </td>
                                             @endforeach

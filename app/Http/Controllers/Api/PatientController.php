@@ -43,7 +43,6 @@ class PatientController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:225'],
             'age' => ['required', 'integer', 'min:1', 'max:100'],
-            'gender' => ['required', new Enum(UserGender::class)],
             'problems' => ['nullable', 'array'],
             'problems.*' => ['string', new Enum(Problem::class)],
         ]);

@@ -9,10 +9,10 @@ Route::get('/', function () {
 
 Route::prefix('payment')->group(function () {
     Route::get('finish', function () {
-        return view('finish');
+        return view('midtrans.finish');
     });
     Route::get('error', function () {
-        return view('error');
+        return view('midtrans.error');
     });
 });
 

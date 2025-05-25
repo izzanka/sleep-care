@@ -12,7 +12,6 @@
     @endif
     <div class="flex justify-between items-center">
         <flux:heading size="xl" level="1">{{$title}}</flux:heading>
-        {{--        <flux:button icon="arrow-path" size="sm" wire:click="$refresh"/>--}}
     </div>
     <flux:subheading size="lg" class="mb-6"></flux:subheading>
     <flux:separator variant="subtle"/>

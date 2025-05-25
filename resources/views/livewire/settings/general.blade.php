@@ -55,8 +55,8 @@ new class extends Component {
                             required/>
                 <flux:input wire:model="doctor_fee" label="Biaya Jasa Psikolog" type="text" name="doctor_fee" required/>
             </div>
-            <flux:separator class="mt-4 mb-4"/>
-            <div class="w-full">
+{{--            <flux:separator class="mt-4 mb-4"/>--}}
+            <div class="w-full mt-4">
                 <flux:checkbox wire:model="is_himpsi" label="Aktifkan verifikasi HIMPSI"
                                description="Verifikasi akan dilakukan sebelum psikolog mendaftar."
                 />

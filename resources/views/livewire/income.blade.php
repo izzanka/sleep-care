@@ -88,6 +88,7 @@ new class extends Component {
                     @can('isDoctor', Auth::user())
                         <div class="ml-auto">
                             <flux:button
+                                variant="primary"
                                 icon-trailing="arrow-up-right"
                                 wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">
                                 Detail

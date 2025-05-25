@@ -77,26 +77,26 @@ new class extends Component {
         <flux:separator class="mt-4 mb-4"></flux:separator>
 
         <div class="overflow-x-auto mt-4">
-            <table class="min-w-[800px] table-auto w-full text-sm text-left">
-                <thead>
+            <table class="min-w-[800px] table-auto w-full text-sm text-left rounded-lg border overflow-hidden">
+                <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                 <tr>
-                    <th class="border p-3 text-center">No</th>
+                    <th class="p-3 text-center">No</th>
                     @foreach($questions as $question)
-                        <th class="border p-3 text-center whitespace-nowrap">{{ $question }}</th>
+                        <th class="p-3 text-center whitespace-nowrap">{{ $question }}</th>
                     @endforeach
                 </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y">
                 @forelse($rows as $index => $row)
                     <tr>
-                        <td class="border p-3 text-center">{{ $index + 1 }}</td>
+                        <td class="p-3 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
                             @php
                                 $answerData = $row->firstWhere('question.question', $question)?->answer;
                                 $isBinary = $answerData?->type === QuestionType::BINARY->value;
                                 $value = $answerData?->answer ?? null;
                             @endphp
-                            <td class="border p-3">
+                            <td class="p-3">
                                 @if($isBinary)
                                     <div class="flex justify-center items-center h-full">
                                         @if($value)
@@ -115,7 +115,7 @@ new class extends Component {
                     </tr>
                 @empty
                     <tr>
-                        <td class="border p-4 text-center" colspan="{{ count($questions) + 1 }}">
+                        <td class="p-4 text-center" colspan="{{ count($questions) + 1 }}">
                             <flux:heading>Belum ada catatan</flux:heading>
                         </td>
                     </tr>
@@ -144,6 +144,7 @@ new class extends Component {
                 datasets: [{
                     data: @json($data),
                     borderWidth: 0.5,
+                    // backgroundColor: ['#00C951','#FB2D37']
                 }]
             },
             options: {

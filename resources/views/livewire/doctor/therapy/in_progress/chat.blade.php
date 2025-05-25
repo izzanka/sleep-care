@@ -61,7 +61,7 @@ new class extends Component {
 
     public function with()
     {
-        $chat = $this->chatService->markAsRead($this->therapy->id, auth()->id());
+        $this->chatService->markAsRead($this->therapy->id, $this->therapy->doctor_id);
         $chats = $this->chatService->get($this->therapy->id);
         $this->dispatch('scroll-to-bottom');
 
@@ -88,19 +88,19 @@ new class extends Component {
         <div class="flex-1 p-4 overflow-y-auto custom-scrollbar border dark:border-transparent" id="chat-container">
             @foreach($chats as $chat)
                 @if($chat->sender_id == auth()->id())
-                    <div class="flex items-start space-x-2 justify-end mt-2">
-                        <div class="bg-green-500 text-white p-3 rounded-lg max-w-xs">
+                    <div class="flex items-start space-x-2 justify-end mt-2 text-white">
+                        <div class="bg-blue-400 p-3 rounded-lg max-w-xs">
                             <p class="text-sm break-words">{{$chat->message}}</p>
                             <span
-                                class="text-xs text-gray-200 block text-right mt-1">{{$chat->created_at->format('H:i')}}{{$chat->read_at ? ' (Dibaca)' : ''}}</span>
+                                class="text-xs block text-right mt-1">{{$chat->created_at->format('H:i')}}{{$chat->read_at ? ' (Dibaca)' : ''}}</span>
                         </div>
                     </div>
                 @else
-                    <div class="flex items-start space-x-2 mt-2">
-                        <div class="bg-gray-200 p-3 rounded-lg max-w-xs">
-                            <p class="text-sm text-black">{{$chat->message}}</p>
+                    <div class="flex items-start space-x-2 mt-2 text-white">
+                        <div class="bg-zinc-400 p-3 rounded-lg max-w-xs">
+                            <p class="text-sm break-words">{{$chat->message}}</p>
                             <span
-                                class="text-xs text-gray-500 block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
+                                class="text-xs block text-right mt-1">{{$chat->created_at->format('H:i')}}</span>
                         </div>
                     </div>
                 @endif

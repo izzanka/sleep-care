@@ -76,14 +76,18 @@ class ChatController extends Controller
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            $chat = $this->chatService->get($therapy->id, $id, auth()->id(), $therapy->doctor->user->id)->first();
+            $chat = $this->chatService->get(id: $id, receiver_id: auth()->id())->first();
             if (! $chat) {
                 return Response::error('Pesan tidak ditemukan.', 404);
             }
 
-            $this->chatService->markAsRead($therapy->id, $therapy->doctor->user->id);
+            if($chat->read_at != null){
+                return Response::success('Pesan sudah dibaca.', 500);
+            }
 
-            return Response::success($chat, 'Berhasil mengubah pesan.');
+            $this->chatService->markAsRead($therapy->id, auth()->id());
+
+            return Response::success(null, 'Pesan berhasil dibaca.');
 
         } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);

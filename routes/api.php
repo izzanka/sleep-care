@@ -29,6 +29,7 @@ Route::get('emotions', [RecordController::class, 'getEmotionRecordEmotion']);
 Route::prefix('midtrans')->group(function () {
     Route::post('/charge', [MidtransController::class, 'charge']);
     Route::post('/notification', [MidtransController::class, 'notification']);
+    Route::post('/cancel', [MidtransController::class, 'cancel']);
 });
 
 Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {

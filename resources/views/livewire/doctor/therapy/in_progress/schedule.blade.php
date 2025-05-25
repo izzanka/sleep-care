@@ -132,7 +132,7 @@ new class extends Component {
                     <flux:badge size="sm"
                                 color="{{$schedule->is_completed ? 'green' : 'zink'}}">{{$schedule->is_completed ? 'Sudah Dilaksanakan' : 'Belum Dilaksanakan'}}</flux:badge>
                 </div>
-                <flux:button size="xs" icon="pencil-square" wire:click="editSchedule({{$schedule->id}})"></flux:button>
+                <flux:button variant="primary" size="xs" icon="pencil-square" wire:click="editSchedule({{$schedule->id}})"></flux:button>
             </div>
             <div class="mt-5">
                 @if($schedule->link)
@@ -144,12 +144,10 @@ new class extends Component {
             <div class="flex items-center gap-2 mt-4">
 {{--                <flux:icon.calendar class="size-5"></flux:icon.calendar>--}}
                 @if($schedule->date)
-                    <flux:text>
+                    <flux:heading>
                         {{$schedule->date->isoFormat('D MMMM Y') }}
-                    </flux:text>
-                    <flux:text>
                         ({{Carbon::parse($schedule->time)->format('H:i')}} - {{Carbon::parse($schedule->time)->addHour()->format('H:i')}})
-                    </flux:text>
+                    </flux:heading>
                 @else
                     <flux:text>
                         Tanggal dan waktu belum ditentukan.
@@ -158,7 +156,7 @@ new class extends Component {
             </div>
             <div class="mt-4">
                 <flux:button.group>
-                    <flux:button @click="openTab = openTab === 'desc' ? null : 'desc'">
+                    <flux:button @click="openTab = openTab === 'desc' ? null : 'desc'" variant="primary">
                         Panduan
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +171,7 @@ new class extends Component {
                         </svg>
                     </flux:button>
                     @if($schedule->note)
-                        <flux:button @click="openTab = openTab === 'note' ? null : 'note'">
+                        <flux:button @click="openTab = openTab === 'note' ? null : 'note'" variant="primary">
                             Catatan
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -191,9 +189,9 @@ new class extends Component {
                 </flux:button.group>
             </div>
             <div x-show="openTab === 'desc'" x-transition.duration.200ms class="mt-4">
-                <flux:text>
-                    Panduan (Rekomendasi):
-                </flux:text>
+                <flux:heading>
+                    Panduan:
+                </flux:heading>
                 <ul class="list-disc list-inside mt-2">
                     @foreach(json_decode($schedule->description) as $description)
                         <flux:text>
@@ -205,9 +203,9 @@ new class extends Component {
                 </ul>
             </div>
             <div x-show="openTab === 'note'" x-transition.duration.200ms class="mt-4">
-                <flux:text>
+                <flux:heading>
                     Catatan:
-                </flux:text>
+                </flux:heading>
                 <flux:text class="mt-2">
                     {{$schedule->note}}
                 </flux:text>

@@ -14,24 +14,21 @@
                 <flux:text>{{$therapy->patient->name}}</flux:text>
             </div>
             <div>
-                <flux:heading>Email</flux:heading>
-                <flux:text>{{$therapy->patient->email}}</flux:text>
+                <flux:heading>Usia</flux:heading>
+                <flux:text>{{$therapy->patient->age}}</flux:text>
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-                <flux:heading>Usia</flux:heading>
-                <flux:text>{{$therapy->patient->age}}</flux:text>
-            </div>
-            <div>
                 <flux:heading>Jenis Kelamin</flux:heading>
                 <flux:text>{{$therapy->patient->gender->label()}}</flux:text>
             </div>
+            <div>
+                <flux:heading>Gangguan Lainnya</flux:heading>
+                <flux:text>{{$problems}}</flux:text>
+            </div>
         </div>
-        <div class="mt-4">
-            <flux:heading>Gangguan Lainnya</flux:heading>
-            <flux:text>{{$problems}}</flux:text>
-        </div>
+
     </div>
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="flex items-center space-x-2">

@@ -28,6 +28,6 @@ class OrderService
             $query->where('id', $id);
         }
 
-        return $query->latest()->first();
+        return $query->latest()->get();
     }
 }

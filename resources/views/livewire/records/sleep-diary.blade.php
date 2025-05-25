@@ -5,7 +5,7 @@
             x-ref="card{{ $index }}"
         >
             <div class="flex items-center w-full">
-{{--                <flux:icon.calendar class="mr-2"/>--}}
+                <flux:icon.calendar class="mr-2"/>
 
                 <flux:button
                     variant="ghost"
@@ -40,20 +40,20 @@
 
             <div x-show="openIndex === {{ $index }}" x-transition.duration.200ms class="mt-4">
                 <div class="overflow-x-auto">
-                    <table class="table-auto w-full text-sm border mb-2 mt-2">
-                        <thead>
+                <table class="table-auto w-full text-sm mb-2 mt-2 rounded-lg border overflow-hidden">
+                    <thead class="bg-blue-400 text-white dark:bg-blue-600">
                         <tr>
-                            <th class="border p-2 text-center">Hari</th>
+                            <th class="p-2 text-center">Hari</th>
                             @foreach($sleepDiary as $diary)
-                                <th class="border p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
+                                <th class="p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
                             @endforeach
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y">
                         <tr>
-                            <th class="border p-2 text-center">Tanggal</th>
+                            <th class="p-2 text-center">Tanggal</th>
                             @foreach($sleepDiary as $diary)
-                                <th class="border p-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
+                                <th class="p-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
                             @endforeach
                         </tr>
 
@@ -63,12 +63,12 @@
 
                         @foreach($structuredQuestions as $question)
                             <tr>
-                                <td class="border p-2 text-center font-bold">{{ $question->question }}</td>
+                                <td class="p-2 text-center font-bold">{{ $question->question }}</td>
                                 @foreach($sleepDiary as $diary)
                                     @php
                                         $entry = $diary->questionAnswers->firstWhere('question_id', $question->id);
                                     @endphp
-                                    <td class="border p-2">
+                                    <td class="p-2">
                                         <div class="flex justify-center items-center h-full">
                                             @if($entry->answer->type == \App\Enum\QuestionType::BINARY->value)
                                                 @if($entry->answer->answer)
@@ -86,12 +86,12 @@
 
                             @foreach($question->children as $child)
                                 <tr>
-                                    <td class="border p-2 text-left text-sm">{{ $child->question }}</td>
+                                    <td class="p-2 text-left text-sm">{{ $child->question }}</td>
                                     @foreach($sleepDiary as $diary)
                                         @php
                                             $entry = $diary->questionAnswers->firstWhere('question_id', $child->id);
                                         @endphp
-                                        <td class="border p-2 text-center">
+                                        <td class="p-2 text-center">
                                             {{ $entry->answer->answer ?? '-' }}
                                         </td>
                                     @endforeach

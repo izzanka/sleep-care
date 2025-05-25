@@ -180,7 +180,6 @@ new class extends Component {
                         <flux:input label="ID" disabled value="{{$ID}}"></flux:input>
                     </div>
 
-
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
                         <flux:select label="Jenis Pertanyaan" wire:model="type">
                             @foreach(QuestionType::cases() as $questionType)
@@ -252,7 +251,7 @@ new class extends Component {
                         </div>
 
                         <div>
-                            <flux:select label="Jenis Catatan Terapi" wire:model="filterRecordType">
+                            <flux:select label="Jenis Catatan" wire:model="filterRecordType">
                                 <flux:select.option value="">Semua</flux:select.option>
                                 @foreach(RecordType::cases() as $recordType)
                                     <flux:select.option
@@ -262,7 +261,7 @@ new class extends Component {
                         </div>
 
                         <div>
-                            <flux:select label="Pertanyaan Induk" wire:model="filterIsParent">
+                            <flux:select label="Induk" wire:model="filterIsParent">
                                 <flux:select.option value="">Semua</flux:select.option>
                                 <flux:select.option value="true">Ya</flux:select.option>
                                 <flux:select.option value="false">Tidak</flux:select.option>
@@ -270,7 +269,7 @@ new class extends Component {
                         </div>
 
                         <div>
-                            <flux:input label="ID Pertanyaan Induk" wire:model="filterParentID" placeholder="1"></flux:input>
+                            <flux:input label="ID   Induk" wire:model="filterParentID" placeholder="1"></flux:input>
                         </div>
                     </div>
 
@@ -281,32 +280,33 @@ new class extends Component {
             </div>
         </div>
 
-        <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">
-            <table class="min-w-full table-auto text-sm text-gray-900 dark:text-gray-100">
-                <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
-                <tr class="border-b">
-                    <th class="px-6 py-3 text-left font-medium">Aksi</th>
-                    <th class="px-6 py-3 text-left font-medium">No</th>
-                    <th class="px-6 py-3 text-left font-medium">Pertanyaan</th>
-                    <th class="px-6 py-3 text-left font-medium">Pertanyaan Induk</th>
-                    <th class="px-6 py-3 text-left font-medium">ID Pertanyaan Induk</th>
-                    <th class="px-6 py-3 text-left font-medium">Jenis Pertanyaan</th>
-                    <th class="px-6 py-3 text-left font-medium">Jenis Catatan Terapi</th>
-                    <th class="px-6 py-3 text-left font-medium">Catatan</th>
-                    <th class="px-6 py-3 text-left font-medium">Dibuat Pada</th>
-                    <th class="px-6 py-3 text-left font-medium">Diperbarui Pada</th>
+        <div class="overflow-x-auto rounded-lg">
+            <table class="min-w-full table-auto text-sm">
+                <thead class="bg-blue-400 dark:bg-blue-600 text-white">
+                <tr>
+                    <th class=" px-6 py-3 text-left font-medium">Aksi</th>
+                    <th class=" px-6 py-3 text-left font-medium">No</th>
+                    <th class=" px-6 py-3 text-left font-medium">Pertanyaan</th>
+                    <th class=" px-6 py-3 text-left font-medium">Induk</th>
+                    <th class=" px-6 py-3 text-left font-medium">ID Induk</th>
+                    <th class=" px-6 py-3 text-left font-medium">Jenis Pertanyaan</th>
+                    <th class=" px-6 py-3 text-left font-medium">Jenis Catatan</th>
+                    <th class=" px-6 py-3 text-left font-medium">Catatan</th>
+                    <th class=" px-6 py-3 text-left font-medium">Dibuat Pada</th>
+                    <th class=" px-6 py-3 text-left font-medium">Diperbarui Pada</th>
                 </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
+                <tbody class="divide-y">
                 @forelse($questions as $question)
                     <tr wire:key="{{$question->id}}">
-                        <td class="px-6 py-4">
-                                <flux:button size="xs" icon="pencil-square" class="me-1" wire:click="editQuestion({{$question->id}})"></flux:button>
+                        <td class=" px-6 py-4">
+                            <flux:button size="xs" variant="primary" icon="pencil-square" class="me-1"
+                                         wire:click="editQuestion({{$question->id}})"></flux:button>
                         </td>
-                        <td class="px-6 py-4 text-center">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
-                        <td class="px-6 py-4">{{$question->question}}</td>
-                        <td class="px-6 py-4 text-center">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
-                        <td class="px-6 py-4 text-center">
+                        <td class=" px-6 py-4 text-center">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
+                        <td class=" px-6 py-4">{{$question->question}}</td>
+                        <td class=" px-6 py-4 text-center">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
+                        <td class=" px-6 py-4 text-center">
                             @if($question->parent_id)
                                 <flux:link wire:click.prevent="filterByParentID({{$question->parent_id}})" href="#">
                                     {{$question->parent_id}}
@@ -315,17 +315,17 @@ new class extends Component {
                                 -
                             @endif
                         </td>
-                        <td class="px-6 py-4">{{$question->type->label()}}</td>
-                        <td class="px-6 py-4">{{$question->record_type->label()}}</td>
-                        <td class="px-6 py-4">{{$question->note ?? '-'}}</td>
-                        <td class="px-6 py-4">{{$question->created_at->format('d/m/Y H:i')}}</td>
-                        <td class="px-6 py-4">
+                        <td class=" px-6 py-4">{{$question->type->label()}}</td>
+                        <td class=" px-6 py-4">{{$question->record_type->label()}}</td>
+                        <td class=" px-6 py-4">{{$question->note ?? '-'}}</td>
+                        <td class=" px-6 py-4">{{$question->created_at->format('d/m/Y H:i')}}</td>
+                        <td class=" px-6 py-4">
                             {{ $question->updated_at ? $question->updated_at->format('d/m/Y H:i') : '-' }}
                         </td>
                     </tr>
                 @empty
                     <tr class="text-center">
-                        <td colspan="10" class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <td colspan="10" class=" px-6 py-4 text-gray-500 dark:text-gray-400">
                             Kosong
                         </td>
                     </tr>
@@ -333,6 +333,7 @@ new class extends Component {
                 </tbody>
             </table>
         </div>
+
 
         <div class="mt-6">
             {{$questions->links()}}

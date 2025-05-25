@@ -31,7 +31,7 @@ class OrderController extends Controller
 
         try {
 
-            $order = $this->orderService->get(patientId: auth()->id(), payment_status: $validated['payment_status']);
+            $order = $this->orderService->get(patientId: auth()->id(), payment_status: $validated['payment_status'])->first();
             if (! $order) {
                 return Response::error('Order tidak ditemukan', 404);
             }

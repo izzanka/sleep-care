@@ -112,11 +112,11 @@ new class extends Component {
 <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
     <section class="w-full">
         @include('partials.main-heading', ['title' => 'Pasien'])
-        <div>
+        <div class="mb-5">
             <div class="flex items-center">
                 <flux:input icon="magnifying-glass" placeholder="Cari pasien" wire:model.live="search"/>
             </div>
-            <flux:separator class="mt-4 mb-4"/>
+{{--            <flux:separator class="mt-4 mb-4"/>--}}
         </div>
 
         <flux:modal name="editPatient" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
@@ -146,56 +146,52 @@ new class extends Component {
             </div>
         </flux:modal>
 
-        <div class="overflow-x-auto shadow-lg rounded-lg border border-transparent dark:border-transparent">
-            <table class="min-w-full table-auto text-sm text-gray-900 dark:text-gray-100">
-                <thead class="bg-zinc-100 text-gray-600 dark:bg-zinc-800 dark:text-gray-200">
-                <tr class="border-b">
-                    <th class="px-6 py-3 text-left font-medium">Aksi</th>
-                    <th class="px-6 py-3 text-left font-medium">No</th>
-                    <th class="px-6 py-3 text-left font-medium">Aktif</th>
-                    <th class="px-6 py-3 text-left font-medium">Nama</th>
-                    <th class="px-6 py-3 text-left font-medium">Email</th>
-                    <th class="px-6 py-3 text-left font-medium">Usia</th>
-                    <th class="px-6 py-3 text-left font-medium">Jenis Kelamin</th>
-                    <th class="px-6 py-3 text-left font-medium">Gangguan Lainnya</th>
-                    <th class="px-6 py-3 text-left font-medium">Dibuat Pada</th>
-                    <th class="px-6 py-3 text-left font-medium">Diperbarui Pada</th>
-                    <th class="px-6 py-3 text-left font-medium">Dihapus Pada</th>
+        <div class="overflow-x-auto rounded-lg">
+            <table class="min-w-full table-auto text-sm">
+                <thead class="bg-blue-400 dark:bg-blue-600 text-white">
+                <tr>
+                    <th class=" px-6 py-3 text-left font-medium">Aksi</th>
+                    <th class=" px-6 py-3 text-left font-medium">No</th>
+                    <th class=" px-6 py-3 text-left font-medium">Aktif</th>
+                    <th class=" px-6 py-3 text-left font-medium">Nama</th>
+                    <th class=" px-6 py-3 text-left font-medium">Email</th>
+                    <th class=" px-6 py-3 text-left font-medium">Usia</th>
+                    <th class=" px-6 py-3 text-left font-medium">Jenis Kelamin</th>
+                    <th class=" px-6 py-3 text-left font-medium">Gangguan Lainnya</th>
+                    <th class=" px-6 py-3 text-left font-medium">Dibuat Pada</th>
+                    <th class=" px-6 py-3 text-left font-medium">Diperbarui Pada</th>
+                    <th class=" px-6 py-3 text-left font-medium">Dihapus Pada</th>
                 </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200 dark:bg-zinc-800 dark:divide-zinc-600">
+                <tbody class="divide-y">
                 @forelse($users as $user)
                     <tr wire:key="{{$user->id}}">
-                        <td class="px-6 py-4">
+                        <td class=" px-6 py-4">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" icon="pencil-square" wire:click="editPatient({{$user->id}})">
-                                </flux:button>
-                                <flux:button size="xs" icon="trash" variant="danger"
-                                             wire:click="deletePatient({{$user->id}})"
-                                             wire:confirm="Apa anda yakin ingin menghapus pasien ini?">
-                                </flux:button>
+                                <flux:button size="xs" variant="primary" icon="pencil-square" wire:click="editPatient({{$user->id}})"></flux:button>
+                                <flux:button size="xs" icon="trash" variant="danger" wire:click="deletePatient({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus pasien ini?"></flux:button>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
-                        <td class="px-6 py-4 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
-                        <td class="px-6 py-4">{{$user->name}}</td>
-                        <td class="px-6 py-4">{{$user->email}}</td>
-                        <td class="px-6 py-4 text-center">{{$user->age}}</td>
-                        <td class="px-6 py-4">{{$user->gender->label()}}</td>
-                        <td class="px-6 py-4">
+                        <td class=" px-6 py-4 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
+                        <td class=" px-6 py-4 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
+                        <td class=" px-6 py-4">{{$user->name}}</td>
+                        <td class=" px-6 py-4">{{$user->email}}</td>
+                        <td class=" px-6 py-4 text-center">{{$user->age}}</td>
+                        <td class=" px-6 py-4">{{$user->gender->label()}}</td>
+                        <td class=" px-6 py-4">
                             @forelse(json_decode($user->problems) as $problem)
                                 {{ Problem::tryFrom($problem)->label() }},
                             @empty
                                 -
                             @endforelse
                         </td>
-                        <td class="px-6 py-4">{{$user->created_at->format('d/m/Y H:i')}}</td>
-                        <td class="px-6 py-4">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>
-                        <td class="px-6 py-4">{{$user->deleted_at ? $user->deleted_at->format('d/m/Y H:i') : '-'}}</td>
+                        <td class=" px-6 py-4">{{$user->created_at->format('d/m/Y H:i')}}</td>
+                        <td class=" px-6 py-4">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>
+                        <td class=" px-6 py-4">{{$user->deleted_at ? $user->deleted_at->format('d/m/Y H:i') : '-'}}</td>
                     </tr>
                 @empty
                     <tr class="text-center">
-                        <td colspan="11" class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <td colspan="11" class=" px-6 py-4 text-gray-500 dark:text-gray-400">
                             Kosong
                         </td>
                     </tr>
@@ -203,6 +199,7 @@ new class extends Component {
                 </tbody>
             </table>
         </div>
+
 
         <div class="mt-6">
             {{$users->links()}}

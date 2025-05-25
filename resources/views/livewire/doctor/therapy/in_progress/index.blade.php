@@ -23,8 +23,8 @@ new class extends Component {
         $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
         if($this->therapy){
             $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
+            $this->isEndDate = now()->greaterThan($this->therapy->end_date);
         }
-        $this->isEndDate = now()->greaterThan($this->therapy->end_date);
     }
 
     public function updateTherapy()

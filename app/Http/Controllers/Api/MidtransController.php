@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Midtrans\Config;
 use Midtrans\Notification;
+use Midtrans\Transaction;
+use Mockery\Exception;
 
 class MidtransController extends Controller
 {
@@ -35,9 +37,7 @@ class MidtransController extends Controller
     {
         $this->serverKey = config('services.midtrans.server_key');
         $this->isProduction = config('services.midtrans.is_production', false);
-        $this->apiUrl = $this->isProduction
-            ? 'https://app.midtrans.com/snap/v1/transactions'
-            : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+        $this->apiUrl = 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 
         Config::$serverKey = $this->serverKey;
         Config::$isProduction = $this->isProduction;
@@ -62,7 +62,7 @@ class MidtransController extends Controller
             return Response::error('Order tidak ditemukan.', 404);
         }
 
-        if ($order->status !== OrderStatus::PENDING) {
+        if ($order->payment_type != null && $order->payment_id != null) {
             return Response::error('Pembayaran untuk order ini sudah dilakukan.', 404);
         }
 
@@ -111,7 +111,7 @@ class MidtransController extends Controller
             $this->updateOrderStatus($order, $status, $paymentType, $paymentId);
             DB::commit();
 
-            return Response::success(null, 'Notifikasi midtrans berhasil.');
+            return Response::success($notification, 'Notifikasi midtrans berhasil.');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -181,4 +181,27 @@ class MidtransController extends Controller
         $order->status = $status->value;
         $order->payment_status = $paymentStatus->value;
     }
+
+    public function cancel(Request $request)
+    {
+        $validated = $request->validate([
+           'order_id' => ['required'],
+        ]);
+
+        try {
+
+            $order = $this->orderService->get(id: $validated['order_id'])->first();
+            if (! $order) {
+                return Response::error('Order tidak ditemukan.', 404);
+            }
+
+            $response = Transaction::cancel($validated['order_id']);
+
+            return Response::success($response, 'Transaksi berhasil dibatalkan.');
+
+        }catch (Exception $exception){
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
 }

@@ -1,25 +1,25 @@
 <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
     <div class="overflow-x-auto">
-        <table class="table-auto w-full text-sm mb-2 mt-2">
-            <thead>
+        <table class="table-auto w-full text-sm mb-2 mt-2 rounded-lg border overflow-hidden">
+            <thead class="bg-blue-400 dark:bg-blue-600 text-white">
             <tr>
-                <th class="border p-2 text-center">No</th>
+                <th class="p-2 text-center">No</th>
                 @foreach($thoughtRecordQuestions as $question)
-                    <th class="border p-2 text-center">{{ $question }}</th>
+                    <th class="p-2 text-center">{{ $question }}</th>
                 @endforeach
             </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y">
             @foreach($chunks as $index => $chunk)
                 <tr>
-                    <td class="border p-2 text-center">{{ $index + 1 }}</td>
+                    <td class="p-2 text-center">{{ $index + 1 }}</td>
                     @foreach($thoughtRecordQuestions as $header)
                         @php
                             $answer = $chunk->firstWhere('question.question', $header)->answer;
                             $value = $answer->answer;
                             $type = $answer->type;
                         @endphp
-                        <td class="border p-2">
+                        <td class="p-2">
                             @if($type === \App\Enum\QuestionType::DATE->value)
                                 <div class="text-center">
                                     {{ \Carbon\Carbon::parse($value)->isoFormat('D MMMM') }}

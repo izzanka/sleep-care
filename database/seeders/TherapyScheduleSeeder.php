@@ -59,6 +59,7 @@ class TherapyScheduleSeeder extends Seeder
                     'title' => 'Jadwal Sesi Terapi '.($index + 1),
                     'description' => json_encode($descriptions),
                     'date' => $startDate->copy()->addWeeks($index),
+                    'link' => 'https://meet.google.com/msz-nzny-szk',
                     'time' => fake()->time('H:i'),
                     'created_at' => now(),
                 ]);
