@@ -81,7 +81,7 @@ class ChatController extends Controller
                 return Response::error('Pesan tidak ditemukan.', 404);
             }
 
-            if($chat->read_at != null){
+            if ($chat->read_at != null) {
                 return Response::success('Pesan sudah dibaca.', 500);
             }
 

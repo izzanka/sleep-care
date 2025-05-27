@@ -102,7 +102,7 @@ new class extends Component {
                 </div>
 
                 @if(auth()->user()->doctor->graduated_from == null || auth()->user()->doctor->about == null || auth()->user()->doctor->phone == null)
-                    <flux:callout icon="information-circle" variant="secondary" inline>
+                    <flux:callout icon="information-circle" color="zink" inline>
                         <flux:callout.heading>Harap lengkapi profile anda!</flux:callout.heading>
                         <flux:callout.text>Profile anda belum lengkap. Silakan lengkapi informasi profile anda segera.</flux:callout.text>
                         <x-slot name="actions">
@@ -169,8 +169,8 @@ new class extends Component {
                             <th class=" px-6 py-3 text-left font-medium">Total Pembayaran</th>
                             <th class=" px-6 py-3 text-left font-medium">Status Pembayaran</th>
                             <th class=" px-6 py-3 text-left font-medium">Status</th>
-                            <th class=" px-6 py-3 text-left font-medium">Dibuat</th>
-                            <th class=" px-6 py-3 text-left font-medium">Diperbarui</th>
+                            <th class=" px-6 py-3 text-left font-medium">Dibuat Pada</th>
+                            <th class=" px-6 py-3 text-left font-medium">Diperbarui Pada</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y">

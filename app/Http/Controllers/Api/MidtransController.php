@@ -6,7 +6,6 @@ use App\Enum\OrderStatus;
 use App\Enum\TherapyStatus;
 use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
-use App\Models\Order;
 use App\Notifications\OrderedTherapy;
 use App\Service\GeneralService;
 use App\Service\OrderService;
@@ -186,7 +185,7 @@ class MidtransController extends Controller
     public function cancel(Request $request)
     {
         $validated = $request->validate([
-           'order_id' => ['required'],
+            'order_id' => ['required'],
         ]);
 
         try {
@@ -198,9 +197,14 @@ class MidtransController extends Controller
 
             $response = Transaction::cancel($validated['order_id']);
 
+            $order->payment_id = $response->transaction_id ?? null;
+            $order->payment_status = OrderStatus::CANCEL->value;
+            $order->status = OrderStatus::FAILURE->value;
+            $order->save();
+
             return Response::success($response, 'Transaksi berhasil dibatalkan.');
 
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -211,7 +215,7 @@ class MidtransController extends Controller
 
             return Transaction::status($orderId);
 
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -219,7 +223,7 @@ class MidtransController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'order_id' => ['required','string']
+            'order_id' => ['required', 'string'],
         ]);
 
         try {
@@ -244,7 +248,7 @@ class MidtransController extends Controller
             DB::commit();
 
             return Response::success($order, 'Update midtrans berhasil.');
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
 
             return Response::error($exception->getMessage(), 500);

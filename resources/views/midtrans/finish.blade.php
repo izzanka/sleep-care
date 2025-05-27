@@ -2,16 +2,42 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.head')
-    <title>Pembayaran Berhasil - SleepCare</title>
+    <title>Pembayaran - SleepCare</title>
 </head>
 <body class="bg-white text-gray-900">
 <header class="flex flex-wrap justify-between items-center p-6 border-b border-gray-200">
     <a class="text-xl font-bold text-[#155DFCFF]" href="/">SleepCare</a>
 </header>
 
-<section class="px-6 py-24 bg-[#51A2FFFF] text-center">
-    <h1 class="text-4xl font-bold mb-4 text-white">Pembayaran Berhasil 🎉</h1>
-    <p class="text-lg mb-6">Terima kasih telah melakukan pembayaran.</p>
+@php
+    $transactionStatus = request('transaction_status');
+@endphp
+
+<section class="px-6 py-24 text-center bg-[#51A2FFFF] text-white">
+    @if ($transactionStatus === 'settlement')
+        <h1 class="text-4xl font-bold mb-4">Pembayaran Berhasil 🎉</h1>
+        <p class="text-lg mb-6">Terima kasih telah melakukan pembayaran.</p>
+        <p class="text-sm mt-4">ID Pesanan: {{ request('order_id') }}</p>
+
+    @elseif ($transactionStatus === 'cancel')
+        <h1 class="text-4xl font-bold mb-4">Pembayaran Dibatalkan ❌</h1>
+        <p class="text-lg mb-6">Transaksi telah dibatalkan. Silakan coba lagi jika perlu.</p>
+        <p class="text-sm mt-4">ID Pesanan: {{ request('order_id') }}</p>
+
+    @elseif ($transactionStatus === 'failure')
+        <h1 class="text-4xl font-bold mb-4">Pembayaran Gagal ❌</h1>
+        <p class="text-lg mb-6">Terjadi kesalahan dalam proses pembayaran. Silakan coba lagi.</p>
+        <p class="text-sm mt-4">ID Pesanan: {{ request('order_id') }}</p>
+
+    @elseif ($transactionStatus === 'expire')
+        <h1 class="text-4xl font-bold mb-4">Pembayaran Kadaluwarsa ⌛</h1>
+        <p class="text-lg mb-6">Waktu pembayaran telah habis. Silakan lakukan pemesanan ulang.</p>
+        <p class="text-sm mt-4">ID Pesanan: {{ request('order_id') }}</p>
+
+    @else
+        <h1 class="text-4xl font-bold mb-4">Status Tidak Dikenal ❓</h1>
+        <p class="text-lg mb-6">Kami tidak dapat memverifikasi status pembayaran anda.</p>
+    @endif
 </section>
 
 <footer class="py-10 px-6 bg-gray-50">

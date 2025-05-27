@@ -118,11 +118,11 @@ new class extends Component {
                     </div>
                 </div>
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
-                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-zinc-600">
+                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-blue-700 px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-blue-600">
                     <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>
                 </button>
                 <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"
-                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-zinc-700 dark:text-white px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-zinc-600">
+                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-blue-700 px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-blue-600">
                     <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>
                 </button>
 

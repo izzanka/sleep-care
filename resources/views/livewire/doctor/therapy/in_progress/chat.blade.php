@@ -61,7 +61,7 @@ new class extends Component {
 
     public function with()
     {
-        $this->chatService->markAsRead($this->therapy->id, $this->therapy->doctor_id);
+        $this->chatService->markAsRead($this->therapy->id, $this->therapy->doctor->user->id);
         $chats = $this->chatService->get($this->therapy->id);
         $this->dispatch('scroll-to-bottom');
 
@@ -75,7 +75,7 @@ new class extends Component {
     @include('partials.main-heading', ['title' => 'Percakapan'])
     <div class="h-[440px] rounded-lg flex flex-col">
         <div class="dark:bg-zinc-700 p-4 flex items-center gap-3 rounded-t-lg bg-white border dark:border-transparent">
-            <div class="flex items-center gap-2" wire:poll.5s.visible="checkPatientOnlineStatus">
+            <div class="flex items-center gap-2" wire:poll.4s.visible="checkPatientOnlineStatus">
                 @if($isOnline)
                     <flux:avatar badge badge:circle badge:color="green" name="{{$therapy->patient->name}}"/>
                 @else

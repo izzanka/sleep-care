@@ -32,7 +32,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Detail Riwayat'])
+    @include('partials.main-heading', ['title' => 'Detail Riwayat Terapi'])
 
     <div class="flex flex-wrap gap-4 items-start mb-6">
         <flux:radio.group class="mb-0" variant="segmented" label="Catatan:" wire:model="history">

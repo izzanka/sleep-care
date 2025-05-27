@@ -22,7 +22,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Riwayat'])
+    @include('partials.main-heading', ['title' => 'Riwayat Terapi'])
     @if($therapies->isNotEmpty())
         <div class="overflow-x-auto">
             <table class="min-w-full table-auto w-full text-sm rounded-lg border overflow-hidden">

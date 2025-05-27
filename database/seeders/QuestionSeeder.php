@@ -101,9 +101,9 @@ class QuestionSeeder extends Seeder
         $sleepDiaryOpenQuestions = [
             'Pukul berapa kamu mulai mematikan lampu untuk mulai tidur?' => QuestionType::TIME->value,
             'Pukul berapa kamu bangun tidur?' => QuestionType::TIME->value,
-            'Berapa total jam kamu tidur? (dalam jam)' => QuestionType::NUMBER->value,
+            'Berapa total jam kamu tidur?' => QuestionType::NUMBER->value,
             'Berapa kali kamu terbangun di malam hari?' => QuestionType::NUMBER->value,
-            'Isilah skala kualitas tidurmu? (skala 1-5)' => QuestionType::NUMBER->value,
+            'Isilah skala kualitas tidurmu?' => QuestionType::NUMBER->value,
             'Apakah kamu merasa tidurmu cukup?' => QuestionType::BINARY->value,
         ];
 
@@ -120,9 +120,9 @@ class QuestionSeeder extends Seeder
         }
 
         $identifyValueTitleParents = [
-            'Skala Kepentingan, seberapa penting area ini untuk anda? (skala 1-10)' => QuestionType::NUMBER->value,
+            'Skala Kepentingan, seberapa penting area ini untuk anda?' => QuestionType::NUMBER->value,
             'Aku ingin jadi pribadi yang?' => QuestionType::TEXT->value,
-            'Skor Kesesuaian, seberapa sesuai kondisi anda saat ini dengan pribadi yang Anda inginkan? (skala 1-10)' => QuestionType::NUMBER->value,
+            'Skor Kesesuaian, seberapa sesuai kondisi anda saat ini dengan pribadi yang anda inginkan?' => QuestionType::NUMBER->value,
         ];
 
         foreach ($identifyValueTitleParents as $question => $type) {
@@ -162,9 +162,9 @@ class QuestionSeeder extends Seeder
             'Kejadian' => QuestionType::TEXT->value,
             'Pemikiran yang muncul' => QuestionType::TEXT->value,
             'Emosi yang dirasakan' => QuestionType::TEXT->value,
-            'Intensitas emosi sebelum diatasi (1-10)' => QuestionType::NUMBER->value,
+            'Intensitas emosi sebelum diatasi' => QuestionType::NUMBER->value,
             'Cara mengatasi' => QuestionType::TEXT->value,
-            'Intensitas emosi setelah diatasi (1-10)' => QuestionType::NUMBER->value,
+            'Intensitas emosi setelah diatasi' => QuestionType::NUMBER->value,
         ];
 
         foreach ($emotionRecordQuestions as $question => $type) {

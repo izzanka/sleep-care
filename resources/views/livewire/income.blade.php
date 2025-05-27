@@ -78,30 +78,30 @@ new class extends Component {
                         </flux:heading>
                         <flux:subheading> {{$order->created_at->isoFormat('D MMMM Y')}}
                             @can('isAdmin', Auth::user())
-                                (Biaya Jasa Aplikasi)
+                                (Biaya Jasa Aplikasi #{{$order->id}})
                             @elsecan('isDoctor', Auth::user())
-                                (Biaya Jasa Terapi)
+                                (Biaya Jasa Terapi #{{$order->therapy->id}})
                             @endcan
                         </flux:subheading>
                     </div>
 
-                    @can('isDoctor', Auth::user())
-                        <div class="ml-auto">
-                            <flux:button
-                                variant="primary"
-                                icon-trailing="arrow-up-right"
-                                wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">
-                                Detail
-                            </flux:button>
-                        </div>
-                    @endcan
-                    <flux:modal :name="'detail-order-'.$order->id" class="max-w-4xl w-full">
-                        <div class="space-y-6">
-                            <div>
-                                <flux:heading size="lg">Detail</flux:heading>
-                            </div>
-                        </div>
-                    </flux:modal>
+{{--                    @can('isDoctor', Auth::user())--}}
+{{--                        <div class="ml-auto">--}}
+{{--                            <flux:button--}}
+{{--                                variant="primary"--}}
+{{--                                icon-trailing="arrow-up-right"--}}
+{{--                                wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">--}}
+{{--                                Detail--}}
+{{--                            </flux:button>--}}
+{{--                        </div>--}}
+{{--                    @endcan--}}
+{{--                    <flux:modal :name="'detail-order-'.$order->id" class="max-w-4xl w-full">--}}
+{{--                        <div class="space-y-6">--}}
+{{--                            <div>--}}
+{{--                                <flux:heading size="lg">Detail</flux:heading>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </flux:modal>--}}
                 </div>
                 <flux:separator class="mt-6"/>
             @endforeach

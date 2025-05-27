@@ -133,10 +133,10 @@ new class extends Component {
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm mb-2 mt-2 rounded-lg border overflow-hidden">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr>
-                    <th class="p-2 text-center">No</th>
+                <tr class="text-center">
+                    <th class="p-2">No</th>
                     @foreach($thoughtRecordQuestions as $question)
-                        <th class="p-2 text-center">{{ $question }}</th>
+                        <th class="p-2">{{ $question }}</th>
                     @endforeach
                 </tr>
                 </thead>

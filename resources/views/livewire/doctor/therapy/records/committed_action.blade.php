@@ -79,10 +79,10 @@ new class extends Component {
         <div class="overflow-x-auto mt-4">
             <table class="min-w-[800px] table-auto w-full text-sm text-left rounded-lg border overflow-hidden">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr>
-                    <th class="p-3 text-center">No</th>
+                <tr class="text-center">
+                    <th class="p-3">No</th>
                     @foreach($questions as $question)
-                        <th class="p-3 text-center whitespace-nowrap">{{ $question }}</th>
+                        <th class="p-3 whitespace-nowrap">{{ $question }}</th>
                     @endforeach
                 </tr>
                 </thead>

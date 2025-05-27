@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Enum\TherapyStatus;
 use App\Models\Therapy;
 use App\Models\TherapySchedule;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class TherapyScheduleSeeder extends Seeder
@@ -41,7 +40,7 @@ class TherapyScheduleSeeder extends Seeder
             ],
             [
                 'Psikolog menjelaskan konsep tindakan berkomitmen (committed action).',
-                'Psikolog mengingatkan pasien untuk mengisi catatan tindakan berkomitmen (committed action) berdasarkan nilai-nilai (value) yang dimiliki.',
+                'Psikolog mengingatkan pasien untuk mengisi catatan tindakan berkomitmen (committed action) berdasarkan nilai-nilai (value) yang pasien miliki.',
             ],
             [
                 'Psikolog dan pasien mendiskusikan hasil dari catatan tindakan berkomitmen (committed action) yang telah dilakukan.',
@@ -56,6 +55,7 @@ class TherapyScheduleSeeder extends Seeder
                     'therapy_id' => $therapy->id,
                     'title' => 'Jadwal Sesi Terapi '.($index + 1),
                     'description' => json_encode($descriptions),
+                    'note' => fake()->sentence,
                     'date' => $therapy->start_date->addWeeks($index),
                     'link' => 'https://meet.google.com/msz-nzny-szk',
                     'time' => fake()->time('H:i'),

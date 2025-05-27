@@ -14,7 +14,7 @@ class DoctorService
             $query->where('id', $id);
         }
 
-        if($isAvailable){
+        if ($isAvailable) {
             $query->where('is_available', $isAvailable);
         }
 

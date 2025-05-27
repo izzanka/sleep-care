@@ -29,7 +29,7 @@ class UserFactory extends Factory
         $gender = fake()->randomElement(UserGender::cases())->value;
 
         return [
-            'name' => fake()->firstName . ' ' . fake()->lastName,
+            'name' => fake()->firstName.' '.fake()->lastName,
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

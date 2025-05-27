@@ -20,7 +20,7 @@
                             </flux:navlist.group>
                         @endif
                     </flux:navlist.group>
-                    <flux:navlist.item :href="route('doctor.therapies.completed.index')" badge="{{ $completedTherapiesCount }}" :current="request()->routeIs('doctor.therapies.completed.index') || request()->routeIs('doctor.therapies.completed.detail')" wire:navigate>Riwayat</flux:navlist.item>
+                    <flux:navlist.item :href="route('doctor.therapies.completed.index')" badge="{{ $completedTherapiesCount }}" :current="request()->routeIs('doctor.therapies.completed.index') || request()->routeIs('doctor.therapies.completed.detail')" wire:navigate>Selesai</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
             @can('isAdmin', $user)
