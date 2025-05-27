@@ -87,7 +87,7 @@ new class extends Component {
         $this->registered_year = $this->user->doctor->registered_year;
         $this->about = $this->user->doctor->about;
         $this->graduated_from = $this->user->doctor->graduated_from;
-        $this->is_available = $this->user->doctor->is_available;
+        $this->is_available = (bool) $this->user->doctor->is_available;
     }
 
     protected function shouldUpdateDoctorInfo()
@@ -142,7 +142,7 @@ new class extends Component {
 
             <flux:input type="number" label="Usia" name="age" wire:model="age" placeholder="-"></flux:input>
 
-            <flux:input type="text" label="Lulusan" name="graduated_from" wire:model="graduate" placeholder="-"></flux:input>
+            <flux:input type="text" label="Lulusan" name="graduated_from" wire:model="graduated_from" placeholder="-"></flux:input>
 
             <flux:textarea
                 label="Tentang"

@@ -147,6 +147,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
         {{--            </flux:button>--}}
         {{--        </div>--}}
 
+        <flux:select wire:model="gender" placeholder="Pilih jenis kelamin..." label="Jenis Kelamin">
+            @foreach(UserGender::cases() as $gender)
+                <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
+            @endforeach
+        </flux:select>
+
         <!-- Password -->
         <flux:input
             wire:model="password"
@@ -172,12 +178,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             placeholder="Konfirmasi password"
             viewable
         />
-
-        <flux:select wire:model="gender" placeholder="Pilih jenis kelamin..." label="Jenis Kelamin">
-            @foreach(UserGender::cases() as $gender)
-                <flux:select.option :value="$gender">{{$gender->label()}}</flux:select.option>
-            @endforeach
-        </flux:select>
 
         <div class="flex items-center justify-end">
             <flux:button type="submit" variant="primary" class="w-full">

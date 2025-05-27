@@ -152,7 +152,7 @@ new class extends Component {
 
         <div class="mb-5">
             <div class="flex items-center">
-                <flux:input icon="magnifying-glass" placeholder="Cari psikolog" wire:model.live="search"/>
+                <flux:input icon="magnifying-glass" placeholder="Cari psikolog berdasarkan nama atau email" wire:model.live="search"/>
             </div>
 {{--            <flux:separator class="mt-4 mb-4"/>--}}
         </div>

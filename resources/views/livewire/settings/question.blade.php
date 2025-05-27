@@ -177,7 +177,7 @@ new class extends Component {
                     </div>
 
                     <div class="mt-4 mb-4">
-                        <flux:input label="ID" disabled value="{{$ID}}"></flux:input>
+                        <flux:input label="ID" readonly value="{{$ID}}"></flux:input>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">

@@ -7,7 +7,7 @@
             @can('isDoctor', $user)
                 <flux:navlist.group expandable heading="Terapi">
                     <flux:navlist.group expandable heading="Berlangsung">
-                        <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" :current="request()->routeIs('doctor.therapies.in_progress.index')" wire:navigate>Halaman Utama</flux:navlist.item>
+                        <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" :current="request()->routeIs('doctor.therapies.in_progress.index')" wire:navigate>Informasi</flux:navlist.item>
                         @if($hasOngoingTherapy)
                             <flux:navlist.item :href="route('doctor.therapies.in_progress.schedule')" :current="request()->routeIs('doctor.therapies.in_progress.schedule')" wire:navigate>Jadwal</flux:navlist.item>
                             <flux:navlist.item :href="route('doctor.therapies.in_progress.chat')" :current="request()->routeIs('doctor.therapies.in_progress.chat')" wire:navigate badge="{{$unreadChatsCount}}">Percakapan</flux:navlist.item>

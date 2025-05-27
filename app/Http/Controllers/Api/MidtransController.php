@@ -6,6 +6,7 @@ use App\Enum\OrderStatus;
 use App\Enum\TherapyStatus;
 use App\Enum\UserRole;
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Notifications\OrderedTherapy;
 use App\Service\GeneralService;
 use App\Service\OrderService;
@@ -101,7 +102,7 @@ class MidtransController extends Controller
             $paymentId = $notification->transaction_id;
             $orderId = $notification->order_id;
 
-            $order = $this->orderService->get(id: $orderId)->first();
+            $order = $this->orderService->get(payment_status: OrderStatus::PENDING->value, id: $orderId)->first();
             if (! $order) {
                 DB::rollBack();
 
@@ -190,7 +191,7 @@ class MidtransController extends Controller
 
         try {
 
-            $order = $this->orderService->get(id: $validated['order_id'])->first();
+            $order = $this->orderService->get(payment_status: OrderStatus::PENDING->value, id: $validated['order_id'])->first();
             if (! $order) {
                 return Response::error('Order tidak ditemukan.', 404);
             }
@@ -204,4 +205,49 @@ class MidtransController extends Controller
         }
     }
 
+    public function check(string $orderId)
+    {
+        try {
+
+            return Transaction::status($orderId);
+
+        }catch (Exception $exception){
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => ['required','string']
+        ]);
+
+        try {
+
+            DB::beginTransaction();
+
+            $transaction = $this->check($validated['order_id']);
+
+            $status = $transaction->transaction_status;
+            $paymentType = $transaction->payment_type;
+            $paymentId = $transaction->transaction_id;
+            $orderId = $transaction->order_id;
+
+            $order = $this->orderService->get(payment_status: OrderStatus::PENDING->value, id: $orderId)->first();
+            if (! $order) {
+                DB::rollBack();
+
+                return Response::error('Order tidak ditemukan.', 400);
+            }
+
+            $this->updateOrderStatus($order, $status, $paymentType, $paymentId);
+            DB::commit();
+
+            return Response::success($order, 'Update midtrans berhasil.');
+        }catch (Exception $exception){
+            DB::rollBack();
+
+            return Response::error($exception->getMessage(), 500);
+        }
+    }
 }

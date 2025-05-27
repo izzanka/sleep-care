@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enum\QuestionType;
 use App\Enum\RecordType;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\QuestionResource;
 use App\Models\Answer;
 use App\Service\AnswerService;
 use App\Service\QuestionService;
@@ -14,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Enum;
-use Mockery\Exception;
 
 class RecordController extends Controller
 {
@@ -72,7 +72,7 @@ class RecordController extends Controller
             return Response::success([
                 'id' => $record->id,
                 'therapy_id' => $therapy->id,
-                'questions' => $questions,
+                'questions' => QuestionResource::collection($questions),
                 'answers' => $answers,
             ], "Berhasil mendapatkan data {$validated['record_type']}.");
 
@@ -120,7 +120,7 @@ class RecordController extends Controller
                 'sleep_diaries' => $sleepDiaries,
             ], 'Berhasil mendapatkan data sleep_diary.');
 
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
         }
     }
@@ -138,7 +138,7 @@ class RecordController extends Controller
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            $sleepDiary = $this->recordService->getSleepDiaryByID($therapy->id, $id);
+            $sleepDiary = $this->recordService->getSleepDiaryByID($validated['therapy_id'], $id);
             if (! $sleepDiary) {
                 return Response::error('Data sleep_diary tidak ditemukan.', 404);
             }
@@ -156,7 +156,7 @@ class RecordController extends Controller
             return Response::success([
                 'id' => $sleepDiary->id,
                 'therapy_id' => $therapy->id,
-                'questions' => $questions,
+                'questions' => QuestionResource::collection($questions),
                 'answers' => $answers,
             ], 'Berhasil mendapatkan data detail sleep_diary.');
 

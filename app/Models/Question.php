@@ -11,7 +11,7 @@ use Laravel\Scout\Searchable;
 
 class Question extends Model
 {
-    use Searchable, SoftDeletes;
+    use Searchable;
 
     protected function casts(): array
     {

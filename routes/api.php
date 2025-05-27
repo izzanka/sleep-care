@@ -30,6 +30,8 @@ Route::prefix('midtrans')->group(function () {
     Route::post('/charge', [MidtransController::class, 'charge']);
     Route::post('/notification', [MidtransController::class, 'notification']);
     Route::post('/cancel', [MidtransController::class, 'cancel']);
+    Route::put('/update', [MidtransController::class, 'update']);
+    Route::get('/check/{orderId}', [MidtransController::class, 'check']);
 });
 
 Route::middleware(['auth:sanctum', 'verified.api'])->group(function () {

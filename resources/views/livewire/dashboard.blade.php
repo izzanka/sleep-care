@@ -100,9 +100,27 @@ new class extends Component {
                         <flux:heading size="xl" class="mb-2">{{$therapies->total()}}</flux:heading>
                     </div>
                 </div>
-{{--                @if($therapies->isNotEmpty())--}}
-{{--                    <livewire:calendar></livewire:calendar>--}}
-{{--                @endif--}}
+
+                @if(auth()->user()->doctor->graduated_from == null || auth()->user()->doctor->about == null || auth()->user()->doctor->phone == null)
+                    <flux:callout icon="information-circle" variant="secondary" inline>
+                        <flux:callout.heading>Harap lengkapi profile anda!</flux:callout.heading>
+                        <flux:callout.text>Profile anda belum lengkap. Silakan lengkapi informasi profile anda segera.</flux:callout.text>
+                        <x-slot name="actions">
+                            <flux:button href="{{route('settings.profile')}}">Perbarui Profile</flux:button>
+                        </x-slot>
+                    </flux:callout>
+                @endif
+
+                @if(auth()->user()->is_therapy_in_progress)
+                    <flux:callout icon="exclamation-circle" color="blue" inline class="mb-5 mt-5">
+                        <flux:callout.heading>Anda memiliki terapi yang sedang berlangsung!</flux:callout.heading>
+                        <x-slot name="actions">
+                            <flux:button variant="primary" href="{{route('doctor.therapies.in_progress.index')}}"
+                                         icon:trailing="arrow-up-right">Cek Sekarang</flux:button>
+                        </x-slot>
+                    </flux:callout>
+                    <livewire:calendar></livewire:calendar>
+                @endif
             @endcan
 
             @can('isAdmin', auth()->user())
@@ -131,15 +149,20 @@ new class extends Component {
                             <p>Selesai: <strong>{{ $count_therapy->completed }}</strong></p>
                         </div>
                     </div>
-
                 </div>
 
-                <div class="overflow-x-auto rounded-lg">
+                <flux:separator class="mt-4 mb-4"></flux:separator>
+
+                <flux:heading>
+                    Transaksi
+                </flux:heading>
+
+                <div class="overflow-x-auto rounded-lg mt-4">
                     <table class="min-w-full table-auto text-sm">
                         <thead class="bg-blue-400 text-white dark:bg-blue-600">
                         <tr>
-                            <th class=" px-6 py-3 text-left font-medium">No</th>
                             <th class=" px-6 py-3 text-left font-medium">Aksi</th>
+                            <th class=" px-6 py-3 text-left font-medium">No</th>
                             <th class=" px-6 py-3 text-left font-medium">ID</th>
                             <th class=" px-6 py-3 text-left font-medium">Pasien</th>
                             <th class=" px-6 py-3 text-left font-medium">Metode Pembayaran</th>
@@ -171,12 +194,12 @@ new class extends Component {
                             </flux:modal>
 
                             <tr wire:key="{{$order->id}}">
-                                <td class=" px-6 py-4 text-center">{{$loop->iteration}}</td>
                                 <td class=" px-6 py-4">
                                     <flux:modal.trigger :name="'detail-terapi-'.$order->therapy->id">
-                                        <flux:button size="xs" variant="primary">Terapi</flux:button>
+                                        <flux:button size="xs" variant="primary">Detail Terapi</flux:button>
                                     </flux:modal.trigger>
                                 </td>
+                                <td class=" px-6 py-4 text-center">{{$loop->iteration}}</td>
                                 <td class=" px-6 py-4">{{$order->id}}</td>
                                 <td class=" px-6 py-4">{{$order->therapy->patient->name ?? '-'}}</td>
                                 <td class=" px-6 py-4">{{$order->payment_type ?? '-'}}</td>

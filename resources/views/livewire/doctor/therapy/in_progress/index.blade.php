@@ -54,7 +54,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Halaman Utama'])
+    @include('partials.main-heading', ['title' => 'Informasi'])
     <div>
         @if($therapy)
             <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">

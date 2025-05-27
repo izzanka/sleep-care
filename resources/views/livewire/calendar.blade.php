@@ -1,3 +1,9 @@
+<style>
+    .fc-toolbar-title {
+        font-size: 16px !important;
+        font-weight: bold;
+    }
+</style>
 <div>
     <div id="calendar"></div>
 </div>
@@ -18,8 +24,20 @@
             height: 540,
             timeZone: 'UTC',
             events: @json($schedules),
+            buttonText: {
+                today: 'Hari Ini',
+                // month: 'Bulan',
+                // week: 'Minggu',
+                // day: 'Hari',
+                // list: 'Agenda'
+            },
             eventClick: function(info) {
                 window.location.href = "/doctor/therapies/in-progress/schedule";
+            },
+            datesSet: function(info) {
+                const originalTitle = info.view.title;
+                const newTitle = 'Jadwal Sesi Terapi Bulan ' + originalTitle;
+                document.querySelector('.fc-toolbar-title').textContent = newTitle;
             }
         });
 

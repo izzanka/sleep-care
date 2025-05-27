@@ -20,9 +20,9 @@ class TherapySeeder extends Seeder
     {
         $doctor = Doctor::whereHas('user', function ($query) {
             $query->where('name', 'psikolog');
-        })->with('user')->first();
+        })->first();
         $doctor->user->is_therapy_in_progress = true;
-        $doctor->save();
+        $doctor->user->save();
 
         $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->first();
         $patient->is_therapy_in_progress = true;
@@ -36,12 +36,21 @@ class TherapySeeder extends Seeder
 
         Order::factory()->create(['therapy_id' => $therapyInProgress->id]);
 
-        Chat::create([
-            'therapy_id' => $therapyInProgress->id,
-            'sender_id' => $patient->id,
-            'receiver_id' => $doctor->user->id,
-            'message' => 'Halo salam kenal',
-        ]);
+        for ($i = 1; $i < 7; $i++) {
+            Chat::create([
+                'therapy_id' => $therapyInProgress->id,
+                'sender_id' => $patient->id,
+                'receiver_id' => $doctor->user->id,
+                'message' => fake()->sentence,
+            ]);
+
+            Chat::create([
+                'therapy_id' => $therapyInProgress->id,
+                'sender_id' => $doctor->user->id,
+                'receiver_id' => $patient->id,
+                'message' => fake()->sentence,
+            ]);
+        }
 
         $therapyCompleted = Therapy::factory()->create([
             'doctor_id' => $doctor->id,
@@ -51,11 +60,21 @@ class TherapySeeder extends Seeder
 
         Order::factory()->create(['therapy_id' => $therapyCompleted->id]);
 
-        Chat::create([
-            'therapy_id' => $therapyCompleted->id,
-            'sender_id' => $patient->id,
-            'receiver_id' => $doctor->user->id,
-            'message' => 'Halo salam kenal',
-        ]);
+        for ($j = 1; $j < 7; $j++) {
+            Chat::create([
+                'therapy_id' => $therapyCompleted->id,
+                'sender_id' => $patient->id,
+                'receiver_id' => $doctor->user->id,
+                'message' => fake()->sentence,
+            ]);
+
+            Chat::create([
+                'therapy_id' => $therapyCompleted->id,
+                'sender_id' => $doctor->user->id,
+                'receiver_id' => $patient->id,
+                'message' => fake()->sentence,
+            ]);
+        }
+
     }
 }
