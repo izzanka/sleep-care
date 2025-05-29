@@ -3,6 +3,16 @@
         font-size: 16px !important;
         font-weight: bold;
     }
+
+    .fc .fc-button {
+        background-color: #2B7FFFFF;
+        border: none;
+        color: white;
+    }
+
+    .fc .fc-button:hover {
+        background-color: #155DFCFF;
+    }
 </style>
 <div>
     <div id="calendar"></div>
@@ -25,11 +35,7 @@
             timeZone: 'UTC',
             events: @json($schedules),
             buttonText: {
-                today: 'Hari Ini',
-                // month: 'Bulan',
-                // week: 'Minggu',
-                // day: 'Hari',
-                // list: 'Agenda'
+                today: 'Hari ini',
             },
             eventClick: function(info) {
                 window.location.href = "/doctor/therapies/in-progress/schedule";

@@ -86,12 +86,12 @@ class TherapyController extends Controller
 
         try {
 
-            $therapy = $this->therapyService->get(patientId: auth()->id(), id: $validated['therapy_id'])->first();
+            $therapy = $this->therapyService->get(patientId: auth()->id(), status: TherapyStatus::COMPLETED->value, id: $validated['therapy_id'])->first();
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
 
-            $therapy->doctor->rate($validated['rating']);
+            $therapy->doctor->rateOnce($validated['rating']);
 
             if ($validated['comment']) {
                 $therapy->update([

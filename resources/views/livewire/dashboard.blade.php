@@ -16,6 +16,7 @@ new class extends Component {
     public int $total_income = 0;
     public int $total_doctor = 0;
     public int $total_patient = 0;
+    public int $avg_rating = 0;
     public int $total_rating = 0;
     public $count_therapy;
 
@@ -44,7 +45,8 @@ new class extends Component {
 
     protected function loadDoctorStats($user)
     {
-        $this->total_rating = $user->doctor->averageRating ?? 0;
+        $this->avg_rating = $user->doctor->averageRating ?? 0;
+        $this->total_rating = $user->doctor->usersRated() ?? 0;
     }
 
     protected function getAdminData(): array
@@ -91,8 +93,10 @@ new class extends Component {
                     </div>
 
                     <div class="relative rounded-lg px-6 py-4 bg-zinc-100 dark:bg-zinc-700">
-                        <flux:subheading>Total Rating</flux:subheading>
-                        <flux:heading size="xl" class="mb-2">{{$total_rating}} / 5</flux:heading>
+                        <flux:subheading>Rata - Rata Rating</flux:subheading>
+                        <flux:heading size="xl" class="mb-2">
+                            {{$avg_rating}} / 5 ({{$total_rating}})
+                        </flux:heading>
                     </div>
 
                     <div class="relative rounded-lg px-6 py-4 bg-zinc-100 dark:bg-zinc-700">
