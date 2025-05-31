@@ -60,7 +60,6 @@ class OrderController extends Controller
                 return Response::error('Psikolog sedang tidak tersedia.', 404);
             }
 
-
             //            if ($doctor->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->exists()) {
             //                return Response::error('Psikolog sedang menjalankan terapi dengan pasien lain.', 404);
             //            }
