@@ -56,13 +56,14 @@ class OrderController extends Controller
                 return Response::error('Psikolog tidak ditemukan.', 404);
             }
 
-            if (! $doctor->user->is_active) {
-                return Response::error('Psikolog sedang tidak aktif.', 404);
+            if (! $doctor->user->is_active || ! $doctor->is_available) {
+                return Response::error('Psikolog sedang tidak tersedia.', 404);
             }
 
-            if ($doctor->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->exists()) {
-                return Response::error('Psikolog sedang menjalankan terapi dengan pasien lain.', 404);
-            }
+
+            //            if ($doctor->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->exists()) {
+            //                return Response::error('Psikolog sedang menjalankan terapi dengan pasien lain.', 404);
+            //            }
 
             if (auth()->user()->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->exists()) {
                 return Response::error('Anda sedang menjalankan terapi.', 404);

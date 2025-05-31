@@ -31,19 +31,19 @@
         const calendar = new FullCalendar.Calendar(calendarEl, {
             locale: 'id',
             initialView: 'dayGridMonth',
-            height: 540,
+            height: 590,
             timeZone: 'UTC',
             events: @json($schedules),
             buttonText: {
                 today: 'Hari ini',
             },
             eventClick: function(info) {
-                window.location.href = "/doctor/therapies/in-progress/schedule";
+                const therapyId = parseInt(info.event.id, 10);
+                window.location.href = "/doctor/therapies/in-progress/" + therapyId;
             },
             datesSet: function(info) {
                 const originalTitle = info.view.title;
-                const newTitle = 'Jadwal Sesi Terapi Bulan ' + originalTitle;
-                document.querySelector('.fc-toolbar-title').textContent = newTitle;
+                document.querySelector('.fc-toolbar-title').textContent = 'Jadwal Sesi Terapi Bulan ' + originalTitle;
             }
         });
 

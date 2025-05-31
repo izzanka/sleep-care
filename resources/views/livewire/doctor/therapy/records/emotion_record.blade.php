@@ -22,6 +22,9 @@ new class extends Component {
     public $labels;
     public $chartTitle;
     public $selectedWeek;
+    public int $id;
+    public int $no;
+    public ?string $comment;
 
     public function boot(ChartService    $chartService,
                          TherapyService  $therapyService,
@@ -34,10 +37,10 @@ new class extends Component {
         $this->questionService = $questionService;
     }
 
-    public function mount()
+    public function mount(int $therapyId)
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -91,6 +94,55 @@ new class extends Component {
         })->values();
     }
 
+    public function createComment(int $id, int $no)
+    {
+        $questionAnswer = EmotionRecordQuestionAnswer::find($id);
+        if(!$questionAnswer){
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $this->id = $id;
+        $this->no = $no;
+        $this->comment = $questionAnswer->comment;
+
+        $this->modal('addComment')->show();
+    }
+
+    public function storeComment()
+    {
+        $validated = $this->validate([
+            'comment' => ['nullable', 'string','max:225'],
+        ]);
+
+        $questionAnswer = EmotionRecordQuestionAnswer::find($this->id);
+        if(!$questionAnswer){
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $questionAnswer->update([
+            'comment' => $validated['comment'],
+        ]);
+
+        session()->flash('status', ['message' => 'Komentar berhasil disimpan.', 'success' => true]);
+        $this->reset('comment','id');
+        $this->modal('addComment')->close();
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+    }
+
+    public function deleteComment(int $id)
+    {
+        $questionAnswer = EmotionRecordQuestionAnswer::find($id);
+        if(!$questionAnswer){
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $questionAnswer->update([
+            'comment' => null,
+        ]);
+        session()->flash('status', ['message' => 'Berhasil menghapus komentar.', 'success' => true]);
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+    }
+
     public function with()
     {
         $questions = $this->questionService->get('emotion_record')->pluck('question')->toArray();
@@ -123,7 +175,22 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Catatan Emosi (Emotion Record)'])
+    @include('partials.main-heading', ['title' => null])
+
+    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+        <flux:callout icon="information-circle" class="mb-4" color="blue"
+                      x-data="{ visible: localStorage.getItem('hideMessageEmotion') !== 'true' }"
+                      x-show="visible"
+                      x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageEmotion', 'true'))">
+            <flux:callout.heading>Catatan Emosi (Emotion Record)</flux:callout.heading>
+
+            <flux:callout.text>
+                Digunakan untuk mencatat dan memantau emosi yang dialami pasien, membantu mengenali pola emosional, serta mendukung pengelolaan emosi yang lebih sehat dalam proses terapi.
+                <br><br>
+                <flux:callout.link href="#" @click="visible = false">Jangan tampilkan lagi.</flux:callout.link>
+            </flux:callout.text>
+        </flux:callout>
+    @endif
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="flex">
@@ -136,6 +203,20 @@ new class extends Component {
         {{--        </div>--}}
 
         <flux:separator class="mt-4 mb-4"/>
+
+        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-6">
+                <form wire:submit="storeComment">
+                    <div>
+                        <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
+                    </div>
+                    <div class="mb-4 mt-4">
+                        <flux:textarea rows="2" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
+                    </div>
+                    <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
+                </form>
+            </div>
+        </flux:modal>
 
         <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
             @foreach ($dropdownLabels as $index => $label)
@@ -152,17 +233,59 @@ new class extends Component {
         <div class="overflow-x-auto mt-4">
             <table class="min-w-[800px] w-full text-sm text-left rounded-lg border overflow-hidden">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr class="text-center">
-                    <th class="p-3">No</th>
+                <tr class="text-left">
+                    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                    <th class="px-4 py-2 font-medium">Aksi Komentar</th>
+                    @endif
+                    <th class="px-4 py-2 font-medium">No</th>
                     @foreach($questions as $question)
-                        <th class="p-3">{{ $question }}</th>
+                        <th class="px-4 py-2 font-medium">{{ $question }}</th>
                     @endforeach
+                    <th class="px-4 py-2 font-medium">Komentar</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y">
                 @forelse($answerRows as $index => $row)
-                    <tr>
-                        <td class="p-3 text-center">{{ $index + 1 }}</td>
+                    <tr class="text-left">
+                        @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                            <td class="px-4 py-2 text-center">
+                                @php
+                                    $firstAnswer = $row->first(); // Get first item in pivot row
+                                    $pivotId = $firstAnswer?->id;
+                                    $comment = $firstAnswer?->comment;
+                                @endphp
+
+                                @if ($pivotId)
+                                    <div class="flex items-center space-x-1 justify-center">
+                                        @if ($comment)
+                                            {{-- Edit and Delete buttons if comment exists --}}
+                                            <flux:button
+                                                variant="primary"
+                                                size="xs"
+                                                icon="pencil-square"
+                                                wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
+                                            />
+                                            <flux:button
+                                                variant="danger"
+                                                size="xs"
+                                                icon="trash"
+                                                wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
+                                                wire:click="deleteComment({{ $pivotId }})"
+                                            />
+                                        @else
+                                            {{-- Plus button if no comment --}}
+                                            <flux:button
+                                                variant="primary"
+                                                size="xs"
+                                                icon="plus"
+                                                wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
+                                            />
+                                        @endif
+                                    </div>
+                                @endif
+                            </td>
+                        @endif
+                        <td class="px-4 py-2 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
                             @php
                                 $answerData = $row->firstWhere('question.question', $question)?->answer;
@@ -177,15 +300,18 @@ new class extends Component {
 
                                 $alignment = in_array($type, [QuestionType::DATE->value, QuestionType::TIME->value, QuestionType::NUMBER->value]) ? 'text-center' : 'text-left';
                             @endphp
-                            <td class="p-3 {{ $alignment }}">
+                            <td class="px-4 py-2 {{ $alignment }}">
                                 {{ $formattedValue }}
                             </td>
                         @endforeach
+                        <td class="px-4 py-2">
+                            {{ $comment ?? '-'}}
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-4 text-center" colspan="9">
-                            <flux:heading>Belum ada catatan</flux:heading>
+                        <td class="px-4 py-2 text-center" colspan="11">
+                            <flux:heading class="mt-2">Belum ada catatan emosi</flux:heading>
                         </td>
                     </tr>
                 @endforelse
@@ -197,15 +323,11 @@ new class extends Component {
 
 @script
 <script>
-    let chartInstance;
+    const canvas = document.getElementById('emotionRecordChart');
+    const ctx = canvas?.getContext('2d');
+    const isDark = document.documentElement.classList.contains('dark');
 
-    function createChart() {
-        const canvas = document.getElementById('emotionRecordChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const isDark = document.documentElement.classList.contains('dark');
-
+    if (ctx) {
         const data = {
             labels: @json($labels),
             datasets: @json($datasets),
@@ -240,32 +362,15 @@ new class extends Component {
                         max: @json($maxValue),
                         ticks: {
                             precision: 0,
-                            color: isDark ? '#ffffff' : '#000000',
                             stepSize: 1,
+                            color: isDark ? '#ffffff' : '#000000',
                         }
                     }
                 }
             }
         };
 
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        chartInstance = new Chart(ctx, config);
+        new Chart(ctx, config);
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        createChart();
-    });
-
-    const observer = new MutationObserver(() => {
-        createChart();
-    });
-
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class'],
-    });
 </script>
 @endscript

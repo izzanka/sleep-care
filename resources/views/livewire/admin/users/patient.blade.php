@@ -150,48 +150,48 @@ new class extends Component {
             <table class="min-w-full table-auto text-sm">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                 <tr>
-                    <th class=" px-6 py-3 text-left font-medium">Aksi</th>
-                    <th class=" px-6 py-3 text-left font-medium">No</th>
-                    <th class=" px-6 py-3 text-left font-medium">Aktif</th>
-                    <th class=" px-6 py-3 text-left font-medium">Nama</th>
-                    <th class=" px-6 py-3 text-left font-medium">Email</th>
-                    <th class=" px-6 py-3 text-left font-medium">Usia</th>
-                    <th class=" px-6 py-3 text-left font-medium">Jenis Kelamin</th>
-                    <th class=" px-6 py-3 text-left font-medium">Gangguan Lainnya</th>
-                    <th class=" px-6 py-3 text-left font-medium">Dibuat Pada</th>
-                    <th class=" px-6 py-3 text-left font-medium">Diperbarui Pada</th>
-                    <th class=" px-6 py-3 text-left font-medium">Dihapus Pada</th>
+                    <th class=" px-4 py-2 text-left font-medium">Aksi</th>
+                    <th class=" px-4 py-2 text-left font-medium">No</th>
+                    <th class=" px-4 py-2 text-left font-medium">Aktif</th>
+                    <th class=" px-4 py-2 text-left font-medium">Nama</th>
+                    <th class=" px-4 py-2 text-left font-medium">Email</th>
+                    <th class=" px-4 py-2 text-left font-medium">Usia</th>
+                    <th class=" px-4 py-2 text-left font-medium">Jenis Kelamin</th>
+                    <th class=" px-4 py-2 text-left font-medium">Gangguan Lainnya</th>
+                    <th class=" px-4 py-2 text-left font-medium">Dibuat Pada</th>
+                    <th class=" px-4 py-2 text-left font-medium">Diperbarui Pada</th>
+                    <th class=" px-4 py-2 text-left font-medium">Dihapus Pada</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y">
                 @forelse($users as $user)
                     <tr wire:key="{{$user->id}}">
-                        <td class=" px-6 py-4">
+                        <td class=" px-4 py-2">
                             <div class="flex space-x-2">
                                 <flux:button size="xs" variant="primary" icon="pencil-square" wire:click="editPatient({{$user->id}})"></flux:button>
                                 <flux:button size="xs" icon="trash" variant="danger" wire:click="deletePatient({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus pasien ini?"></flux:button>
                             </div>
                         </td>
-                        <td class=" px-6 py-4 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
-                        <td class=" px-6 py-4 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
-                        <td class=" px-6 py-4">{{$user->name}}</td>
-                        <td class=" px-6 py-4">{{$user->email}}</td>
-                        <td class=" px-6 py-4 text-center">{{$user->age}}</td>
-                        <td class=" px-6 py-4">{{$user->gender->label()}}</td>
-                        <td class=" px-6 py-4">
+                        <td class=" px-4 py-2 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
+                        <td class=" px-4 py-2 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
+                        <td class=" px-4 py-2">{{$user->name}}</td>
+                        <td class=" px-4 py-2">{{$user->email}}</td>
+                        <td class=" px-4 py-2 text-center">{{$user->age}}</td>
+                        <td class=" px-4 py-2">{{$user->gender->label()}}</td>
+                        <td class=" px-4 py-2">
                             @forelse(json_decode($user->problems) as $problem)
                                 {{ Problem::tryFrom($problem)->label() }},
                             @empty
                                 -
                             @endforelse
                         </td>
-                        <td class=" px-6 py-4">{{$user->created_at->format('d/m/Y H:i')}}</td>
-                        <td class=" px-6 py-4">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>
-                        <td class=" px-6 py-4">{{$user->deleted_at ? $user->deleted_at->format('d/m/Y H:i') : '-'}}</td>
+                        <td class="px-4 py-2">{{$user->created_at->format('d/m/Y H:i')}}</td>
+                        <td class="px-4 py-2">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>
+                        <td class="px-4 py-2">{{$user->deleted_at ? $user->deleted_at->format('d/m/Y H:i') : '-'}}</td>
                     </tr>
                 @empty
                     <tr class="text-center">
-                        <td colspan="11" class=" px-6 py-4 text-gray-500 dark:text-gray-400">
+                        <td colspan="11" class=" px-4 py-2 text-gray-500 dark:text-gray-400">
                             Kosong
                         </td>
                     </tr>

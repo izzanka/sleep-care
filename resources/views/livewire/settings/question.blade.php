@@ -23,10 +23,6 @@ new class extends Component {
 
     public ?int $ID = null;
     public ?string $question = null;
-    public ?string $type = null;
-    public ?string $record_type = null;
-    public ?int $parent_id = null;
-    public bool $is_parent = false;
     public ?string $note = null;
 
     public function with()
@@ -105,10 +101,6 @@ new class extends Component {
         }
         $this->ID = $questionID;
         $this->question = $question->question;
-        $this->type = $question->type->value;
-        $this->record_type = $question->record_type->value;
-        $this->parent_id = $question->parent_id;
-        $this->is_parent = $question->is_parent;
         $this->note = $question->note;
 
         $this->modal('editQuestion')->show();
@@ -123,10 +115,6 @@ new class extends Component {
     {
         $validated = $this->validate([
             'question' => ['required', 'string', 'max:225'],
-            'type' => ['required'],
-            'record_type' => ['required'],
-            'parent_id' => ['nullable', 'int'],
-            'is_parent' => ['boolean'],
             'note' => ['nullable', 'string', 'max:225'],
         ]);
 
@@ -137,9 +125,6 @@ new class extends Component {
         }
 
         $question->update($validated);
-
-        $this->modal('editQuestion')->close();
-
         session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil diubah.', 'success' => true]);
 
         $this->redirectRoute('admin.settings.question');
@@ -154,9 +139,6 @@ new class extends Component {
         }
 
         $question->delete();
-
-        $this->modal('deleteQuestion')->close();
-
         session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil dihapus.', 'success' => true]);
 
         $this->redirectRoute('admin.settings.question');
@@ -180,32 +162,36 @@ new class extends Component {
                         <flux:input label="ID" readonly value="{{$ID}}"></flux:input>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                        <flux:select label="Jenis Pertanyaan" wire:model="type">
-                            @foreach(QuestionType::cases() as $questionType)
-                                <flux:select.option
-                                    :value="$questionType">{{$questionType->label()}}</flux:select.option>
-                            @endforeach
-                        </flux:select>
-                        <flux:select label="Jenis Catatan Terapi" wire:model="record_type">
-                            @foreach(RecordType::cases() as $recordType)
-                                <flux:select.option :value="$recordType">{{$recordType->label()}}</flux:select.option>
-                            @endforeach
-                        </flux:select>
-                    </div>
+{{--                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">--}}
+{{--                        <flux:select label="Jenis Pertanyaan" wire:model="type">--}}
+{{--                            @foreach(QuestionType::cases() as $questionType)--}}
+{{--                                <flux:select.option--}}
+{{--                                    :value="$questionType">{{$questionType->label()}}</flux:select.option>--}}
+{{--                            @endforeach--}}
+{{--                        </flux:select>--}}
+{{--                        <flux:select label="Jenis Catatan" wire:model="record_type">--}}
+{{--                            @foreach(RecordType::cases() as $recordType)--}}
+{{--                                <flux:select.option :value="$recordType">{{$recordType->label()}}</flux:select.option>--}}
+{{--                            @endforeach--}}
+{{--                        </flux:select>--}}
+{{--                    </div>--}}
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                        <flux:select label="Pertanyaan Induk" wire:model="is_parent">
-                            <flux:select.option value="false">Tidak
-                            </flux:select.option>
-                            <flux:select.option value="true">Ya
-                            </flux:select.option>
-                        </flux:select>
-                        <flux:input wire:model="parent_id" label="ID Pertanyaan Induk" placeholder="-"></flux:input>
+{{--                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">--}}
+{{--                        <flux:select label="Induk" wire:model="is_parent">--}}
+{{--                            <flux:select.option value="false">Tidak--}}
+{{--                            </flux:select.option>--}}
+{{--                            <flux:select.option value="true">Ya--}}
+{{--                            </flux:select.option>--}}
+{{--                        </flux:select>--}}
+{{--                        <flux:input wire:model="parent_id" label="ID Induk" placeholder="-"></flux:input>--}}
+{{--                    </div>--}}
+
+                    <div class="mt-4 mb-4">
+                        <flux:textarea wire:model="question" label="Pertanyaan" rows="2"></flux:textarea>
                     </div>
 
                     <div class="mt-4 mb-4">
-                        <flux:textarea wire:model="note" label="Catatan"></flux:textarea>
+                        <flux:input wire:model="note" label="Catatan"></flux:input>
                     </div>
 
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
@@ -269,7 +255,7 @@ new class extends Component {
                         </div>
 
                         <div>
-                            <flux:input label="ID   Induk" wire:model="filterParentID" placeholder="1"></flux:input>
+                            <flux:input label="ID Induk" wire:model="filterParentID" placeholder="1"></flux:input>
                         </div>
                     </div>
 
@@ -284,29 +270,29 @@ new class extends Component {
             <table class="min-w-full table-auto text-sm">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                 <tr>
-                    <th class=" px-6 py-3 text-left font-medium">Aksi</th>
-                    <th class=" px-6 py-3 text-left font-medium">No</th>
-                    <th class=" px-6 py-3 text-left font-medium">Pertanyaan</th>
-                    <th class=" px-6 py-3 text-left font-medium">Induk</th>
-                    <th class=" px-6 py-3 text-left font-medium">ID Induk</th>
-                    <th class=" px-6 py-3 text-left font-medium">Jenis Pertanyaan</th>
-                    <th class=" px-6 py-3 text-left font-medium">Jenis Catatan</th>
-                    <th class=" px-6 py-3 text-left font-medium">Catatan</th>
-                    <th class=" px-6 py-3 text-left font-medium">Dibuat Pada</th>
-                    <th class=" px-6 py-3 text-left font-medium">Diperbarui Pada</th>
+                    <th class=" px-4 py-2 text-left font-medium">Aksi</th>
+                    <th class=" px-4 py-2 text-left font-medium">No</th>
+                    <th class=" px-4 py-2 text-left font-medium">Pertanyaan</th>
+                    <th class=" px-4 py-2 text-left font-medium">Induk</th>
+                    <th class=" px-4 py-2 text-left font-medium">ID Induk</th>
+                    <th class=" px-4 py-2 text-left font-medium">Jenis Pertanyaan</th>
+                    <th class=" px-4 py-2 text-left font-medium">Jenis Catatan</th>
+                    <th class=" px-4 py-2 text-left font-medium">Catatan</th>
+                    <th class=" px-4 py-2 text-left font-medium">Dibuat Pada</th>
+                    <th class=" px-4 py-2 text-left font-medium">Diperbarui Pada</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y">
                 @forelse($questions as $question)
                     <tr wire:key="{{$question->id}}">
-                        <td class=" px-6 py-4">
+                        <td class=" px-4 py-2">
                             <flux:button size="xs" variant="primary" icon="pencil-square" class="me-1"
                                          wire:click="editQuestion({{$question->id}})"></flux:button>
                         </td>
-                        <td class=" px-6 py-4 text-center">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
-                        <td class=" px-6 py-4">{{$question->question}}</td>
-                        <td class=" px-6 py-4 text-center">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
-                        <td class=" px-6 py-4 text-center">
+                        <td class=" px-4 py-2 text-center">{{ ($questions->currentPage() - 1) * $questions->perPage() + $loop->iteration }}</td>
+                        <td class=" px-4 py-2">{{$question->question}}</td>
+                        <td class=" px-4 py-2 text-center">{{$question->is_parent ? 'Ya' : 'Tidak'}}</td>
+                        <td class=" px-4 py-2 text-center">
                             @if($question->parent_id)
                                 <flux:link wire:click.prevent="filterByParentID({{$question->parent_id}})" href="#">
                                     {{$question->parent_id}}
@@ -315,18 +301,18 @@ new class extends Component {
                                 -
                             @endif
                         </td>
-                        <td class=" px-6 py-4">{{$question->type->label()}}</td>
-                        <td class=" px-6 py-4">{{$question->record_type->label()}}</td>
-                        <td class=" px-6 py-4">{{$question->note ?? '-'}}</td>
-                        <td class=" px-6 py-4">{{$question->created_at->format('d/m/Y H:i')}}</td>
-                        <td class=" px-6 py-4">
+                        <td class=" px-4 py-2">{{$question->type->label()}}</td>
+                        <td class=" px-4 py-2">{{$question->record_type->label()}}</td>
+                        <td class=" px-4 py-2">{{$question->note ?? '-'}}</td>
+                        <td class=" px-4 py-2">{{$question->created_at->format('d/m/Y H:i')}}</td>
+                        <td class=" px-4 py-2">
                             {{ $question->updated_at ? $question->updated_at->format('d/m/Y H:i') : '-' }}
                         </td>
                     </tr>
                 @empty
                     <tr class="text-center">
-                        <td colspan="10" class=" px-6 py-4 text-gray-500 dark:text-gray-400">
-                            Kosong
+                        <td colspan="10" class="px-4 py-2 text-dark dark:text-white">
+                            Tidak ada pertanyaan.
                         </td>
                     </tr>
                 @endforelse

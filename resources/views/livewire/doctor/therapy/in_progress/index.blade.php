@@ -1,144 +1,106 @@
+
 <?php
 
-use App\Enum\Problem;
 use App\Enum\TherapyStatus;
-use App\Service\TherapyService;
+use App\Models\Therapy;
+use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
+use Livewire\WithPagination;
 
 new class extends Component {
-    protected TherapyService $therapyService;
+    use WithPagination;
 
-    public $therapy;
-    public $problems;
-    public $isEndDate = false;
-
-    public function boot(TherapyService $therapyService)
-    {
-        $this->therapyService = $therapyService;
-    }
+    #[Url]
+    public string $search = '';
+    public $doctorId;
 
     public function mount()
     {
-        $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if($this->therapy){
-            $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
-            $this->isEndDate = now()->greaterThan($this->therapy->end_date);
-        }
+        $this->doctorId = auth()->user()->doctor->id;
     }
 
-    public function updateTherapy()
+    public function getTherapies()
     {
-        if(now()->greaterThan($this->therapy->end_date)){
-            $this->therapy->update(['status' => TherapyStatus::COMPLETED->value]);
-            $this->therapy->patient->update(['is_therapy_in_progress' => false]);
-            $this->therapy->doctor->user->update(['is_therapy_in_progress' => false]);
-            session()->flash('status', ['message' => 'Berhasil mengubah status terapi menjadi selesai.', 'success' => true]);
-        }else{
-            session()->flash('status', ['message' => 'Terapi belum bisa diselesaikan karena belum melewati tanggal selesai.', 'success' => false]);
-        }
-
-        $this->redirectRoute('doctor.therapies.completed.index');
+        return Therapy::query()
+            ->where('doctor_id', $this->doctorId)
+            ->where('status', TherapyStatus::IN_PROGRESS->value)
+            ->when($this->search, function (Builder $query) {
+                $query->whereHas('patient', function (Builder $q) {
+                    $q->where('name', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->latest()
+            ->paginate(15);
     }
 
-    protected function formatPatientProblems(?string $problems)
+    public function with()
     {
-        if (!$problems) {
-            return '-';
-        }
-
-        return collect(json_decode($problems))
-            ->map(fn($problem) => Problem::tryFrom($problem)?->label() ?? $problem)
-            ->implode(', ');
+        $therapies = $this->getTherapies();
+        return [
+            'therapies' => $therapies,
+        ];
     }
+
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Informasi'])
-    <div>
-        @if($therapy)
-            <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-                <div class="flex items-center space-x-2">
-                    <flux:icon.document></flux:icon.document>
-                    <flux:heading>
-                        Terapi
-                    </flux:heading>
-                </div>
-                <flux:separator class="mt-4 mb-4"></flux:separator>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <flux:heading>ID</flux:heading>
-                        <flux:text>{{$therapy->id}}</flux:text>
-                    </div>
-                    <div>
-                        <flux:heading>Status</flux:heading>
-                        <flux:text>{{$therapy->status->label()}}</flux:text>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <flux:heading>Tanggal Mulai</flux:heading>
-                        <flux:text>{{$therapy->start_date->isoFormat('D MMMM Y')}}</flux:text>
-                    </div>
-                    <div>
-                        <flux:heading>Tanggal Selesai</flux:heading>
-                        <flux:text>{{$therapy->end_date->isoFormat('D MMMM Y')}}</flux:text>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <flux:heading>Biaya Jasa Psikolog</flux:heading>
-                        <flux:text>@currency($therapy->doctor_fee)</flux:text>
-                    </div>
-                    <div>
-                        <flux:heading>Biaya Jasa Aplikasi</flux:heading>
-                        <flux:text>@currency($therapy->application_fee)</flux:text>
-                    </div>
-                </div>
-            </div>
+    @include('partials.main-heading', ['title' => 'Terapi'])
 
-            <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-                <div class="flex items-center space-x-2">
-                    <flux:icon.user></flux:icon.user>
-                    <flux:heading>
-                        Pasien
-                    </flux:heading>
-                </div>
-
-                <flux:separator class="mt-4 mb-4"></flux:separator>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <flux:heading>Nama</flux:heading>
-                        <flux:text>{{$therapy->patient->name}}</flux:text>
-                    </div>
-                    <div>
-                        <flux:heading>Usia</flux:heading>
-                        <flux:text>{{$therapy->patient->age}}</flux:text>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <flux:heading>Jenis Kelamin</flux:heading>
-                        <flux:text>{{$therapy->patient->gender->label()}}</flux:text>
-                    </div>
-                    <div>
-                        <flux:heading>Gangguan Lainnya</flux:heading>
-                        <flux:text>{{$problems}}</flux:text>
-                    </div>
-                </div>
-
-            </div>
-            <div class="mt-4">
-                <flux:button variant="danger" class="w-full" wire:click="updateTherapy" wire:confirm="Apa anda yakin ingin mengubah status terapi menjadi selesai?">
-                    Selesaikan Terapi
-                </flux:button>
-            </div>
-        @else
-            <flux:heading>
-                Belum ada terapi yang berlangsung
-            </flux:heading>
-        @endif
+    <div class="mb-4">
+        <div class="flex items-center">
+            <flux:input icon="magnifying-glass" placeholder="Cari terapi berdasarkan nama pasien" wire:model.live="search"/>
+        </div>
+    </div>
+{{--    <flux:separator class="mt-4 mb-4"/>--}}
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto w-full text-sm rounded-lg border overflow-hidden">
+            <thead class="bg-blue-400 dark:bg-blue-600 text-white">
+            <tr class="text-left">
+                <th class="px-4 py-2">Aksi</th>
+                <th class="px-4 py-2 text-center">No</th>
+                <th class="px-4 py-2">Pasien</th>
+                <th class="px-4 py-2">Tanggal Mulai</th>
+                <th class="px-4 py-2">Tanggal Selesai</th>
+                <th class="px-4 py-2">Biaya Jasa Psikolog</th>
+                <th class="px-4 py-2">Biaya Jasa Aplikasi</th>
+                <th class="px-4 py-2">Status</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y">
+            @forelse($therapies as $therapy)
+                <tr class="text-left">
+                    <td class="px-4 py-2">
+                        <flux:button size="xs" variant="primary" wire:navigate
+                                     href="{{route('doctor.therapies.in_progress.detail', $therapy->id)}}">
+                            Detail
+                        </flux:button>
+                    </td>
+                    <td class="px-4 py-2 text-center">{{ $loop->iteration }}</td>
+                    <td class="px-4 py-2">{{ $therapy->patient->name }}</td>
+                    <td class="px-4 py-2">{{ $therapy->start_date->format('d/m/Y') }}</td>
+                    <td class="px-4 py-2">{{ $therapy->end_date->format('d/m/Y') }}</td>
+                    <td class="px-4 py-2">@currency($therapy->doctor_fee)</td>
+                    <td class="px-4 py-2">@currency($therapy->application_fee)</td>
+                    <td class="px-4 py-2">{{ $therapy->status->label() }}</td>
+                </tr>
+            @empty
+                <tr class="text-center">
+                    <td colspan="8" class="px-4 py-2 text-dark dark:text-white">
+                        <flux:heading class="mt-2">
+                            Tidak ada terapi.
+                        </flux:heading>
+                    </td>
+                </tr>
+            @endforelse
+            </tbody>
+        </table>
     </div>
 
+    <div class="mt-6">
+        {{$therapies->links()}}
+    </div>
 </section>
+
 

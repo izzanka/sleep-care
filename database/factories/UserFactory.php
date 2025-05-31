@@ -65,7 +65,7 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'name' => $attributes['name'] . ', S.Psi',
+                'name' => $attributes['name'].', S.Psi',
                 'role' => UserRole::DOCTOR->value,
             ];
         });

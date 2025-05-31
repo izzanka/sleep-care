@@ -24,7 +24,7 @@ class QuestionSeeder extends Seeder
         foreach ($sleepDiaryTitleParents as $sleepDiaryTitleParent) {
             $parentQuestions[] = Question::create([
                 'question' => $sleepDiaryTitleParent,
-                'type' => QuestionType::BINARY->value,
+                'type' => QuestionType::BOOLEAN->value,
                 'record_type' => RecordType::SLEEP_DIARY->value,
                 'note' => 'Siang',
                 'is_parent' => true,
@@ -89,7 +89,7 @@ class QuestionSeeder extends Seeder
         foreach ($sleepDiaryBinaryQuestions as $question) {
             $questions[] = [
                 'question' => $question,
-                'type' => QuestionType::BINARY->value,
+                'type' => QuestionType::BOOLEAN->value,
                 'record_type' => RecordType::SLEEP_DIARY->value,
                 'note' => 'Siang',
                 'parent_id' => null,
@@ -104,7 +104,7 @@ class QuestionSeeder extends Seeder
             'Berapa total jam kamu tidur?' => QuestionType::NUMBER->value,
             'Berapa kali kamu terbangun di malam hari?' => QuestionType::NUMBER->value,
             'Isilah skala kualitas tidurmu?' => QuestionType::NUMBER->value,
-            'Apakah kamu merasa tidurmu cukup?' => QuestionType::BINARY->value,
+            'Apakah kamu merasa tidurmu cukup?' => QuestionType::BOOLEAN->value,
         ];
 
         foreach ($sleepDiaryOpenQuestions as $question => $type) {
@@ -184,7 +184,7 @@ class QuestionSeeder extends Seeder
             'Tujuan' => QuestionType::TEXT->value,
             'Rencana' => QuestionType::TEXT->value,
             'Waktu pelaksanaan' => QuestionType::TEXT->value,
-            'Terlaksana' => QuestionType::BINARY->value,
+            'Terlaksana' => QuestionType::BOOLEAN->value,
             'Hambatan' => QuestionType::TEXT->value,
             'Cara mengatasi' => QuestionType::TEXT->value,
         ];

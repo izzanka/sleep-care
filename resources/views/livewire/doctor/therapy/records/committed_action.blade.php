@@ -15,6 +15,9 @@ new class extends Component {
 
     public $therapy;
     public $committedAction;
+    public ?string $comment;
+    public int $no;
+    public int $id;
 
     public function boot(TherapyService $therapyService, RecordService $recordService, QuestionService $questionService)
     {
@@ -23,10 +26,10 @@ new class extends Component {
         $this->questionService = $questionService;
     }
 
-    public function mount()
+    public function mount(int $therapyId)
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -48,6 +51,55 @@ new class extends Component {
         ];
     }
 
+    public function createComment(int $id, int $no)
+    {
+        $questionAnswer = CommittedActionQuestionAnswer::find($id);
+        if (!$questionAnswer) {
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $this->id = $id;
+        $this->no = $no;
+        $this->comment = $questionAnswer->comment;
+
+        $this->modal('addComment')->show();
+    }
+
+    public function storeComment()
+    {
+        $validated = $this->validate([
+            'comment' => ['nullable', 'string', 'max:225'],
+        ]);
+
+        $questionAnswer = CommittedActionQuestionAnswer::find($this->id);
+        if (!$questionAnswer) {
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $questionAnswer->update([
+            'comment' => $validated['comment'],
+        ]);
+
+        session()->flash('status', ['message' => 'Komentar berhasil disimpan.', 'success' => true]);
+        $this->reset('comment', 'id');
+        $this->modal('addComment')->close();
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+    }
+
+    public function deleteComment(int $id)
+    {
+        $questionAnswer = CommittedActionQuestionAnswer::find($id);
+        if (!$questionAnswer) {
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $questionAnswer->update([
+            'comment' => null,
+        ]);
+        session()->flash('status', ['message' => 'Berhasil menghapus komentar.', 'success' => true]);
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+    }
+
     public function with()
     {
         $questionAnswers = $this->committedAction->questionAnswers;
@@ -66,7 +118,24 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Catatan Tindakan Berkomitmen (Committed Action)'])
+    @include('partials.main-heading', ['title' => null])
+
+    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+        <flux:callout icon="information-circle" class="mb-4" color="blue"
+                      x-data="{ visible: localStorage.getItem('hideMessageAction') !== 'true' }"
+                      x-show="visible"
+                      x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageAction', 'true'))">
+            <flux:callout.heading>Catatan Tindakan (Committed Action)</flux:callout.heading>
+
+            <flux:callout.text>
+                Digunakan untuk mencatat tindakan nyata yang dilakukan pasien sebagai bentuk komitmen terhadap
+                nilai-nilai pribadinya.
+                <br><br>
+                <flux:callout.link href="#" @click="visible = false">Jangan tampilkan lagi.</flux:callout.link>
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
 
     <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
         <div class="flex">
@@ -75,28 +144,71 @@ new class extends Component {
             </div>
         </div>
         <flux:separator class="mt-4 mb-4"></flux:separator>
+        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-6">
+                <form wire:submit="storeComment">
+                    <div>
+                        <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
+                    </div>
+                    <div class="mb-4 mt-4">
+                        <flux:textarea rows="2" label="Komentar" wire:model="comment"
+                                       placeholder="Tambahkan sebuah komentar"/>
+                    </div>
+                    <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
+                </form>
+            </div>
+        </flux:modal>
 
         <div class="overflow-x-auto mt-4">
             <table class="min-w-[800px] table-auto w-full text-sm text-left rounded-lg border overflow-hidden">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr class="text-center">
-                    <th class="p-3">No</th>
+                <tr class="text-left">
+                    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                        <th class="px-4 py-2 font-medium">Aksi Komentar</th>
+                    @endif
+                    <th class="px-4 py-2 font-medium">No</th>
                     @foreach($questions as $question)
-                        <th class="p-3 whitespace-nowrap">{{ $question }}</th>
+                        <th class="px-4 py-2 font-medium">{{ $question }}</th>
                     @endforeach
+                    <th class="px-4 py-2 font-medium">Komentar</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y">
                 @forelse($rows as $index => $row)
+                    @php
+                        $firstAnswerWithComment = $row->first(fn($qa) => !empty($qa->comment));
+                    @endphp
                     <tr>
-                        <td class="p-3 text-center">{{ $index + 1 }}</td>
+                        @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                            <td class="px-4 py-2 text-center">
+                                @if($firstAnswerWithComment)
+                                    <div class="flex items-center space-x-1">
+                                        <flux:button variant="primary" size="xs" icon="pencil-square"
+                                                     wire:click="createComment({{ $firstAnswerWithComment->id }}, {{ $loop->iteration }})"/>
+                                        <flux:button variant="danger" size="xs" icon="trash"
+                                                     wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
+                                                     wire:click="deleteComment({{ $firstAnswerWithComment->id }})"/>
+                                    </div>
+                                @else
+                                    @php
+                                        $firstAnswer = $row->first();
+                                    @endphp
+                                    @if($firstAnswer)
+                                        <flux:button variant="primary" size="xs" icon="plus"
+                                                     wire:click="createComment({{$firstAnswer->id}},{{$loop->iteration}})">
+                                        </flux:button>
+                                    @endif
+                                @endif
+                            </td>
+                        @endif
+                        <td class="px-4 py-2 text-center">{{ $index + 1 }}</td>
                         @foreach($questions as $question)
                             @php
                                 $answerData = $row->firstWhere('question.question', $question)?->answer;
-                                $isBinary = $answerData?->type === QuestionType::BINARY->value;
+                                $isBinary = $answerData?->type === QuestionType::BOOLEAN->value;
                                 $value = $answerData?->answer ?? null;
                             @endphp
-                            <td class="p-3">
+                            <td class="px-4 py-2 text-left">
                                 @if($isBinary)
                                     <div class="flex justify-center items-center h-full">
                                         @if($value)
@@ -112,11 +224,15 @@ new class extends Component {
                                 @endif
                             </td>
                         @endforeach
+                        <td class="px-4 py-2 text-left">
+
+                            {{ $firstAnswerWithComment?->comment ?? '-' }}
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-4 text-center" colspan="{{ count($questions) + 1 }}">
-                            <flux:heading>Belum ada catatan</flux:heading>
+                        <td class="px-4 py-2 text-center" colspan="10">
+                            <flux:heading class="mt-2">Belum ada catatan aksi</flux:heading>
                         </td>
                     </tr>
                 @endforelse
@@ -128,15 +244,11 @@ new class extends Component {
 
 @script
 <script>
-    let chartInstance;
+    const canvas = document.getElementById('committedActionChart');
+    const ctx = canvas?.getContext('2d');
+    const isDark = document.documentElement.classList.contains('dark');
 
-    function createChart() {
-        const canvas = document.getElementById('committedActionChart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const isDark = document.documentElement.classList.contains('dark');
-
+    if (ctx) {
         const config = {
             type: 'doughnut',
             data: {
@@ -144,7 +256,7 @@ new class extends Component {
                 datasets: [{
                     data: @json($data),
                     borderWidth: 0.5,
-                    // backgroundColor: ['#00C951','#FB2D37']
+                    // backgroundColor: ['#00C951', '#FB2D37'],
                 }]
             },
             options: {
@@ -164,20 +276,8 @@ new class extends Component {
             }
         };
 
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        chartInstance = new Chart(ctx, config);
+        new Chart(ctx, config);
     }
-
-    document.addEventListener('DOMContentLoaded', createChart);
-
-    const observer = new MutationObserver(createChart);
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class'],
-    });
 </script>
 @endscript
 

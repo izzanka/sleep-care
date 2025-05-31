@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('week');
             $table->integer('day');
             $table->date('date');
+            $table->string('comment')->nullable();
             $table->timestamps();
         });
     }

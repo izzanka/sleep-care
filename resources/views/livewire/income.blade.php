@@ -80,7 +80,7 @@ new class extends Component {
                             @can('isAdmin', Auth::user())
                                 (Biaya Jasa Aplikasi #{{$order->id}})
                             @elsecan('isDoctor', Auth::user())
-                                (Biaya Jasa Terapi #{{$order->therapy->id}})
+                                (Biaya Jasa Terapi Pasien {{$order->therapy->patient->name}})
                             @endcan
                         </flux:subheading>
                     </div>

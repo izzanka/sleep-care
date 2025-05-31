@@ -39,6 +39,6 @@ class UserService
 
     public function getPatientOnlineStatus(int $patientId)
     {
-        return User::find($patientId)->value('is_online');
+        return User::where('id', $patientId)->value('is_online');
     }
 }

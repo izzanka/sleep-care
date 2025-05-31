@@ -26,11 +26,11 @@ new class extends Component {
         $this->therapyService = $therapyService;
     }
 
-    public function mount()
+    public function mount(int $therapyId)
     {
         $doctorId = auth()->user()->doctor->id;
 
-        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
         if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
@@ -79,7 +79,7 @@ new class extends Component {
             foreach ($questionMapping as $questionId => $dataKey) {
                 $sum = $entries->sum(function ($diary) use ($questionId, &$ids) {
                     $questionAnswers = $diary->questionAnswers->firstWhere('is_read', null);
-                    if ($questionAnswers){
+                    if ($questionAnswers) {
                         $ids[] = $diary->id;
                     }
                     return $diary->questionAnswers->firstWhere('question_id', $questionId)->answer->answer ?? 0;
@@ -102,7 +102,24 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Catatan Tidur (Sleep Diary)'])
+    @include('partials.main-heading', ['title' => null])
+
+    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+        <flux:callout icon="information-circle" class="mb-4" color="blue"
+                      x-data="{ visible: localStorage.getItem('hideMessageSleep') !== 'true' }"
+                      x-show="visible"
+                      x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageSleep', 'true'))">
+            <flux:callout.heading>Catatan Tidur (Sleep Diary)</flux:callout.heading>
+
+            <flux:callout.text>
+                Digunakan untuk mencatat dan memantau pola tidur pasien secara rutin, serta membantu mengidentifikasi
+                hubungan antara kualitas tidur dan kondisi psikologis, untuk mendukung perubahan perilaku ke arah yang
+                lebih sehat.
+                <br><br>
+                <flux:callout.link href="#" @click="visible = false">Jangan tampilkan lagi.</flux:callout.link>
+            </flux:callout.text>
+        </flux:callout>
+    @endif
 
     <div x-data="{ openIndex: null }">
         <div x-data="{ activeSlide: 0 }"
@@ -144,16 +161,16 @@ new class extends Component {
 
         @foreach($sleepDiaries as $index => $sleepDiary)
             <div
-                class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
-                x-ref="card{{ $index }}"
+                    class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
+                    x-ref="card{{ $index }}"
             >
                 <div class="flex items-center w-full">
                     <flux:icon.calendar/>
 
                     <flux:button
-                        variant="ghost"
-                        class="w-full"
-                        @click="
+                            variant="ghost"
+                            class="w-full"
+                            @click="
                             openIndex = (openIndex === {{ $index }}) ? null : {{ $index }};
                             if (openIndex === {{ $index }}) {
                                 $nextTick(() => {
@@ -203,7 +220,7 @@ new class extends Component {
                             @if($structuredQuestions->isEmpty())
                                 <tr>
                                     <td class="p-4 text-center" colspan="8">
-                                        <flux:heading>Belum ada catatan</flux:heading>
+                                        <flux:heading>Belum ada catatan tidur</flux:heading>
                                     </td>
                                 </tr>
                             @else
@@ -221,7 +238,7 @@ new class extends Component {
                                             <td class="p-2">
                                                 <div class="flex justify-center items-center h-full">
                                                     @if($entry && $entry->answer)
-                                                        @if($entry->answer->type == QuestionType::BINARY->value)
+                                                        @if($entry->answer->type == QuestionType::BOOLEAN->value)
                                                             @if($entry->answer->answer)
                                                                 <flux:icon.check-circle class="text-green-500"/>
                                                             @else
@@ -270,19 +287,16 @@ new class extends Component {
 
 @script
 <script>
-    let barChartInstance;
-    let lineChartInstance;
+    const canvasLine = document.getElementById('lineChart');
+    const canvasBar = document.getElementById('barChart');
 
-    function createCharts() {
-        const lineChartCanvas = document.getElementById('lineChart');
-        const barChartCanvas = document.getElementById('barChart');
-        if (!lineChartCanvas || !barChartCanvas) return;
+    const ctxLine = canvasLine?.getContext('2d');
+    const ctxBar = canvasBar?.getContext('2d');
 
-        const lineChartCtx = lineChartCanvas.getContext('2d');
-        const barChartCtx = barChartCanvas.getContext('2d');
-        const isDark = document.documentElement.classList.contains('dark');
+    const isDark = document.documentElement.classList.contains('dark');
 
-        const dataLineChart = {
+    if (ctxLine && ctxBar) {
+        const dataLine = {
             labels: @json($labels),
             datasets: [
                 {
@@ -316,31 +330,9 @@ new class extends Component {
             ],
         };
 
-        const dataBarChart = {
-            labels: @json($labels),
-            datasets: [
-                {
-                    label: 'Kafein',
-                    data: @json($dataCaffeine),
-                },
-                {
-                    label: 'Alkohol',
-                    data: @json($dataAlcohol),
-                },
-                {
-                    label: 'Nikotin',
-                    data: @json($dataNicotine),
-                },
-                {
-                    label: 'Makanan',
-                    data: @json($dataFood),
-                },
-            ]
-        };
-
-        const configLineChart = {
+        const configLine = {
             type: 'line',
-            data: dataLineChart,
+            data: dataLine,
             options: {
                 responsive: true,
                 plugins: {
@@ -379,9 +371,31 @@ new class extends Component {
             }
         };
 
-        const configBarChart = {
+        const dataBar = {
+            labels: @json($labels),
+            datasets: [
+                {
+                    label: 'Kafein',
+                    data: @json($dataCaffeine),
+                },
+                {
+                    label: 'Alkohol',
+                    data: @json($dataAlcohol),
+                },
+                {
+                    label: 'Nikotin',
+                    data: @json($dataNicotine),
+                },
+                {
+                    label: 'Makanan',
+                    data: @json($dataFood),
+                },
+            ]
+        };
+
+        const configBar = {
             type: 'bar',
-            data: dataBarChart,
+            data: dataBar,
             options: {
                 responsive: true,
                 plugins: {
@@ -415,24 +429,8 @@ new class extends Component {
             }
         };
 
-        if (barChartInstance) barChartInstance.destroy();
-        if (lineChartInstance) lineChartInstance.destroy();
-
-        barChartInstance = new Chart(lineChartCtx, configLineChart);
-        lineChartInstance = new Chart(barChartCtx, configBarChart);
+        new Chart(ctxLine, configLine);
+        new Chart(ctxBar, configBar);
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        createCharts();
-    });
-
-    const observer = new MutationObserver(() => {
-        createCharts();
-    });
-
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class'],
-    });
 </script>
 @endscript

@@ -24,7 +24,7 @@ class TherapySeeder extends Seeder
         $doctor->user->is_therapy_in_progress = true;
         $doctor->user->save();
 
-        $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->first();
+        $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->inRandomOrder()->first();
         $patient->is_therapy_in_progress = true;
         $patient->save();
 
@@ -51,6 +51,10 @@ class TherapySeeder extends Seeder
                 'message' => fake()->sentence,
             ]);
         }
+
+        $patient = User::select('id', 'role')->where('role', UserRole::PATIENT->value)->inRandomOrder()->first();
+        $patient->is_therapy_in_progress = true;
+        $patient->save();
 
         $therapyCompleted = Therapy::factory()->create([
             'doctor_id' => $doctor->id,

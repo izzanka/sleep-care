@@ -18,6 +18,8 @@ class Sidebar extends Component
 
     public $hasOngoingTherapy;
 
+    public $inProgressTherapiesCount;
+
     public $completedTherapiesCount;
 
     public $allTherapyCount;
@@ -53,25 +55,26 @@ class Sidebar extends Component
 
             if (Gate::allows('isDoctor', $this->user)) {
                 $doctor = $this->user->doctor;
-                $ongoingTherapy = $doctor->therapies()
-                    ->where('status', TherapyStatus::IN_PROGRESS->value)
-                    ->first();
-                $this->hasOngoingTherapy = $ongoingTherapy !== null;
-                if ($this->hasOngoingTherapy) {
-                    $thoughtRecord = $ongoingTherapy->thoughtRecords->first();
-                    $committedAction = $ongoingTherapy->committedActions->first();
-                    $emotionRecord = $ongoingTherapy->emotionRecords->first();
-                    $identifyValue = $ongoingTherapy->identifyValues->first();
-
-                    $this->unreadChatsCount = $doctor->user->received()->where('therapy_id', $ongoingTherapy->id)->whereNull('read_at')->count();
-                    $this->unreadThoughtRecord = $thoughtRecord?->questionAnswers()?->whereNull('is_read')->exists();
-                    $this->unreadCommittedAction = $committedAction?->questionAnswers()?->whereNull('is_read')->exists();
-                    $this->unreadEmotionRecord = $emotionRecord?->questionAnswers()?->whereNull('is_read')->exists();
-                    $this->unreadIdentifyValue = $identifyValue?->questionAnswers()?->whereNull('is_read')->exists();
-                    $this->unreadSleepDiary = $ongoingTherapy?->sleepDiaries()?->whereHas('questionAnswers', function ($query) {
-                        $query->whereNull('is_read');
-                    })->exists();
-                }
+                //                $ongoingTherapy = $doctor->therapies()
+                //                    ->where('status', TherapyStatus::IN_PROGRESS->value)
+                //                    ->first();
+                //                $this->hasOngoingTherapy = $ongoingTherapy !== null;
+                //                if ($this->hasOngoingTherapy) {
+                //                    $thoughtRecord = $ongoingTherapy->thoughtRecords->first();
+                //                    $committedAction = $ongoingTherapy->committedActions->first();
+                //                    $emotionRecord = $ongoingTherapy->emotionRecords->first();
+                //                    $identifyValue = $ongoingTherapy->identifyValues->first();
+                //
+                //                    $this->unreadChatsCount = $doctor->user->received()->where('therapy_id', $ongoingTherapy->id)->whereNull('read_at')->count();
+                //                    $this->unreadThoughtRecord = $thoughtRecord?->questionAnswers()?->whereNull('is_read')->exists();
+                //                    $this->unreadCommittedAction = $committedAction?->questionAnswers()?->whereNull('is_read')->exists();
+                //                    $this->unreadEmotionRecord = $emotionRecord?->questionAnswers()?->whereNull('is_read')->exists();
+                //                    $this->unreadIdentifyValue = $identifyValue?->questionAnswers()?->whereNull('is_read')->exists();
+                //                    $this->unreadSleepDiary = $ongoingTherapy?->sleepDiaries()?->whereHas('questionAnswers', function ($query) {
+                //                        $query->whereNull('is_read');
+                //                    })->exists();
+                //                }
+                $this->inProgressTherapiesCount = $doctor->therapies->where('status', TherapyStatus::IN_PROGRESS->value)->count();
                 $this->completedTherapiesCount = $doctor->therapies->where('status', TherapyStatus::COMPLETED->value)->count();
             }
 

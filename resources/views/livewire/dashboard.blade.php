@@ -110,7 +110,7 @@ new class extends Component {
                         <flux:callout.heading>Harap lengkapi profile anda!</flux:callout.heading>
                         <flux:callout.text>Profile anda belum lengkap. Silakan lengkapi informasi profile anda segera.</flux:callout.text>
                         <x-slot name="actions">
-                            <flux:button href="{{route('settings.profile')}}">Perbarui Profile</flux:button>
+                            <flux:button href="{{route('settings.profile')}}" wire:navigate>Perbarui Profile</flux:button>
                         </x-slot>
                     </flux:callout>
                 @endif
@@ -120,7 +120,7 @@ new class extends Component {
                         <flux:callout.heading>Anda memiliki terapi yang sedang berlangsung!</flux:callout.heading>
                         <x-slot name="actions">
                             <flux:button variant="primary" href="{{route('doctor.therapies.in_progress.index')}}"
-                                         icon:trailing="arrow-up-right">Cek Sekarang</flux:button>
+                                         icon:trailing="arrow-up-right" wire:navigate>Cek Sekarang</flux:button>
                         </x-slot>
                     </flux:callout>
                     <livewire:calendar></livewire:calendar>
@@ -164,17 +164,17 @@ new class extends Component {
                 <div class="overflow-x-auto rounded-lg mt-4">
                     <table class="min-w-full table-auto text-sm">
                         <thead class="bg-blue-400 text-white dark:bg-blue-600">
-                        <tr>
-                            <th class=" px-6 py-3 text-left font-medium">Aksi</th>
-                            <th class=" px-6 py-3 text-left font-medium">No</th>
-                            <th class=" px-6 py-3 text-left font-medium">ID</th>
-                            <th class=" px-6 py-3 text-left font-medium">Pasien</th>
-                            <th class=" px-6 py-3 text-left font-medium">Metode Pembayaran</th>
-                            <th class=" px-6 py-3 text-left font-medium">Total Pembayaran</th>
-                            <th class=" px-6 py-3 text-left font-medium">Status Pembayaran</th>
-                            <th class=" px-6 py-3 text-left font-medium">Status</th>
-                            <th class=" px-6 py-3 text-left font-medium">Dibuat Pada</th>
-                            <th class=" px-6 py-3 text-left font-medium">Diperbarui Pada</th>
+                        <tr class="text-left">
+                            <th class=" px-4 py-2 font-medium">Aksi</th>
+                            <th class=" px-4 py-2 font-medium">No</th>
+                            <th class=" px-4 py-2 font-medium">ID</th>
+                            <th class=" px-4 py-2 font-medium">Pasien</th>
+                            <th class=" px-4 py-2 font-medium">Metode Pembayaran</th>
+                            <th class=" px-4 py-2 font-medium">Total Pembayaran</th>
+                            <th class=" px-4 py-2 font-medium">Status Pembayaran</th>
+                            <th class=" px-4 py-2 font-medium">Status</th>
+                            <th class=" px-4 py-2 font-medium">Dibuat Pada</th>
+                            <th class=" px-4 py-2 font-medium">Diperbarui Pada</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y">
@@ -198,24 +198,24 @@ new class extends Component {
                             </flux:modal>
 
                             <tr wire:key="{{$order->id}}">
-                                <td class=" px-6 py-4">
+                                <td class=" px-4 py-2">
                                     <flux:modal.trigger :name="'detail-terapi-'.$order->therapy->id">
                                         <flux:button size="xs" variant="primary">Detail Terapi</flux:button>
                                     </flux:modal.trigger>
                                 </td>
-                                <td class=" px-6 py-4 text-center">{{$loop->iteration}}</td>
-                                <td class=" px-6 py-4">{{$order->id}}</td>
-                                <td class=" px-6 py-4">{{$order->therapy->patient->name ?? '-'}}</td>
-                                <td class=" px-6 py-4">{{$order->payment_type ?? '-'}}</td>
-                                <td class=" px-6 py-4 text-center">@currency($order->total_price)</td>
-                                <td class=" px-6 py-4">{{$order->payment_status->label()}}</td>
-                                <td class=" px-6 py-4">{{$order->status->label()}}</td>
-                                <td class=" px-6 py-4">{{$order->created_at->format('d/m/Y H:i')}}</td>
-                                <td class=" px-6 py-4">{{ $order->updated_at ? $order->updated_at->format('d/m/Y H:i') : '-' }}</td>
+                                <td class=" px-4 py-2 text-center">{{$loop->iteration}}</td>
+                                <td class=" px-4 py-2">{{$order->id}}</td>
+                                <td class=" px-4 py-2">{{$order->therapy->patient->name ?? '-'}}</td>
+                                <td class=" px-4 py-2">{{$order->payment_type ?? '-'}}</td>
+                                <td class=" px-4 py-2 text-center">@currency($order->total_price)</td>
+                                <td class=" px-4 py-2">{{$order->payment_status->label()}}</td>
+                                <td class=" px-4 py-2">{{$order->status->label()}}</td>
+                                <td class=" px-4 py-2">{{$order->created_at->format('d/m/Y H:i')}}</td>
+                                <td class=" px-4 py-2">{{ $order->updated_at ? $order->updated_at->format('d/m/Y H:i') : '-' }}</td>
                             </tr>
                         @empty
                             <tr class="text-center">
-                                <td colspan="10" class=" px-6 py-4 text-gray-500 dark:text-gray-400">
+                                <td colspan="10" class=" px-4 py-2 text-gray-500 dark:text-gray-400">
                                     Belum ada transaksi
                                 </td>
                             </tr>

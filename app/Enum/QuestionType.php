@@ -5,7 +5,7 @@ namespace App\Enum;
 enum QuestionType: string
 {
     case TEXT = 'text';
-    case BINARY = 'binary';
+    case BOOLEAN = 'boolean';
     case DATE = 'date';
     case TIME = 'time';
     case NUMBER = 'number';
@@ -13,11 +13,11 @@ enum QuestionType: string
     public function label(): string
     {
         return match ($this) {
-            self::TEXT => 'Text',
-            self::BINARY => 'Binary',
-            self::DATE => 'Date',
-            self::TIME => 'Time',
-            self::NUMBER => 'Number',
+            self::TEXT => 'Teks',
+            self::BOOLEAN => 'Boolean',
+            self::DATE => 'Tanggal',
+            self::TIME => 'Waktu',
+            self::NUMBER => 'Angka',
         };
     }
 }

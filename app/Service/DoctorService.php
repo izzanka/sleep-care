@@ -6,16 +6,12 @@ use App\Models\Doctor;
 
 class DoctorService
 {
-    public function get(string $orderBy = 'created_at', string $sort = 'desc', int $paginate = 15, ?bool $isAvailable = true, ?int $id = null)
+    public function get(string $orderBy = 'created_at', string $sort = 'desc', int $paginate = 15, ?int $id = null)
     {
         $query = Doctor::query()->select('doctors.*')->with('user');
 
         if ($id) {
             $query->where('id', $id);
-        }
-
-        if ($isAvailable) {
-            $query->where('is_available', $isAvailable);
         }
 
         if ($orderBy === 'is_therapy_in_progress') {
@@ -24,6 +20,8 @@ class DoctorService
         } else {
             $query->orderBy("doctors.$orderBy", $sort);
         }
+
+        $query->where('is_available', true);
 
         return $query->paginate($paginate);
     }

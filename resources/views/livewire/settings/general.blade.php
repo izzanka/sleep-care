@@ -61,6 +61,7 @@ new class extends Component {
                                description="Verifikasi akan dilakukan sebelum psikolog mendaftar."
                 />
             </div>
+            <flux:separator class="mt-4 mb-4"/>
             <div class="md:col-span-2 flex mt-5">
                 <flux:button variant="primary" type="submit" class="w-full md:w-auto">Simpan</flux:button>
             </div>

@@ -33,7 +33,7 @@ class Calendar extends Component
 
             $schedules = $therapySchedules->map(function ($schedule) {
                 return [
-                    'id' => $schedule->id,
+                    'id' => $schedule->therapy_id,
                     'title' => $this->extractTitle($schedule->title),
                     'start' => $schedule->date->toDateString(),
                 ];

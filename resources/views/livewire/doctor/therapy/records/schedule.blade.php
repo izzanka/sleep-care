@@ -5,7 +5,6 @@ use App\Models\TherapySchedule;
 use App\Service\TherapyScheduleService;
 use App\Service\TherapyService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Session;
 use Livewire\Volt\Component;
 
 new class extends Component {
@@ -29,14 +28,15 @@ new class extends Component {
         $this->therapyScheduleService = $therapyScheduleService;
     }
 
-    public function mount()
+    public function mount(int $therapyId)
     {
         $doctorId = auth()->user()->doctor->id;
-        $this->therapy = $this->therapyService->get(doctorId: $doctorId, status: TherapyStatus::IN_PROGRESS->value)->first();
-        if(!$this->therapy){
+        $this->therapy = $this->therapyService->get(doctorId: $doctorId, id: $therapyId)->first();
+        if (!$this->therapy) {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
         $this->therapySchedules = $this->therapyScheduleService->get($this->therapy->id);
+        $this->is_completed = now()->greaterThan($this->therapy->end_date);
     }
 
     public function resetEdit()
@@ -88,14 +88,39 @@ new class extends Component {
         $schedule->update($validated);
 
         session()->flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+    }
 
-        $this->redirectRoute('doctor.therapies.in_progress.schedule');
+    public function updateTherapy()
+    {
+        if($this->is_completed){
+            $this->therapy->update([
+                'status' => TherapyStatus::COMPLETED->value
+            ]);
+            $this->therapy->patient->update(['is_therapy_in_progress' => false]);
+            session()->flash('status', ['message' => 'Berhasil mengubah status terapi menjadi selesai.', 'success' => true]);
+            $this->redirectRoute('doctor.therapies.completed.index');
+        }else{
+            session()->flash('status', ['message' => 'Terapi belum dapat diselesaikan karena tanggal selesai belum terlewati.', 'success' => false]);
+            $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+        }
     }
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Jadwal Sesi Terapi'])
-    {{--    <x-therapies.on-going-layout>--}}
+    <flux:callout icon="information-circle" class="mb-4" color="blue"
+                  x-data="{ visible: localStorage.getItem('hideMessageSchedule') !== 'true' }"
+                  x-show="visible"
+                  x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageSchedule', 'true'))">
+        <flux:callout.heading>Diskusi Jadwal Sesi Terapi</flux:callout.heading>
+
+        <flux:callout.text>
+            Anda dapat berdiskusi dengan pasien mengenai waktu jadwal sesi terapi melalui fitur percakapan.
+            <br><br>
+            <flux:callout.link href="#" @click="visible = false">Jangan tampilkan lagi.</flux:callout.link>
+        </flux:callout.text>
+    </flux:callout>
+
     <flux:modal name="editSchedule" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
         <div class="space-y-6" x-data="{ showNote: false }" x-init="showNote = @json($is_completed)">
             <form wire:submit="updateSchedule({{$ID}})">
@@ -132,7 +157,10 @@ new class extends Component {
                     <flux:badge size="sm"
                                 color="{{$schedule->is_completed ? 'green' : 'zink'}}">{{$schedule->is_completed ? 'Sudah Dilaksanakan' : 'Belum Dilaksanakan'}}</flux:badge>
                 </div>
-                <flux:button variant="primary" size="xs" icon="pencil-square" wire:click="editSchedule({{$schedule->id}})"></flux:button>
+                @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                    <flux:button variant="primary" size="xs" icon="pencil-square"
+                                 wire:click="editSchedule({{$schedule->id}})"></flux:button>
+                @endif
             </div>
             <div class="mt-5">
                 @if($schedule->link)
@@ -142,11 +170,12 @@ new class extends Component {
                 @endif
             </div>
             <div class="flex items-center gap-2 mt-4">
-{{--                <flux:icon.calendar class="size-5"></flux:icon.calendar>--}}
+                {{--                <flux:icon.calendar class="size-5"></flux:icon.calendar>--}}
                 @if($schedule->date)
                     <flux:heading>
                         {{$schedule->date->isoFormat('D MMMM Y') }}
-                        ({{Carbon::parse($schedule->time)->format('H:i')}} - {{Carbon::parse($schedule->time)->addHour()->format('H:i')}})
+                        ({{Carbon::parse($schedule->time)->format('H:i')}}
+                        - {{Carbon::parse($schedule->time)->addHour()->format('H:i')}})
                     </flux:heading>
                 @else
                     <flux:text>
@@ -204,7 +233,7 @@ new class extends Component {
             </div>
             <div x-show="openTab === 'note'" x-transition.duration.200ms class="mt-4">
                 <flux:heading>
-                    Catatan:
+                    Catatan hasil sesi terapi untuk pasien:
                 </flux:heading>
                 <flux:text class="mt-2">
                     {{$schedule->note}}
@@ -212,6 +241,10 @@ new class extends Component {
             </div>
         </div>
     @endforeach
-
+    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+        <flux:button class="w-full" variant="danger" wire:click="updateTherapy" wire:confirm="Apakah anda ingin menyelesaikan terapi ini?" :disabled="!$is_completed">
+            Selesaikan Terapi
+        </flux:button>
+    @endif
     {{--    </x-therapies.on-going-layout>--}}
 </section>

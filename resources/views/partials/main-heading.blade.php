@@ -10,9 +10,11 @@
             </x-slot>
         </flux:callout>
     @endif
+    @if($title)
     <div class="flex justify-between items-center">
         <flux:heading size="xl" level="1">{{$title}}</flux:heading>
     </div>
     <flux:subheading size="lg" class="mb-6"></flux:subheading>
     <flux:separator variant="subtle"/>
+        @endif
 </div>

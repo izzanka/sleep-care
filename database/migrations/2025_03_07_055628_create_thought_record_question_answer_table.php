@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('thought_record_question_answer', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('thought_record_id')->constrained();
             $table->foreignId('question_id')->constrained();
             $table->foreignId('answer_id')->constrained();
             $table->boolean('is_read')->nullable();
+            $table->string('comment')->nullable();
         });
     }
 

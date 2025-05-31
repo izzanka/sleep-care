@@ -47,25 +47,25 @@ class AnswerSeeder extends Seeder
                 ]);
 
                 $sleepDiaryQuestions = [
-                    ['id' => 1, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 2, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 1, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 2, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
                     ['id' => 3, 'type' => QuestionType::NUMBER->value, 'answer' => 2, 'note' => 'Siang'],
                     ['id' => 4, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
-                    ['id' => 5, 'type' => QuestionType::BINARY->value, 'answer' => 'Penenang', 'note' => 'Siang'],
+                    ['id' => 5, 'type' => QuestionType::BOOLEAN->value, 'answer' => 'Penenang', 'note' => 'Siang'],
                     ['id' => 6, 'type' => QuestionType::NUMBER->value, 'answer' => 1, 'note' => 'Siang'],
                     ['id' => 7, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
-                    ['id' => 8, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 9, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
-                    ['id' => 10, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 11, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Siang'],
-                    ['id' => 12, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 13, 'type' => QuestionType::BINARY->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 8, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 9, 'type' => QuestionType::BOOLEAN->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 10, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 11, 'type' => QuestionType::BOOLEAN->value, 'answer' => false, 'note' => 'Siang'],
+                    ['id' => 12, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 13, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
                     ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
                     ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
                     ['id' => 16, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 10), 'note' => 'Malam'],
                     ['id' => 17, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 5), 'note' => 'Malam'],
                     ['id' => 18, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(1, 5), 'note' => 'Malam'],
-                    ['id' => 19, 'type' => QuestionType::BINARY->value, 'answer' => false, 'note' => 'Malam'],
+                    ['id' => 19, 'type' => QuestionType::BOOLEAN->value, 'answer' => false, 'note' => 'Malam'],
                 ];
 
                 $sleepDiaryRecords = [];
@@ -224,7 +224,7 @@ class AnswerSeeder extends Seeder
                 $thought = $realThoughts[array_rand($realThoughts)];
 
                 $questions = [
-                    ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->toDateString()],
+                    ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->addDays(rand(0, 6))->toDateString()],
                     ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
                     ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => $event],
                     ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => $thought],
@@ -287,14 +287,14 @@ class AnswerSeeder extends Seeder
 
             for ($i = 0; $i < $recordsThisWeek; $i++) {
                 $emotionQuestions = [
-                    ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->toDateString()],
+                    ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->addDays(rand(0, 6))->toDateString()],
                     ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
-                    ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => $realEvents[array_rand($realEvents)]], // Kejadian
-                    ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => $realThoughts[array_rand($realThoughts)]], // Pemikiran
-                    ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => $emotions[array_rand($emotions)]], // Emosi
-                    ['id' => 32, 'type' => QuestionType::NUMBER->value, 'answer' => rand(6, 10)], // Intensitas sebelum
-                    ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => $copingStrategies[array_rand($copingStrategies)]], // Cara mengatasi
-                    ['id' => 34, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 5)], // Intensitas sesudah
+                    ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => $realEvents[array_rand($realEvents)]],
+                    ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => $realThoughts[array_rand($realThoughts)]],
+                    ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => $emotions[array_rand($emotions)]],
+                    ['id' => 32, 'type' => QuestionType::NUMBER->value, 'answer' => rand(6, 10)],
+                    ['id' => 33, 'type' => QuestionType::TEXT->value, 'answer' => $copingStrategies[array_rand($copingStrategies)]],
+                    ['id' => 34, 'type' => QuestionType::NUMBER->value, 'answer' => rand(1, 5)],
                 ];
 
                 $emotionRecords = [];
@@ -374,7 +374,7 @@ class AnswerSeeder extends Seeder
                 ['id' => 36, 'type' => QuestionType::TEXT->value, 'answer' => $goals[$index]],
                 ['id' => 37, 'type' => QuestionType::TEXT->value, 'answer' => $plans[$index]],
                 ['id' => 38, 'type' => QuestionType::TEXT->value, 'answer' => 'Hari Sabtu sore pukul 16:00'],
-                ['id' => 39, 'type' => QuestionType::BINARY->value, 'answer' => rand(0, 1)],
+                ['id' => 39, 'type' => QuestionType::BOOLEAN->value, 'answer' => rand(0, 1)],
                 ['id' => 40, 'type' => QuestionType::TEXT->value, 'answer' => $barriers[array_rand($barriers)]],
                 ['id' => 41, 'type' => QuestionType::TEXT->value, 'answer' => $solutions[array_rand($solutions)]],
             ];
