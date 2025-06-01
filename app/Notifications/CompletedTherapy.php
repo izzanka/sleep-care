@@ -2,10 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Enum\UserRole;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class CompletedTherapy extends Notification

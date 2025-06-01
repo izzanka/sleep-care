@@ -140,7 +140,7 @@ class RecordController extends Controller
 
     public function getEmotionRecordEmotion()
     {
-        $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut', 'Lainnya'];
+        $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut'];
 
         return Response::success($emotions, 'Berhasil mendapatkan daftar emosi emotion_record.');
     }

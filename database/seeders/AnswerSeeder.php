@@ -212,6 +212,7 @@ class AnswerSeeder extends Seeder
             'Semua orang pasti menilai saya buruk.',
             'Saya pasti akan sendiri selamanya.',
             'Saya selalu membuat kesalahan.',
+            json_encode(['Saya selalu membuat gagal.', 'S'])
         ];
 
         for ($week = 0; $week < 6; $week++) {
@@ -252,7 +253,7 @@ class AnswerSeeder extends Seeder
 
     private function seedEmotionRecords(Therapy $therapy)
     {
-        $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut', 'Lainnya'];
+        $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut'];
         $realEvents = [
             'Saya dimarahi atasan di depan rekan kerja.',
             'Saya menerima kabar duka dari keluarga.',
