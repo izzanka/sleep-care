@@ -1,15 +1,20 @@
 <?php
 
 use App\Enum\TherapyStatus;
+use App\Enum\UserRole;
 use App\Models\TherapySchedule;
+use App\Notifications\CompletedTherapy;
 use App\Service\TherapyScheduleService;
 use App\Service\TherapyService;
+use App\Service\UserService;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 use Livewire\Volt\Component;
 
 new class extends Component {
     protected TherapyService $therapyService;
     protected TherapyScheduleService $therapyScheduleService;
+    protected UserService $userService;
 
     public $date = null;
     public $time = null;
@@ -18,14 +23,19 @@ new class extends Component {
     public ?string $link = null;
     public ?string $note = null;
     public bool $is_completed = false;
+    public int $number;
+    public $weekStart;
+    public $weekEnd;
+    public $weekString;
 
     public $therapy;
     public $therapySchedules;
 
-    public function boot(TherapyService $therapyService, TherapyScheduleService $therapyScheduleService)
+    public function boot(TherapyService $therapyService, TherapyScheduleService $therapyScheduleService, UserService $userService)
     {
         $this->therapyService = $therapyService;
         $this->therapyScheduleService = $therapyScheduleService;
+        $this->userService = $userService;
     }
 
     public function mount(int $therapyId)
@@ -67,6 +77,11 @@ new class extends Component {
         $this->title = $schedule->title;
         $this->note = $schedule->note;
         $this->is_completed = $schedule->is_completed;
+
+        $this->number = (int)explode('ke-', $this->title)[1];
+        $this->weekStart = $this->therapy->start_date->addWeeks($this->number - 1);
+        $this->weekEnd = $this->weekStart->addDays(6);
+        $this->weekString = ' (' . $this->weekStart->isoFormat('D MMMM') . ' - ' . $this->weekEnd->isoFormat('D MMMM') . ')';
     }
 
     public function updateSchedule(int $scheduleID)
@@ -79,28 +94,45 @@ new class extends Component {
             'is_completed' => ['required', 'boolean'],
         ]);
 
-        $schedule = $this->therapyScheduleService->getByID($scheduleID);
+        if (!Carbon::parse($validated['date'])->between($this->weekStart, $this->weekEnd)) {
+            throw ValidationException::withMessages([
+                'date' => 'Tanggal invalid.',
+            ]);
+        } else {
+            $schedule = $this->therapyScheduleService->getByID($scheduleID);
 
-        if (!$schedule) {
-            session()->flash('status', ['message' => 'Jadwal terapi tidak dapat ditemukan.', 'success' => false]);
+            if (!$schedule) {
+                session()->flash('status', ['message' => 'Jadwal sesi terapi tidak dapat ditemukan.', 'success' => false]);
+            }
+
+            $schedule->update($validated);
+            $this->modal('editSchedule')->close();
+
+            session()->flash('status', ['message' => 'Jadwal sesi terapi berhasil diubah.', 'success' => true]);
+            $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
         }
-
-        $schedule->update($validated);
-
-        session()->flash('status', ['message' => 'Jadwal terapi berhasil diubah.', 'success' => true]);
-        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
     }
 
     public function updateTherapy()
     {
-        if($this->is_completed){
+        if ($this->is_completed) {
             $this->therapy->update([
                 'status' => TherapyStatus::COMPLETED->value
             ]);
+
+            if($this->therapy->doctor->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->count() === 0){
+                $this->therapy->doctor->update(['is_therapy_in_progress' => false]);
+            }
+
             $this->therapy->patient->update(['is_therapy_in_progress' => false]);
+            $adminUser = $this->userService->get(role: UserRole::ADMIN->value)->first();
+
+            $adminUser->notify(new CompletedTherapy($this->therapy));
+            $this->therapy->doctor->user->notify(new CompletedTherapy($this->therapy));
+
             session()->flash('status', ['message' => 'Berhasil mengubah status terapi menjadi selesai.', 'success' => true]);
             $this->redirectRoute('doctor.therapies.completed.index');
-        }else{
+        } else {
             session()->flash('status', ['message' => 'Terapi belum dapat diselesaikan karena tanggal selesai belum terlewati.', 'success' => false]);
             $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
         }
@@ -108,6 +140,7 @@ new class extends Component {
 }; ?>
 
 <section>
+    @include('partials.main-heading', ['title' => null])
     <flux:callout icon="information-circle" class="mb-4" color="blue"
                   x-data="{ visible: localStorage.getItem('hideMessageSchedule') !== 'true' }"
                   x-show="visible"
@@ -125,11 +158,15 @@ new class extends Component {
         <div class="space-y-6" x-data="{ showNote: false }" x-init="showNote = @json($is_completed)">
             <form wire:submit="updateSchedule({{$ID}})">
                 <div>
-                    <flux:heading size="lg">Ubah {{$title}}</flux:heading>
+                    <flux:heading size="lg">Ubah {{$title}} {{$weekString}}</flux:heading>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                    <flux:input wire:model="date" label="Tanggal" type="date"></flux:input>
-                    <flux:input wire:model="time" label="Waktu" type="time"></flux:input>
+                    <div>
+                        <flux:input wire:model="date" label="Tanggal" type="date"/>
+                    </div>
+                    <div>
+                        <flux:input wire:model="time" label="Waktu (1 Jam)" type="time"/>
+                    </div>
                 </div>
 
                 <div class="mt-5">
@@ -242,7 +279,8 @@ new class extends Component {
         </div>
     @endforeach
     @if($therapy->status === TherapyStatus::IN_PROGRESS)
-        <flux:button class="w-full" variant="danger" wire:click="updateTherapy" wire:confirm="Apakah anda ingin menyelesaikan terapi ini?" :disabled="!$is_completed">
+        <flux:button class="w-full" variant="danger" wire:click="updateTherapy"
+                     wire:confirm="Apakah anda ingin menyelesaikan terapi ini?" :disabled="!$is_completed">
             Selesaikan Terapi
         </flux:button>
     @endif

@@ -17,8 +17,8 @@ class TherapyFactory extends Factory
     public function definition(): array
     {
         return [
-            'start_date' => now()->subWeeks(6)->toDateString(),
-            'end_date' => now()->toDateString(),
+            'start_date' => now()->subDays(42)->toDateString(),
+            'end_date' => now()->subDay()->toDateString(),
             'doctor_fee' => 350000,
             'application_fee' => 20000,
             'created_at' => now(),

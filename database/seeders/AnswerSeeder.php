@@ -20,30 +20,29 @@ class AnswerSeeder extends Seeder
     {
         $therapyInProgress = Therapy::where('status', TherapyStatus::IN_PROGRESS->value)->first();
         $therapyCompleted = Therapy::where('status', TherapyStatus::COMPLETED->value)->first();
-        $timestamp = now();
 
         foreach ([$therapyInProgress, $therapyCompleted] as $therapy) {
-            $this->seedSleepDiaries($therapy, $timestamp);
-            $this->seedIdentifyValue($therapy, $timestamp);
-            $this->seedThoughtRecords($therapy, $timestamp);
-            $this->seedEmotionRecords($therapy, $timestamp);
-            $this->seedCommittedActions($therapy, $timestamp);
+            $this->seedSleepDiaries($therapy);
+            $this->seedIdentifyValue($therapy);
+            $this->seedThoughtRecords($therapy);
+            $this->seedEmotionRecords($therapy);
+            $this->seedCommittedActions($therapy);
         }
     }
 
-    private function seedSleepDiaries(Therapy $therapy, $timestamp)
+    private function seedSleepDiaries(Therapy $therapy)
     {
         for ($week = 1; $week <= 6; $week++) {
             for ($day = 1; $day <= 7; $day++) {
                 $currentDate = $therapy->start_date->addDays((($week - 1) * 7) + ($day - 1));
+                $sleepDiaryTimestamp = $currentDate->setTime(rand(8, 22), rand(0, 59));
 
                 $sleepDiary = SleepDiary::create([
                     'therapy_id' => $therapy->id,
                     'week' => $week,
                     'day' => $day,
                     'date' => $currentDate->toDateString(),
-                    'title' => 'Sleep Diary Minggu '.$week,
-                    'created_at' => $timestamp,
+                    'title' => 'Sleep Diary Minggu ke-'.$week,
                 ]);
 
                 $sleepDiaryQuestions = [
@@ -70,11 +69,13 @@ class AnswerSeeder extends Seeder
 
                 $sleepDiaryRecords = [];
                 foreach ($sleepDiaryQuestions as $question) {
+                    $answerTimestamp = $sleepDiaryTimestamp->addMinutes(rand(1, 30));
+
                     $answer = Answer::create([
                         'type' => $question['type'],
                         'answer' => $question['answer'],
                         'note' => $question['note'],
-                        'created_at' => $timestamp,
+                        'created_at' => $answerTimestamp,
                     ]);
 
                     $sleepDiaryRecords[] = [
@@ -89,11 +90,10 @@ class AnswerSeeder extends Seeder
         }
     }
 
-    private function seedIdentifyValue(Therapy $therapy, $timestamp)
+    private function seedIdentifyValue(Therapy $therapy)
     {
         $identifyValue = IdentifyValue::create([
             'therapy_id' => $therapy->id,
-            'created_at' => $timestamp,
         ]);
 
         $questions = [
@@ -174,7 +174,6 @@ class AnswerSeeder extends Seeder
                     'type' => $question['type'],
                     'answer' => $randomAnswer,
                     'note' => $category,
-                    'created_at' => $timestamp,
                 ]);
 
                 $relations[] = [
@@ -188,11 +187,10 @@ class AnswerSeeder extends Seeder
         DB::table('identify_value_question_answer')->insert($relations);
     }
 
-    private function seedThoughtRecords(Therapy $therapy, $timestamp)
+    private function seedThoughtRecords(Therapy $therapy)
     {
         $thoughtRecord = ThoughtRecord::create([
             'therapy_id' => $therapy->id,
-            'created_at' => $timestamp,
         ]);
 
         $realEvents = [
@@ -222,10 +220,12 @@ class AnswerSeeder extends Seeder
             for ($i = 0; $i < $recordsThisWeek; $i++) {
                 $event = $realEvents[array_rand($realEvents)];
                 $thought = $realThoughts[array_rand($realThoughts)];
+                $recordDate = $therapy->start_date->addWeeks($week)->addDays(rand(0, 6));
+                $recordTime = $recordDate->setTime(rand(8, 20), rand(0, 59));
 
                 $questions = [
-                    ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->addDays(rand(0, 6))->toDateString()],
-                    ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
+                    ['id' => 23, 'type' => QuestionType::DATE->value, 'answer' => $recordDate->toDateString()],
+                    ['id' => 24, 'type' => QuestionType::TIME->value, 'answer' => $recordTime->format('H:i')],
                     ['id' => 25, 'type' => QuestionType::TEXT->value, 'answer' => $event],
                     ['id' => 26, 'type' => QuestionType::TEXT->value, 'answer' => $thought],
                 ];
@@ -235,7 +235,7 @@ class AnswerSeeder extends Seeder
                     $answer = Answer::create([
                         'type' => $question['type'],
                         'answer' => $question['answer'],
-                        'created_at' => $timestamp,
+                        'created_at' => $recordTime,
                     ]);
 
                     $pivotData[] = [
@@ -250,7 +250,7 @@ class AnswerSeeder extends Seeder
         }
     }
 
-    private function seedEmotionRecords(Therapy $therapy, $timestamp)
+    private function seedEmotionRecords(Therapy $therapy)
     {
         $emotions = ['Bahagia', 'Sedih', 'Marah', 'Takut', 'Jijik', 'Terkejut', 'Lainnya'];
         $realEvents = [
@@ -279,16 +279,18 @@ class AnswerSeeder extends Seeder
 
         $emotionRecord = EmotionRecord::create([
             'therapy_id' => $therapy->id,
-            'created_at' => $timestamp,
         ]);
 
         for ($week = 0; $week < 6; $week++) {
             $recordsThisWeek = rand(0, 7);
 
             for ($i = 0; $i < $recordsThisWeek; $i++) {
+                $recordDate = $therapy->start_date->addWeeks($week)->addDays(rand(0, 6));
+                $recordTime = $recordDate->setTime(rand(8, 20), rand(0, 59));
+
                 $emotionQuestions = [
-                    ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => $therapy->start_date->addWeeks($week)->addDays(rand(0, 6))->toDateString()],
-                    ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i')],
+                    ['id' => 27, 'type' => QuestionType::DATE->value, 'answer' => $recordDate->toDateString()],
+                    ['id' => 28, 'type' => QuestionType::TIME->value, 'answer' => $recordTime->format('H:i')],
                     ['id' => 29, 'type' => QuestionType::TEXT->value, 'answer' => $realEvents[array_rand($realEvents)]],
                     ['id' => 30, 'type' => QuestionType::TEXT->value, 'answer' => $realThoughts[array_rand($realThoughts)]],
                     ['id' => 31, 'type' => QuestionType::TEXT->value, 'answer' => $emotions[array_rand($emotions)]],
@@ -302,7 +304,7 @@ class AnswerSeeder extends Seeder
                     $answer = Answer::create([
                         'type' => $question['type'],
                         'answer' => $question['answer'],
-                        'created_at' => $timestamp,
+                        'created_at' => $recordTime,
                     ]);
 
                     $emotionRecords[] = [
@@ -317,7 +319,7 @@ class AnswerSeeder extends Seeder
         }
     }
 
-    private function seedCommittedActions(Therapy $therapy, $timestamp)
+    private function seedCommittedActions(Therapy $therapy)
     {
         $categories = [
             'Keluarga', 'Pernikahan/Relasi', 'Pertemanan', 'Pekerjaan/Karir', 'Pendidikan/Pengembangan Diri',
@@ -384,7 +386,6 @@ class AnswerSeeder extends Seeder
                 $answer = Answer::create([
                     'type' => $question['type'],
                     'answer' => $question['answer'],
-                    'created_at' => $timestamp,
                 ]);
 
                 $committedRecords[] = [

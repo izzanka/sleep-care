@@ -117,7 +117,7 @@ new class extends Component {
         </div>
     @else
         @foreach($chats as $chat)
-        <div class="flex mt-1 mb-1">
+        <div class="flex mt-2 mb-2">
             <flux:heading class="w-20">
                 {{ $chat->sender_id === auth()->id() ? 'Anda' : 'Pasien' }}:
             </flux:heading>

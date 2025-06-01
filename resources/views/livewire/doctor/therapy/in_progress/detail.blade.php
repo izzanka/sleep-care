@@ -87,6 +87,9 @@ new class extends Component {
 {{--        </flux:button>--}}
 {{--    </div>--}}
 
+    <flux:heading class="mb-2">
+        Informasi Pasien:
+    </flux:heading>
     <div
         x-data="{ showDetails: false }"
         wire:poll.4s.visible="checkPatientOnlineStatus"
@@ -95,7 +98,7 @@ new class extends Component {
             <flux:callout.heading class="flex items-center justify-between">
                 <div>
                     {{ $therapy->patient->name }}
-                    <flux:badge size="sm" :color="$isOnline ? 'blue' : 'zinc'">
+                    <flux:badge size="sm" :color="$isOnline ? 'blue' : 'zinc'" class="ml-2">
                         {{ $isOnline ? 'Online' : 'Offline' }}
                     </flux:badge>
                 </div>

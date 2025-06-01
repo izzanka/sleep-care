@@ -2,6 +2,7 @@
 
 use App\Enum\QuestionType;
 use App\Enum\TherapyStatus;
+use App\Models\SleepDiary;
 use App\Models\SleepDiaryQuestionAnswer;
 use App\Service\ChartService;
 use App\Service\RecordService;
@@ -16,6 +17,9 @@ new class extends Component {
     public $therapy;
     public $labels;
     public $dropdownLabels;
+    public int $id;
+    public int $no;
+    public ?string $comment;
 
     public function boot(ChartService   $chartService,
                          RecordService  $recordService,
@@ -55,6 +59,55 @@ new class extends Component {
                 return $parent;
             })
             ->values();
+    }
+
+    public function createComment(int $id, int $no)
+    {
+        $questionAnswer = SleepDiary::find($id);
+        if (!$questionAnswer) {
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $this->id = $id;
+        $this->no = $no;
+        $this->comment = $questionAnswer->comment;
+
+        $this->modal('addComment')->show();
+    }
+
+    public function storeComment()
+    {
+        $validated = $this->validate([
+            'comment' => ['nullable', 'string', 'max:225'],
+        ]);
+
+        $questionAnswer = SleepDiary::find($this->id);
+        if (!$questionAnswer) {
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $questionAnswer->update([
+            'comment' => $validated['comment'],
+        ]);
+
+        session()->flash('status', ['message' => 'Komentar berhasil disimpan.', 'success' => true]);
+        $this->reset('comment', 'id');
+        $this->modal('addComment')->close();
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
+    }
+
+    public function deleteComment(int $id)
+    {
+        $questionAnswer = SleepDiary::find($id);
+        if (!$questionAnswer) {
+            session()->flash('status', ['message' => 'Catatan tidak ditemukan.', 'success' => false]);
+        }
+
+        $questionAnswer->update([
+            'comment' => null,
+        ]);
+        session()->flash('status', ['message' => 'Berhasil menghapus komentar.', 'success' => true]);
+        $this->js('window.scrollTo({ top: 240, behavior: "smooth" });');
     }
 
     public function with()
@@ -159,18 +212,32 @@ new class extends Component {
 
         <flux:separator class="mt-4 mb-4"/>
 
+        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-6">
+                <form wire:submit="storeComment">
+                    <div>
+                        <flux:heading size="lg">Tambah Komentar Untuk Catatan Minggu ke-{{$no}}</flux:heading>
+                    </div>
+                    <div class="mb-4 mt-4">
+                        <flux:textarea rows="2" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
+                    </div>
+                    <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
+                </form>
+            </div>
+        </flux:modal>
+
         @foreach($sleepDiaries as $index => $sleepDiary)
             <div
-                    class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
-                    x-ref="card{{ $index }}"
+                class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
+                x-ref="card{{ $index }}"
             >
                 <div class="flex items-center w-full">
                     <flux:icon.calendar/>
 
                     <flux:button
-                            variant="ghost"
-                            class="w-full"
-                            @click="
+                        variant="ghost"
+                        class="w-full"
+                        @click="
                             openIndex = (openIndex === {{ $index }}) ? null : {{ $index }};
                             if (openIndex === {{ $index }}) {
                                 $nextTick(() => {
@@ -200,42 +267,51 @@ new class extends Component {
 
                 <div x-show="openIndex === {{ $index }}" x-transition.duration.200ms class="mt-4">
                     <div class="overflow-x-auto">
+                        @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                            @if(!$sleepDiary->first()->comment)
+                                <div class="flex justify-end">
+                                    <flux:button variant="primary" size="sm" icon="plus" wire:click="createComment({{$sleepDiary->first()->id}},{{$index}})">
+                                        Tambah komentar
+                                    </flux:button>
+                                </div>
+                            @endif
+                        @endif
                         <table class="table-auto w-full text-sm mb-2 mt-2 rounded-lg border overflow-hidden">
                             <thead class="bg-blue-400 text-white dark:bg-blue-600">
                             <tr>
-                                <th class="p-2 text-center">Hari</th>
+                                <th class="px-4 py-2 text-center">Hari</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="p-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
+                                    <th class="px-4 py-2 text-center">{{$diary->date->translatedFormat('l')}}</th>
                                 @endforeach
                             </tr>
                             </thead>
                             <tbody class="divide-y">
                             <tr>
-                                <th class="p-2 text-center">Tanggal</th>
+                                <th class="px-4 py-2 text-center">Tanggal</th>
                                 @foreach($sleepDiary as $diary)
-                                    <th class="p-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
+                                    <th class="px-4 py-2 text-center">{{ $diary->date->isoFormat('D MMMM') }}</th>
                                 @endforeach
                             </tr>
 
                             @if($structuredQuestions->isEmpty())
                                 <tr>
-                                    <td class="p-4 text-center" colspan="8">
+                                    <td class="px-4 py-2 text-center" colspan="8">
                                         <flux:heading>Belum ada catatan tidur</flux:heading>
                                     </td>
                                 </tr>
                             @else
                                 <tr>
-                                    <td class="p-2 text-center font-bold" colspan="8">Siang Hari</td>
+                                    <td class="px-4 py-2 text-center font-bold" colspan="8">Siang Hari</td>
                                 </tr>
 
                                 @foreach($structuredQuestions as $question)
                                     <tr>
-                                        <td class="p-2 text-center font-bold">{{ $question->question }}</td>
+                                        <td class="px-4 py-2 text-center font-bold">{{ $question->question }}</td>
                                         @foreach($sleepDiary as $diary)
                                             @php
                                                 $entry = $diary->questionAnswers->firstWhere('question_id', $question->id);
                                             @endphp
-                                            <td class="p-2">
+                                            <td class="px-4 py-2">
                                                 <div class="flex justify-center items-center h-full">
                                                     @if($entry && $entry->answer)
                                                         @if($entry->answer->type == QuestionType::BOOLEAN->value)
@@ -257,12 +333,12 @@ new class extends Component {
 
                                     @foreach($question->children as $child)
                                         <tr>
-                                            <td class="p-2 text-left text-sm">{{ $child->question }}</td>
+                                            <td class="px-4 py-2 text-left text-sm">{{ $child->question }}</td>
                                             @foreach($sleepDiary as $diary)
                                                 @php
                                                     $entry = $diary->questionAnswers->firstWhere('question_id', $child->id);
                                                 @endphp
-                                                <td class="p-2 text-center">
+                                                <td class="px-4 py-2 text-center">
                                                     {{ $entry->answer->answer ?? '-' }}
                                                 </td>
                                             @endforeach
@@ -271,10 +347,25 @@ new class extends Component {
 
                                     @if($question->id == 13)
                                         <tr>
-                                            <td class="p-2 text-center font-bold" colspan="8">Malam Hari</td>
+                                            <td class="px-4 py-2 text-center font-bold" colspan="8">Malam Hari</td>
                                         </tr>
                                     @endif
                                 @endforeach
+
+                                <tr>
+                                    <td class="px-4 py-2 text-center font-bold">
+                                        Komentar
+                                        @if($sleepDiary->first()->comment)
+                                        <div class="flex justify-center items-center space-x-1 mt-2">
+                                            <flux:button variant="primary" size="xs" icon="pencil-square" wire:click="createComment({{$sleepDiary->first()->id}},{{$index}})"/>
+                                            <flux:button variant="danger" size="xs" icon="trash" wire:confirm="Apa anda yakin ingin menghapus komentar ini?" wire:click="deleteComment({{ $sleepDiary->first()->id}})"/>
+                                        </div>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-left" colspan="7">
+                                        {{$sleepDiary->first()->comment ?? '-'}}
+                                    </td>
+                                </tr>
                             @endif
                             </tbody>
                         </table>

@@ -11,6 +11,7 @@ use App\Service\AnswerService;
 use App\Service\QuestionService;
 use App\Service\RecordService;
 use App\Service\TherapyService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -40,12 +41,14 @@ class RecordController extends Controller
         $validated = $request->validate([
             'therapy_id' => ['required', 'int'],
             'record_type' => ['required', new Enum(RecordType::class)],
+            'week' => ['nullable', 'int', 'min:1', 'max:6'],
         ]);
 
         try {
             $therapy = $this->therapyService
                 ->get(patientId: auth()->id(), id: $validated['therapy_id'])
                 ->first();
+
             if (! $therapy) {
                 return Response::error('Terapi tidak ditemukan.', 404);
             }
@@ -64,17 +67,61 @@ class RecordController extends Controller
                 ->unique('id')
                 ->values();
 
-            $answers = collect($record->questionAnswers)->map(fn ($qa) => [
-                'question_id' => $qa->question_id,
-                'answer' => $qa->answer,
-            ]);
+            if (isset($validated['week'])) {
+                $startDate = $therapy->start_date;
+                $week = (int) $validated['week'];
 
-            return Response::success([
-                'id' => $record->id,
-                'therapy_id' => $therapy->id,
-                'questions' => QuestionResource::collection($questions),
-                'answers' => $answers,
-            ], "Berhasil mendapatkan data {$validated['record_type']}.");
+                $weekStart = $startDate->addWeeks($week - 1)->startOfDay();
+                $weekEnd = $startDate->addWeeks($week)->subDay()->endOfDay();
+
+                $rawAnswers = collect($record->questionAnswers);
+
+                $sessions = $rawAnswers->groupBy(function ($qa) {
+                    return $qa->answer->created_at;
+                });
+
+                $filteredAnswers = $sessions->flatMap(function ($group) use ($weekStart, $weekEnd) {
+                    $dateAnswer = $group->firstWhere(fn ($qa) => $qa->answer->type === QuestionType::DATE->value);
+
+                    $usedAt = $dateAnswer
+                        ? Carbon::parse($dateAnswer->answer->answer)
+                        : $group->first()?->answer->created_at;
+
+                    if (! ($usedAt >= $weekStart && $usedAt <= $weekEnd)) {
+                        return [];
+                    }
+
+                    return $group->map(function ($qa) {
+                        return [
+                            'question_id' => $qa->question_id,
+                            'answer' => $qa->answer,
+                            //                            'used_at' => $usedAt->toDateTimeString(),
+                        ];
+                    });
+                })->values();
+
+                return Response::success([
+                    'id' => $record->id,
+                    'therapy_id' => $therapy->id,
+                    'week' => $week,
+                    'questions' => QuestionResource::collection($questions),
+                    'answers' => $filteredAnswers,
+                ], "Berhasil mendapatkan data {$validated['record_type']} untuk minggu ke-{$week}.");
+
+            } else {
+
+                $answers = collect($record->questionAnswers)->map(fn ($qa) => [
+                    'question_id' => $qa->question_id,
+                    'answer' => $qa->answer,
+                ]);
+
+                return Response::success([
+                    'id' => $record->id,
+                    'therapy_id' => $therapy->id,
+                    'questions' => QuestionResource::collection($questions),
+                    'answers' => $answers,
+                ], "Berhasil mendapatkan data {$validated['record_type']}.");
+            }
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

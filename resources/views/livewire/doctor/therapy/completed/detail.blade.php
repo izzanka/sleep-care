@@ -30,7 +30,7 @@ new class extends Component {
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
         $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
-        $this->rating = $this->therapy->doctor->ratings()->where('user_id', $this->therapy->patient_id)->value('rating') ?? 4;
+        $this->rating = $this->therapy->doctor->ratings()->where('user_id', $this->therapy->patient_id)->value('rating') ?? 0;
     }
 
     public function setMenu($value)
@@ -53,6 +53,10 @@ new class extends Component {
 
 <section>
     @include('partials.main-heading', ['title' => 'Detail Riwayat Terapi'])
+
+    <flux:heading class="mb-2">
+        Informasi Pasien:
+    </flux:heading>
 
     <div x-data="{ showDetails: false }">
         <flux:callout icon="user" color="zink" inline>
@@ -81,9 +85,10 @@ new class extends Component {
                             Masalah Lainnya: {{ $problems }}
                         </div>
                     </flux:callout.text>
-                    <flux:separator variant="subtle" class="mt-2 mb-2"/>
+                    <flux:separator variant="subtle" class="mt-4 mb-4"/>
                     <flux:callout.text>
                         Ulasan:
+                        @if($rating > 0)
                         <div class="flex mt-2 mb-2">
                             @for ($i = 1; $i <= 5; $i++)
                                 @if ($i <= $rating)
@@ -94,8 +99,13 @@ new class extends Component {
                             @endfor
                         </div>
                         <div>
-                            {{$this->therapy->comment ?? ''}}
+                            {{$this->therapy->comment ?? '-'}}
                         </div>
+                        @else
+                            <div class="mt-2">
+                                Belum ada ulasan
+                            </div>
+                        @endif
                     </flux:callout.text>
                 </div>
             </template>

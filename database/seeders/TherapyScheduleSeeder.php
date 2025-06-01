@@ -53,7 +53,7 @@ class TherapyScheduleSeeder extends Seeder
             foreach ($therapyScheduleDescriptions as $index => $descriptions) {
                 TherapySchedule::create([
                     'therapy_id' => $therapy->id,
-                    'title' => 'Jadwal Sesi Terapi '.($index + 1),
+                    'title' => 'Jadwal Sesi Terapi ke-'.($index + 1),
                     'description' => json_encode($descriptions),
                     'note' => fake()->sentence,
                     'date' => $therapy->start_date->addWeeks($index),
