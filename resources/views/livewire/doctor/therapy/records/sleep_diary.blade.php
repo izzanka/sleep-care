@@ -176,35 +176,34 @@ new class extends Component {
 
     <div x-data="{ openIndex: null }">
         <div x-data="{ activeSlide: 0 }"
-             class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+             class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
             <div class="relative w-full overflow-hidden">
                 <div class="flex transition-transform duration-500 ease-in-out"
                      :style="`transform: translateX(-${activeSlide * 100}%);`">
                     <div class="w-full flex-shrink-0">
-                        <canvas id="lineChart" class="w-full h-80 mb-4"></canvas>
+                        <canvas id="lineChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
                     </div>
                     <div class="w-full flex-shrink-0">
-                        <canvas id="barChart" class="w-full h-80 mb-4"></canvas>
+                        <canvas id="barChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
                     </div>
                 </div>
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
-                        class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-blue-700 px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-blue-600">
-                    <flux:icon.chevron-left class="size-4"></flux:icon.chevron-left>
+                        class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-blue-700 px-2 py-1 sm:px-3 sm:py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-blue-600">
+                    <flux:icon.chevron-left class="size-3 sm:size-4"></flux:icon.chevron-left>
                 </button>
                 <button @click="activeSlide = (activeSlide === 1 ? 0 : 1)"
-                        class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-blue-700 px-3 py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-blue-600">
-                    <flux:icon.chevron-right class="size-4"></flux:icon.chevron-right>
+                        class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white dark:bg-blue-700 px-2 py-1 sm:px-3 sm:py-1 rounded-full shadow hover:bg-blue-400 dark:hover:bg-blue-600">
+                    <flux:icon.chevron-right class="size-3 sm:size-4"></flux:icon.chevron-right>
                 </button>
-
 
                 <div class="flex justify-center space-x-2 mt-4">
                     <template x-for="index in 2" :key="index">
                         <button @click="activeSlide = index - 1"
                                 :class="{
-                            'bg-blue-500 dark:bg-blue-400': activeSlide === index - 1,
-                            'bg-zinc-500 dark:bg-zinc-400': activeSlide !== index - 1
-                        }"
-                                class="w-3 h-3 rounded-full transition-colors duration-300"></button>
+                                    'bg-blue-500 dark:bg-blue-400': activeSlide === index - 1,
+                                    'bg-zinc-500 dark:bg-zinc-400': activeSlide !== index - 1
+                                }"
+                                class="w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors duration-300"></button>
                     </template>
                 </div>
             </div>
@@ -269,7 +268,7 @@ new class extends Component {
                     <div class="overflow-x-auto">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
                             @if(!$sleepDiary->first()->comment)
-                                <div class="flex justify-end">
+                                <div>
                                     <flux:button variant="primary" size="sm" icon="plus" wire:click="createComment({{$sleepDiary->first()->id}},{{$index}})">
                                         Tambah komentar
                                     </flux:button>

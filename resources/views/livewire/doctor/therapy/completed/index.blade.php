@@ -2,9 +2,7 @@
 
 use App\Enum\TherapyStatus;
 use App\Models\Therapy;
-use App\Service\TherapyService;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
@@ -46,14 +44,13 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Riwayat Terapi'])
+    @include('partials.main-heading', ['title' => 'Daftar Riwayat Terapi'])
     <div class="mb-4">
         <div class="flex items-center">
-            <flux:input icon="magnifying-glass" placeholder="Cari terapi berdasarkan nama pasien"
+            <flux:input icon="magnifying-glass" placeholder="Cari riwayat terapi berdasarkan nama pasien"
                         wire:model.live="search"/>
         </div>
     </div>
-{{--    <flux:separator class="mt-4 mb-4"/>--}}
     <div class="overflow-x-auto">
         <table class="min-w-full table-auto w-full text-sm rounded-lg border overflow-hidden">
             <thead class="bg-blue-400 dark:bg-blue-600 text-white">

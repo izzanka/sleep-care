@@ -111,7 +111,7 @@ new class extends Component {
 
 <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
     <section class="w-full">
-        @include('partials.main-heading', ['title' => 'Pasien'])
+        @include('partials.main-heading', ['title' => 'Daftar Pasien'])
         <div class="mb-5">
             <div class="flex items-center">
                 <flux:input icon="magnifying-glass" placeholder="Cari pasien berdasarkan nama atau email" wire:model.live="search"/>

@@ -164,148 +164,157 @@ new class extends Component {
 
 }; ?>
 
-<section>
+<section class="w-full">
     @include('partials.main-heading', ['title' => null])
 
     @if($therapy->status === TherapyStatus::IN_PROGRESS)
-    <flux:callout icon="information-circle" class="mb-4" color="blue"
-                  x-data="{ visible: localStorage.getItem('hideMessageThought') !== 'true' }"
-                  x-show="visible"
-                  x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageThought', 'true'))">
-        <flux:callout.heading>Catatan Pikiran (Thought Record)</flux:callout.heading>
-
-        <flux:callout.text>
-            Digunakan untuk mencatat dan memantau pola pikir pasien, membantu mengenali pikiran negatif, serta untuk mengubah cara pandang yang lebih adaptif dan sehat.
-            <br><br>
-            <flux:callout.link href="#" @click="visible = false">Jangan tampilkan lagi.</flux:callout.link>
-        </flux:callout.text>
-    </flux:callout>
+        <flux:callout icon="information-circle" class="mb-4" color="blue"
+                      x-data="{ visible: localStorage.getItem('hideMessageThought') !== 'true' }"
+                      x-show="visible"
+                      x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageThought', 'true'))">
+            <flux:callout.heading>Catatan Pikiran (Thought Record)</flux:callout.heading>
+            <flux:callout.text>
+                Digunakan untuk mencatat dan memantau pola pikir pasien, membantu mengenali pikiran negatif, serta untuk mengubah cara pandang yang lebih adaptif dan sehat.
+                <br><br>
+                <flux:callout.link href="#" @click="visible = false">Jangan tampilkan lagi.</flux:callout.link>
+            </flux:callout.text>
+        </flux:callout>
     @endif
 
-    <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+    <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+        <!-- Chart -->
         <div class="flex">
             <div class="w-full flex-shrink-0">
-                <canvas id="thoughtRecordChart" class="w-full h-80 mb-4"></canvas>
+                <canvas id="thoughtRecordChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
             </div>
         </div>
 
-        <flux:separator class="mt-4 mb-4"/>
+        <flux:separator class="my-4"/>
 
-        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
-            <div class="space-y-6">
+        <!-- Comment Modal -->
+        <flux:modal name="addComment" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-4 sm:space-y-6">
                 <form wire:submit="storeComment">
                     <div>
                         <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
-                        <flux:textarea rows="2" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
+                        <flux:textarea rows="3" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
                     </div>
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
                 </form>
             </div>
         </flux:modal>
 
-        <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
-            @foreach ($dropdownLabels as $index => $label)
-                <flux:select.option :value="$index + 1">{{$label}}</flux:select.option>
-            @endforeach
-        </flux:select>
-
-        <div class="overflow-x-auto">
-            <table class="table-auto w-full text-sm mb-2 mt-2 rounded-lg border overflow-hidden">
-                <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr class="text-left">
-                    @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                        <th class="px-4 py-2 font-medium">Aksi Komentar</th>
-                    @endif
-                    <th class="px-4 py-2 font-medium">No</th>
-                    @foreach($thoughtRecordQuestions as $question)
-                        <th class="px-4 py-2 font-medium">{{ $question }}</th>
+        <!-- Week Selector -->
+        <div class="flex justify-end mb-4">
+            <div class="w-full sm:w-64">
+                <flux:select wire:model.live="selectedWeek" label="Pilih Minggu">
+                    @foreach ($dropdownLabels as $index => $label)
+                        <flux:select.option :value="$index + 1">{{$label}}</flux:select.option>
                     @endforeach
-                    <th class="px-4 py-2 font-medium">Komentar</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y">
-                @forelse($chunks as $index => $chunk)
-                    @php
-                        $firstAnswer = $chunk->first(); // first pivot item
-                        $pivotId = $firstAnswer?->id;
-                        $comment = $firstAnswer?->comment;
-                        $hasComment = !empty($comment);
-                    @endphp
-                    <tr>
+                </flux:select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <div class="min-w-[800px]">
+                <table class="w-full text-sm rounded-lg border overflow-hidden">
+                    <thead class="bg-blue-400 dark:bg-blue-600 text-white">
+                    <tr class="text-left">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                            <td class="px-4 py-2 text-center">
-                                @if($hasComment)
-                                    <div class="flex space-x-1">
+                            <th class="px-3 py-2 font-medium">Aksi</th>
+                        @endif
+                        <th class="px-3 py-2 font-medium">No</th>
+                        @foreach($thoughtRecordQuestions as $question)
+                            <th class="px-3 py-2 font-medium">{{ $question }}</th>
+                        @endforeach
+                        <th class="px-3 py-2 font-medium">Komentar</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                    @forelse($chunks as $index => $chunk)
+                        @php
+                            $firstAnswer = $chunk->first();
+                            $pivotId = $firstAnswer?->id;
+                            $comment = $firstAnswer?->comment;
+                            $hasComment = !empty($comment);
+                        @endphp
+                        <tr>
+                            @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                                <td class="px-3 py-2 text-center">
+                                    @if($hasComment)
+                                        <div class="flex justify-center space-x-1">
+                                            <flux:button
+                                                variant="primary"
+                                                size="xs"
+                                                icon="pencil-square"
+                                                wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
+                                            />
+                                            <flux:button
+                                                variant="danger"
+                                                size="xs"
+                                                icon="trash"
+                                                wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
+                                                wire:click="deleteComment({{ $pivotId }})"
+                                            />
+                                        </div>
+                                    @else
                                         <flux:button
                                             variant="primary"
                                             size="xs"
-                                            icon="pencil-square"
-                                            wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
+                                            icon="plus"
+                                            wire:click="createComment({{ $pivotId }}, {{ $index + 1 }})"
                                         />
-                                        <flux:button
-                                            variant="danger"
-                                            size="xs"
-                                            icon="trash"
-                                            wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
-                                            wire:click="deleteComment({{ $pivotId }})"
-                                        />
-                                    </div>
-                                @else
-                                    <flux:button
-                                        variant="primary"
-                                        size="xs"
-                                        icon="plus"
-                                        wire:click="createComment({{ $pivotId }}, {{ $index + 1 }})"
-                                    />
-                                @endif
+                                    @endif
+                                </td>
+                            @endif
+                            <td class="px-3 py-2 text-center">{{ $index + 1 }}</td>
+                            @foreach($thoughtRecordQuestions as $header)
+                                @php
+                                    $answer = $chunk->firstWhere('question.question', $header)->answer;
+                                    $value = $answer->answer;
+                                    $type = $answer->type;
+                                @endphp
+                                <td class="px-3 py-2">
+                                    @if($type === QuestionType::DATE->value)
+                                        <div class="text-center ">
+                                            {{ Carbon::parse($value)->isoFormat('D MMMM') }}
+                                        </div>
+                                    @elseif($type == QuestionType::TIME->value)
+                                        <div class="text-center ">
+                                            {{$value ?? '-'}}
+                                        </div>
+                                    @else
+                                        <div class="text-left">
+                                            @if(Str::isJson($value) && is_array(json_decode($value, true)))
+                                                @foreach(json_decode($value, true) as $txt)
+                                                    <div class="py-1">
+                                                        {{ $txt }}
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                {{ $value ?? '-' }}
+                                            @endif
+                                        </div>
+                                    @endif
+                                </td>
+                            @endforeach
+                            <td class="px-3 py-2 max-w-[200px]">
+                                {{ $comment ?? '-' }}
                             </td>
-                        @endif
-                        <td class="px-4 py-2 text-center">{{ $index + 1 }}</td>
-                        @foreach($thoughtRecordQuestions as $header)
-                            @php
-                                $answer = $chunk->firstWhere('question.question', $header)->answer;
-                                $value = $answer->answer;
-                                $type = $answer->type;
-                            @endphp
-                            <td class="px-4 py-2 p-2">
-                                @if($type === QuestionType::DATE->value)
-                                    <div class="text-center">
-                                        {{ Carbon::parse($value)->isoFormat('D MMMM') }}
-                                    </div>
-                                @elseif($type == QuestionType::TIME->value)
-                                    <div class="text-center">
-                                        {{$value ?? '-'}}
-                                    </div>
-                                @else
-                                    <div class="text-left">
-                                        @if(Str::isJson($value) && is_array(json_decode($value, true)))
-                                            @foreach(json_decode($value, true) as $txt)
-                                                <div class="py-1">
-                                                    {{ $txt }}
-                                                </div>
-                                            @endforeach
-                                        @else
-                                            {{ $value ?? '-' }}
-                                        @endif
-                                    </div>
-                                @endif
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-4 py-2 text-center" colspan="{{ count($thoughtRecordQuestions) + ($therapy->status === TherapyStatus::IN_PROGRESS ? 2 : 1) }}">
+                                <flux:heading size="md" class="mt-2">Belum ada catatan pikiran</flux:heading>
                             </td>
-                        @endforeach
-                        <td class="px-4 py-2">
-                            {{ $comment ?? '-' }}
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td class="px-4 py-2 text-center" colspan="7">
-                            <flux:heading class="mt-2">Belum ada catatan pikiran</flux:heading>
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </section>

@@ -7,9 +7,6 @@ use Livewire\Volt\Component;
 new #[Layout('components.layouts.auth')] class extends Component {
     public string $email = '';
 
-    /**
-     * Send a password reset link to the provided email address.
-     */
     public function sendPasswordResetLink(): void
     {
         $this->validate([

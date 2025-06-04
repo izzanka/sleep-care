@@ -114,7 +114,7 @@ new class extends Component {
             'is_active' => $validated['is_active']
         ]);
 
-        if($validated['is_active']){
+        if (!$validated['is_active']) {
             $validated['is_available'] = false;
         }
 
@@ -154,13 +154,14 @@ new class extends Component {
 
 <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
     <section class="w-full">
-        @include('partials.main-heading', ['title' => 'Psikolog'])
+        @include('partials.main-heading', ['title' => 'Daftar Psikolog'])
 
         <div class="mb-5">
             <div class="flex items-center">
-                <flux:input icon="magnifying-glass" placeholder="Cari psikolog berdasarkan nama atau email" wire:model.live="search"/>
+                <flux:input icon="magnifying-glass" placeholder="Cari psikolog berdasarkan nama atau email"
+                            wire:model.live="search"/>
             </div>
-{{--            <flux:separator class="mt-4 mb-4"/>--}}
+            {{--            <flux:separator class="mt-4 mb-4"/>--}}
         </div>
 
         <flux:modal name="editDoctor" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
@@ -234,16 +235,19 @@ new class extends Component {
                     <tr wire:key="{{$user->id}}">
                         <td class="px-4 py-2">
                             <div class="flex space-x-2">
-                                <flux:button size="xs" variant="primary" icon="pencil-square" wire:click="editDoctor({{$user->id}})"></flux:button>
-                                <flux:button size="xs" icon="trash" variant="danger" wire:click="deleteDoctor({{$user->id}})" wire:confirm="Apa anda yakin ingin menghapus psikolog ini?"></flux:button>
+                                <flux:button size="xs" variant="primary" icon="pencil-square"
+                                             wire:click="editDoctor({{$user->id}})"></flux:button>
+                                <flux:button size="xs" icon="trash" variant="danger"
+                                             wire:click="deleteDoctor({{$user->id}})"
+                                             wire:confirm="Apa anda yakin ingin menghapus psikolog ini?"></flux:button>
                             </div>
                         </td>
                         <td class="px-4 py-2 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
                         <td class="px-4 py-2 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
                         <td class="px-4 py-2">{{$user->name}}</td>
                         <td class="px-4 py-2">{{$user->email}}</td>
-                        <td class="px-4 py-2">{{$user->doctor->phone}}</td>
-                        <td class="px-4 py-2 text-center">{{$user->age}}</td>
+                        <td class="px-4 py-2">{{$user->doctor->phone ?? '-'}}</td>
+                        <td class="px-4 py-2 text-center">{{$user->age ?? '-'}}</td>
                         <td class="px-4 py-2">{{$user->gender->label()}}</td>
                         <td class="px-4 py-2">{{$user->doctor->graduated_from ?? '-'}}</td>
                         <td class="px-4 py-2 text-center">{{$user->doctor->registered_year}}</td>

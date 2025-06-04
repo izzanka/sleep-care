@@ -31,7 +31,6 @@ new class extends Component {
         if(!$this->therapy){
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-//        $this->isOnline = $this->userService->getPatientOnlineStatus($this->therapy->patient_id);
     }
 
     public function send()

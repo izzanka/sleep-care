@@ -2,9 +2,7 @@
 
 use App\Enum\UserGender;
 use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
@@ -92,7 +90,7 @@ new class extends Component {
 
     protected function shouldUpdateDoctorInfo()
     {
-        return $this->phone !== '';
+        return $this->phone !== '' || $this->about !== '' || $this->graduated_from != '' || $this->is_available;
     }
 
     public function updateDoctorInformation()

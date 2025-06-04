@@ -3,8 +3,6 @@
 use App\Enum\RecordType;
 use App\Enum\QuestionType;
 use App\Models\Question;
-use Flux\Flux;
-use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
@@ -93,6 +91,11 @@ new class extends Component {
         $this->resetValidation(['question','type','record_type','parent_id','is_parent','note']);
     }
 
+    public function updatedIsParent($value)
+    {
+        $this->is_parent = $value === "true" ? true : ($value === "false" ? false : null);
+    }
+
     public function editQuestion(int $questionID)
     {
         $question = Question::select('id', 'question', 'type', 'record_type', 'parent_id', 'is_parent', 'note')->find($questionID);
@@ -104,11 +107,6 @@ new class extends Component {
         $this->note = $question->note;
 
         $this->modal('editQuestion')->show();
-    }
-
-    public function updatedIsParent($value)
-    {
-        $this->is_parent = $value === "true" ? true : ($value === "false" ? false : null);
     }
 
     public function updateQuestion(int $questionID)
@@ -129,26 +127,11 @@ new class extends Component {
 
         $this->redirectRoute('admin.settings.question');
     }
-
-    public function destroyQuestion(int $questionID)
-    {
-        $question = Question::find($questionID);
-
-        if(!$question){
-            session()->flash('status', ['message' => 'Pertanyaan catatan terapi tidak dapat ditemukan.', 'success' => false]);
-        }
-
-        $question->delete();
-        session()->flash('status', ['message' => 'Pertanyaan catatan terapi berhasil dihapus.', 'success' => true]);
-
-        $this->redirectRoute('admin.settings.question');
-    }
-
 }; ?>
 
 <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
     <section class="w-full">
-        @include('partials.main-heading', ['title' => 'Pertanyaan Catatan Terapi'])
+        @include('partials.main-heading', ['title' => 'Daftar Pertanyaan Catatan Terapi'])
 
         <flux:modal name="editQuestion" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
             <div class="space-y-6">
@@ -161,30 +144,6 @@ new class extends Component {
                     <div class="mt-4 mb-4">
                         <flux:input label="ID" readonly value="{{$ID}}"></flux:input>
                     </div>
-
-{{--                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">--}}
-{{--                        <flux:select label="Jenis Pertanyaan" wire:model="type">--}}
-{{--                            @foreach(QuestionType::cases() as $questionType)--}}
-{{--                                <flux:select.option--}}
-{{--                                    :value="$questionType">{{$questionType->label()}}</flux:select.option>--}}
-{{--                            @endforeach--}}
-{{--                        </flux:select>--}}
-{{--                        <flux:select label="Jenis Catatan" wire:model="record_type">--}}
-{{--                            @foreach(RecordType::cases() as $recordType)--}}
-{{--                                <flux:select.option :value="$recordType">{{$recordType->label()}}</flux:select.option>--}}
-{{--                            @endforeach--}}
-{{--                        </flux:select>--}}
-{{--                    </div>--}}
-
-{{--                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">--}}
-{{--                        <flux:select label="Induk" wire:model="is_parent">--}}
-{{--                            <flux:select.option value="false">Tidak--}}
-{{--                            </flux:select.option>--}}
-{{--                            <flux:select.option value="true">Ya--}}
-{{--                            </flux:select.option>--}}
-{{--                        </flux:select>--}}
-{{--                        <flux:input wire:model="parent_id" label="ID Induk" placeholder="-"></flux:input>--}}
-{{--                    </div>--}}
 
                     <div class="mt-4 mb-4">
                         <flux:textarea wire:model="question" label="Pertanyaan" rows="2"></flux:textarea>

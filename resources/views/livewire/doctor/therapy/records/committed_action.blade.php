@@ -117,7 +117,7 @@ new class extends Component {
     }
 }; ?>
 
-<section>
+<section class="w-full">
     @include('partials.main-heading', ['title' => null])
 
     @if($therapy->status === TherapyStatus::IN_PROGRESS)
@@ -126,7 +126,6 @@ new class extends Component {
                       x-show="visible"
                       x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageAction', 'true'))">
             <flux:callout.heading>Catatan Tindakan (Committed Action)</flux:callout.heading>
-
             <flux:callout.text>
                 Digunakan untuk mencatat tindakan nyata yang dilakukan pasien sebagai bentuk komitmen terhadap
                 nilai-nilai pribadinya.
@@ -136,22 +135,25 @@ new class extends Component {
         </flux:callout>
     @endif
 
-
-    <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+    <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+        <!-- Chart Section -->
         <div class="flex">
             <div class="w-full max-w-md flex-shrink-0 mx-auto">
-                <canvas id="committedActionChart" class="w-full h-80 mb-4"></canvas>
+                <canvas id="committedActionChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
             </div>
         </div>
-        <flux:separator class="mt-4 mb-4"></flux:separator>
-        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
-            <div class="space-y-6">
+
+        <flux:separator class="my-4"></flux:separator>
+
+        <!-- Comment Modal -->
+        <flux:modal name="addComment" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-4 sm:space-y-6">
                 <form wire:submit="storeComment">
                     <div>
                         <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
-                        <flux:textarea rows="2" label="Komentar" wire:model="comment"
+                        <flux:textarea rows="3" label="Komentar" wire:model="comment"
                                        placeholder="Tambahkan sebuah komentar"/>
                     </div>
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
@@ -159,85 +161,87 @@ new class extends Component {
             </div>
         </flux:modal>
 
+        <!-- Table Section -->
         <div class="overflow-x-auto mt-4">
-            <table class="min-w-[800px] table-auto w-full text-sm text-left rounded-lg border overflow-hidden">
-                <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr class="text-left">
-                    @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                        <th class="px-4 py-2 font-medium">Aksi Komentar</th>
-                    @endif
-                    <th class="px-4 py-2 font-medium">No</th>
-                    @foreach($questions as $question)
-                        <th class="px-4 py-2 font-medium">{{ $question }}</th>
-                    @endforeach
-                    <th class="px-4 py-2 font-medium">Komentar</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y">
-                @forelse($rows as $index => $row)
-                    @php
-                        $firstAnswerWithComment = $row->first(fn($qa) => !empty($qa->comment));
-                    @endphp
-                    <tr>
+            <div class="min-w-[700px]">
+                <table class="w-full text-sm text-left rounded-lg border overflow-hidden">
+                    <thead class="bg-blue-400 dark:bg-blue-600 text-white">
+                    <tr class="text-left">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                            <td class="px-4 py-2 text-center">
-                                @if($firstAnswerWithComment)
-                                    <div class="flex items-center space-x-1">
-                                        <flux:button variant="primary" size="xs" icon="pencil-square"
-                                                     wire:click="createComment({{ $firstAnswerWithComment->id }}, {{ $loop->iteration }})"/>
-                                        <flux:button variant="danger" size="xs" icon="trash"
-                                                     wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
-                                                     wire:click="deleteComment({{ $firstAnswerWithComment->id }})"/>
-                                    </div>
-                                @else
-                                    @php
-                                        $firstAnswer = $row->first();
-                                    @endphp
-                                    @if($firstAnswer)
-                                        <flux:button variant="primary" size="xs" icon="plus"
-                                                     wire:click="createComment({{$firstAnswer->id}},{{$loop->iteration}})">
-                                        </flux:button>
-                                    @endif
-                                @endif
-                            </td>
+                            <th class="px-3 py-2 font-medium">Aksi</th>
                         @endif
-                        <td class="px-4 py-2 text-center">{{ $index + 1 }}</td>
+                        <th class="px-3 py-2 font-medium">No</th>
                         @foreach($questions as $question)
-                            @php
-                                $answerData = $row->firstWhere('question.question', $question)?->answer;
-                                $isBinary = $answerData?->type === QuestionType::BOOLEAN->value;
-                                $value = $answerData?->answer ?? null;
-                            @endphp
-                            <td class="px-4 py-2 text-left">
-                                @if($isBinary)
-                                    <div class="flex justify-center items-center h-full">
-                                        @if($value)
-                                            <flux:icon.check-circle class="text-green-500 w-5 h-5"/>
-                                        @else
-                                            <flux:icon.x-circle class="text-red-500 w-5 h-5"/>
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="text-left">
-                                        {{ $value ?? '-' }}
-                                    </div>
-                                @endif
-                            </td>
+                            <th class="px-3 py-2 font-medium">{{ $question }}</th>
                         @endforeach
-                        <td class="px-4 py-2 text-left">
-
-                            {{ $firstAnswerWithComment?->comment ?? '-' }}
-                        </td>
+                        <th class="px-3 py-2 font-medium">Komentar</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td class="px-4 py-2 text-center" colspan="10">
-                            <flux:heading class="mt-2">Belum ada catatan aksi</flux:heading>
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                    @forelse($rows as $index => $row)
+                        @php
+                            $firstAnswerWithComment = $row->first(fn($qa) => !empty($qa->comment));
+                        @endphp
+                        <tr>
+                            @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                                <td class="px-3 py-2 text-center">
+                                    @if($firstAnswerWithComment)
+                                        <div class="flex items-center justify-center space-x-1">
+                                            <flux:button variant="primary" size="xs" icon="pencil-square"
+                                                         wire:click="createComment({{ $firstAnswerWithComment->id }}, {{ $loop->iteration }})"/>
+                                            <flux:button variant="danger" size="xs" icon="trash"
+                                                         wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
+                                                         wire:click="deleteComment({{ $firstAnswerWithComment->id }})"/>
+                                        </div>
+                                    @else
+                                        @php
+                                            $firstAnswer = $row->first();
+                                        @endphp
+                                        @if($firstAnswer)
+                                            <flux:button variant="primary" size="xs" icon="plus"
+                                                         wire:click="createComment({{$firstAnswer->id}},{{$loop->iteration}})">
+                                            </flux:button>
+                                        @endif
+                                    @endif
+                                </td>
+                            @endif
+                            <td class="px-3 py-2 text-center">{{ $index + 1 }}</td>
+                            @foreach($questions as $question)
+                                @php
+                                    $answerData = $row->firstWhere('question.question', $question)?->answer;
+                                    $isBinary = $answerData?->type === QuestionType::BOOLEAN->value;
+                                    $value = $answerData?->answer ?? null;
+                                @endphp
+                                <td class="px-3 py-2">
+                                    @if($isBinary)
+                                        <div class="flex justify-center items-center h-full">
+                                            @if($value)
+                                                <flux:icon.check-circle class="text-green-500 size-5"/>
+                                            @else
+                                                <flux:icon.x-circle class="text-red-500 size-5"/>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="text-left max-w-[175px]">
+                                            {{ $value ?? '-' }}
+                                        </div>
+                                    @endif
+                                </td>
+                            @endforeach
+                            <td class="px-3 py-2 max-w-[150px]">
+                                {{ $firstAnswerWithComment?->comment ?? '-' }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-4 py-2 text-center" colspan="{{ count($questions) + ($therapy->status === TherapyStatus::IN_PROGRESS ? 2 : 1) }}">
+                                <flux:heading size="md" class="mt-2">Belum ada catatan aksi</flux:heading>
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </section>

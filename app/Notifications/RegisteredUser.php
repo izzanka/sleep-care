@@ -41,7 +41,8 @@ class RegisteredUser extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => $this->user->role == UserRole::DOCTOR->value ? 'Psikolog' : 'Pasien'.'('.$this->user->name.') baru saja melakukan registrasi.',
+            'message' => ($this->user->role === UserRole::DOCTOR->value ? 'Psikolog' : 'Pasien')
+                .' ('.$this->user->name.') baru saja melakukan registrasi.',
         ];
     }
 }

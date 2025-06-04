@@ -78,50 +78,54 @@ new class extends Component {
 
 }; ?>
 
-<section>
+<section class="w-full">
     @include('partials.main-heading', ['title' => 'Detail Terapi'])
-
-{{--    <div>--}}
-{{--        <flux:button icon="arrow-uturn-left" class="mb-4" size="sm" href="{{route('doctor.therapies.in_progress.index')}}" variant="primary">--}}
-{{--            Kembali--}}
-{{--        </flux:button>--}}
-{{--    </div>--}}
 
     <flux:heading class="mb-2">
         Informasi Pasien:
     </flux:heading>
-    <div
-        x-data="{ showDetails: false }"
-        wire:poll.4s.visible="checkPatientOnlineStatus"
-    >
-        <flux:callout icon="user" color="zink" inline>
-            <flux:callout.heading class="flex items-center justify-between">
-                <div>
+
+    <div x-data="{ showDetails: false }" wire:poll.4s.visible="checkPatientOnlineStatus" class="w-full">
+        <flux:callout color="zink" inline class="w-full">
+            <flux:callout.heading class="flex flex-col xs:flex-row xs:items-center justify-between gap-2 w-full">
+                <div class="flex items-center flex-wrap gap-2">
+                <span class="text-base font-medium truncate max-w-[180px] sm:max-w-none">
                     {{ $therapy->patient->name }}
-                    <flux:badge size="sm" :color="$isOnline ? 'blue' : 'zinc'" class="ml-2">
+                </span>
+                    <flux:badge size="sm" :color="$isOnline ? 'blue' : 'zinc'" class="shrink-0">
                         {{ $isOnline ? 'Online' : 'Offline' }}
                     </flux:badge>
                 </div>
                 <button
                     @click="showDetails = !showDetails"
-                    class="text-sm hover:underline text-blue-600"
+                    class="text-sm hover:underline text-blue-600 whitespace-nowrap px-2 py-1 -mr-2"
                 >
                     <flux:text x-text="showDetails ? 'Sembunyikan' : 'Tampilkan'" class="text-blue-600"></flux:text>
                 </button>
             </flux:callout.heading>
 
-
             <template x-if="showDetails">
                 <div class="mt-2">
                     <flux:callout.text>
                         <div>
-                            Jenis Kelamin: {{ $therapy->patient->gender->label() }}
-                        </div>
-                        <div class="mt-2">
-                            Usia: {{ $therapy->patient->age }}
-                        </div>
-                        <div class="mt-2">
-                            Masalah Lainnya: {{ $problems }}
+                            <div>
+                                <flux:heading>Jenis Kelamin:</flux:heading>
+                                <flux:text>
+                                    {{ $therapy->patient->gender->label() }}
+                                </flux:text>
+                            </div>
+                            <div class="mt-2 mb-2">
+                                <flux:heading>Usia:</flux:heading>
+                                <flux:text>
+                                    {{ $therapy->patient->age }}
+                                </flux:text>
+                            </div>
+                            <div>
+                                <flux:heading>Masalah Lainnya:</flux:heading>
+                                <flux:text>
+                                    {{ $problems }}
+                                </flux:text>
+                            </div>
                         </div>
                     </flux:callout.text>
                 </div>
@@ -129,67 +133,58 @@ new class extends Component {
         </flux:callout>
     </div>
 
-{{--        <flux:separator class="mt-4 mb-4 "/>--}}
+    <div class="flex flex-col gap-4 mb-4 mt-4">
+        <div>
+            <flux:radio.group variant="segmented" label="Menu:" wire:model="menu">
+                <flux:radio
+                    label="Jadwal {{$uncompletedScheduleCount ? '('.$uncompletedScheduleCount.')' : ''}}"
+                    value="schedule"
+                    wire:click="setMenu('schedule')"
+                />
+                <flux:radio
+                    label="Percakapan {{$unreadChatCount ? '('.$unreadChatCount.')' : ''}}"
+                    value="chat"
+                    wire:click="setMenu('chat')"
+                />
+            </flux:radio.group>
+        </div>
 
-    {{--    @include('partials.main-heading', ['title' => 'Detail Terapi (' . $patientName . ')'])--}}
-
-    <div class="flex flex-wrap gap-4 items-start mb-4 mt-4">
-        <flux:radio.group variant="segmented" label="Menu:" wire:model="menu">
-            {{--            <flux:radio--}}
-            {{--                label="Informasi"--}}
-            {{--                value="index"--}}
-            {{--                wire:click="setMenu('index')"--}}
-            {{--            />--}}
-            <flux:radio
-                label="Jadwal {{$uncompletedScheduleCount ? '('.$uncompletedScheduleCount.')' : ''}}"
-                value="schedule"
-                wire:click="setMenu('schedule')"
-            />
-            <flux:radio
-                label="Percakapan {{$unreadChatCount ? '('.$unreadChatCount.')' : ''}}"
-                value="chat"
-                wire:click="setMenu('chat')"
-            />
-        </flux:radio.group>
-
-        <flux:radio.group variant="segmented" label="Catatan:" wire:model="menu">
-            <flux:radio
-                label="Nilai {{$unreadIdentifyValue ? '(Baru)' : ''}}"
-                value="identify_value"
-                wire:click="setMenu('identify_value')"
-            />
-            <flux:radio
-                label="Tidur {{$unreadSleepDiary ? '(Baru)' : ''}}"
-                value="sleep_diary"
-                wire:click="setMenu('sleep_diary')"
-            />
-            <flux:radio
-                label="Pikiran {{$unreadThoughtRecord ? '(Baru)' : ''}}"
-                value="thought_record"
-                wire:click="setMenu('thought_record')"
-            />
-            <flux:radio
-                label="Emosi {{$unreadEmotionRecord ? '(Baru)' : ''}}"
-                value="emotion_record"
-                wire:click="setMenu('emotion_record')"
-            />
-            <flux:radio
-                label="Tindakan {{$unreadCommittedAction ? '(Baru)' : ''}}"
-                value="committed_action"
-                wire:click="setMenu('committed_action')"
-            />
-        </flux:radio.group>
+        <div>
+            <flux:radio.group variant="segmented" label="Catatan:" wire:model="menu">
+                <flux:radio
+                    label="Nilai {{$unreadIdentifyValue ? '(Baru)' : ''}}"
+                    value="identify_value"
+                    wire:click="setMenu('identify_value')"
+                />
+                <flux:radio
+                    label="Tidur {{$unreadSleepDiary ? '(Baru)' : ''}}"
+                    value="sleep_diary"
+                    wire:click="setMenu('sleep_diary')"
+                />
+                <flux:radio
+                    label="Pikiran {{$unreadThoughtRecord ? '(Baru)' : ''}}"
+                    value="thought_record"
+                    wire:click="setMenu('thought_record')"
+                />
+                <flux:radio
+                    label="Emosi {{$unreadEmotionRecord ? '(Baru)' : ''}}"
+                    value="emotion_record"
+                    wire:click="setMenu('emotion_record')"
+                />
+                <flux:radio
+                    label="Tindakan {{$unreadCommittedAction ? '(Baru)' : ''}}"
+                    value="committed_action"
+                    wire:click="setMenu('committed_action')"
+                />
+            </flux:radio.group>
+        </div>
     </div>
 
-{{--    <flux:separator class="mb-4"/>--}}
-
-    <div wire:loading wire:target="setMenu">
+    <div wire:loading wire:target="setMenu" class="flex justify-center py-8">
         <flux:icon.loading/>
     </div>
 
-    <div wire:loading.remove wire:target="setMenu">
-        {{--        @if($menu == 'index')--}}
-        {{--            <livewire:doctor.therapy.records.index :therapyId="$therapyId"/>--}}
+    <div wire:loading.remove wire:target="setMenu" class="w-full">
         @if($menu == 'chat')
             <livewire:doctor.therapy.records.chat :therapyId="$therapy->id"/>
         @elseif($menu == 'schedule')

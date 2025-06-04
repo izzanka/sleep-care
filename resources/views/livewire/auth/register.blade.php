@@ -106,12 +106,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 <div class="flex flex-col gap-6">
     <x-auth-header title="Register" description=""/>
 
-    <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')"/>
 
     <form wire:submit="register" class="flex flex-col gap-6">
 
-        <!-- Name -->
         <flux:input
             wire:model="name"
             id="name"
@@ -136,16 +134,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         />
 
         @if($this->is_himpsi)
-            <flux:description>Pastikan nama dan email anda sudah terdaftar di
+            <flux:description>Pastikan email anda sudah terdaftar di
                 <flux:link href="https://himpsi.or.id/" target="_blank">HIMPSI</flux:link>
             </flux:description>
         @endif
-
-        {{--        <div class="flex items-center justify-end">--}}
-        {{--            <flux:button variant="primary" class="w-full">--}}
-        {{--                Cek akun HIMPSI--}}
-        {{--            </flux:button>--}}
-        {{--        </div>--}}
 
         <flux:select wire:model="gender" placeholder="Pilih jenis kelamin..." label="Jenis Kelamin">
             @foreach(UserGender::cases() as $gender)
@@ -153,7 +145,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             @endforeach
         </flux:select>
 
-        <!-- Password -->
         <flux:input
             wire:model="password"
             id="password"
@@ -166,7 +157,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             viewable
         />
 
-        <!-- Confirm Password -->
         <flux:input
             wire:model="password_confirmation"
             id="password_confirmation"

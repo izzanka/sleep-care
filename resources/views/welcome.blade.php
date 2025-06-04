@@ -56,9 +56,6 @@
         <a href="#" class="px-5 py-2 border border-[#155DFCFF] text-[#155DFCFF] rounded hover:bg-[#155DFCFF] hover:text-white transition">
             Unduh Sekarang
         </a>
-{{--        <button class="px-5 py-2 bg-[#155DFCFF] text-white text-sm rounded hover:bg-[#bb192e] transition">--}}
-{{--            Unduh Sekarang--}}
-{{--        </button>--}}
     </div>
 </section>
 
@@ -93,12 +90,9 @@
 
 <footer class="py-10 px-6 bg-gray-50">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 text-sm text-gray-700 gap-6">
-        <!-- Brand Section -->
         <div>
             <h2 class="font-bold text-base mb-2 text-[#155DFCFF]">SleepCare</h2>
         </div>
-
-        <!-- Download and Psychologist Registration Section -->
         <div class="space-y-4">
             <div>
                 <h3 class="font-bold mb-2">Download App di</h3>
@@ -115,7 +109,6 @@
         </div>
     </div>
 </footer>
-
 
 </body>
 </html>

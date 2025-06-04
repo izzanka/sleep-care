@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enum\RecordType;
 use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\QuestionResource;
 use App\Service\QuestionService;
 use App\Service\TherapyService;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class QuestionController extends Controller
             $questions = $this->questionService->get($validated['record_type']);
 
             return Response::success([
-                'questions' => $questions,
+                'questions' => QuestionResource::collection($questions),
             ], 'Berhasil mendapatkan data pertanyaan '.$validated['record_type'].'.');
 
         } catch (\Exception $exception) {

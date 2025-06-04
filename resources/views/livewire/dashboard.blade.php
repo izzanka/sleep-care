@@ -93,7 +93,7 @@ new class extends Component {
                     </div>
 
                     <div class="relative rounded-lg px-6 py-4 bg-zinc-100 dark:bg-zinc-700">
-                        <flux:subheading>Rata - Rata Rating</flux:subheading>
+                        <flux:subheading>Rating</flux:subheading>
                         <flux:heading size="xl" class="mb-2">
                             {{$avg_rating}} / 5 ({{$total_rating}})
                         </flux:heading>

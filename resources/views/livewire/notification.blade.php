@@ -1,6 +1,5 @@
 <?php
 
-use App\Enum\UserRole;
 use Illuminate\Support\Facades\DB;
 use Livewire\Volt\Component;
 
@@ -26,30 +25,38 @@ new class extends Component {
         @include('partials.main-heading', ['title' => 'Notifikasi'])
 
         @forelse ($notifications as $notification)
-            <div class="flex justify-between p-2 rounded-lg mt-4 {{ $notification->read_at ? 'bg-white dark:bg-zinc-800' : 'bg-zinc-100 text-white dark:bg-zinc-700' }}">
-
-                <flux:heading>
-                    [{{ $notification->created_at->format('d/m/Y H:i') }}] {{ $notification->data['message'] }}
-                </flux:heading>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 rounded-lg mt-3 sm:mt-4 {{ $notification->read_at ? 'bg-white dark:bg-zinc-800' : 'bg-zinc-100 dark:bg-zinc-700' }}">
+                <div class="flex-1">
+                    <flux:heading class="text-sm">
+                        <span class="text-xs sm:text-sm font-normal text-gray-500 dark:text-gray-400">
+                            [{{ $notification->created_at->format('d/m/Y H:i') }}]
+                        </span>
+                        <span class="block sm:inline mt-1 sm:mt-0 sm:ml-2">
+                            {{ $notification->data['message'] }}
+                        </span>
+                    </flux:heading>
+                </div>
 
                 @if (is_null($notification->read_at))
-                    <flux:button
-                        size="sm"
-                        icon="x-mark"
-                        variant="ghost"
-                        inset
-                        wire:click="mark('{{ $notification->id }}')"
-                        class="dark:text-white"
-                    />
+                    <div class="mt-2 sm:mt-0 sm:ml-4">
+                        <flux:button
+                            size="xs"
+                            icon="x-mark"
+                            variant="ghost"
+                            inset
+                            wire:click="mark('{{ $notification->id }}')"
+                            class="dark:text-white"
+                        />
+                    </div>
                 @endif
             </div>
         @empty
-            <flux:heading class="mt-6">
+            <flux:heading class="mt-6 text-center sm:text-left">
                 Belum ada notifikasi
             </flux:heading>
         @endforelse
 
-        <div class="mt-auto">
+        <div class="mt-6">
             {{ $notifications->links() }}
         </div>
     </section>

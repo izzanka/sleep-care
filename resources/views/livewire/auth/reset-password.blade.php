@@ -18,9 +18,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password = '';
     public string $password_confirmation = '';
 
-    /**
-     * Mount the component.
-     */
     public function mount(string $token): void
     {
         $this->token = $token;
@@ -28,9 +25,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->email = request()->string('email');
     }
 
-    /**
-     * Reset the password for the given user.
-     */
     public function resetPassword(): void
     {
         $this->validate([
@@ -39,9 +33,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $this->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) {
@@ -58,9 +49,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
         if ($status != Password::PasswordReset) {
             $this->addError('email', __($status));
 
@@ -76,11 +64,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
 <div class="flex flex-col gap-6">
     <x-auth-header title="Reset password" description=""/>
 
-    <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')"/>
 
     <form wire:submit="resetPassword" class="flex flex-col gap-6">
-        <!-- Email Address -->
         <flux:input
             wire:model="email"
             id="email"
@@ -91,7 +77,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             autocomplete="email"
         />
 
-        <!-- Password -->
         <flux:input
             wire:model="password"
             id="password"
@@ -103,7 +88,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             placeholder="Password"
         />
 
-        <!-- Confirm Password -->
         <flux:input
             wire:model="password_confirmation"
             id="password_confirmation"

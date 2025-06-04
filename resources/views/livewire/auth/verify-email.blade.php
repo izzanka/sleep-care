@@ -7,9 +7,6 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.auth')] class extends Component {
-    /**
-     * Send an email verification notification to the user.
-     */
     public function sendVerification(): void
     {
         if (Auth::user()->hasVerifiedEmail()) {
@@ -22,9 +19,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         Session::flash('status', 'verification-link-sent');
     }
 
-    /**
-     * Log the current user out of the application.
-     */
     public function logout(Logout $logout): void
     {
         $logout();
@@ -34,7 +28,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 }; ?>
 
 <div class="mt-4 flex flex-col gap-6">
-    <div class="text-center text-sm text-white">
+    <div class="text-center text-sm text-dark dark:text-white">
         {{ __('Harap verifikasi email anda dengan mengklik link yang baru saja kami kirimkan melalui email kepada anda.') }}
     </div>
 
@@ -52,7 +46,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <button
             wire:click="logout"
             type="submit"
-            class="rounded-md text-sm text-gray-600 underline hover:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            class="rounded-md text-sm text-dark underline hover:text-blue-600 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
             {{ __('Log out') }}
         </button>

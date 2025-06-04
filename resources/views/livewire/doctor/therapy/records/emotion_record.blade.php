@@ -123,6 +123,8 @@ new class extends Component {
             'comment' => $validated['comment'],
         ]);
 
+        dd($questionAnswer);
+
         session()->flash('status', ['message' => 'Komentar berhasil disimpan.', 'success' => true]);
         $this->reset('comment','id');
         $this->modal('addComment')->close();
@@ -174,7 +176,7 @@ new class extends Component {
     }
 }; ?>
 
-<section>
+<section class="w-full">
     @include('partials.main-heading', ['title' => null])
 
     @if($therapy->status === TherapyStatus::IN_PROGRESS)
@@ -183,7 +185,6 @@ new class extends Component {
                       x-show="visible"
                       x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageEmotion', 'true'))">
             <flux:callout.heading>Catatan Emosi (Emotion Record)</flux:callout.heading>
-
             <flux:callout.text>
                 Digunakan untuk mencatat dan memantau emosi yang dialami pasien, membantu mengenali pola emosional, serta mendukung pengelolaan emosi yang lebih sehat dalam proses terapi.
                 <br><br>
@@ -192,131 +193,130 @@ new class extends Component {
         </flux:callout>
     @endif
 
-    <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+    <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+        <!-- Chart Section -->
         <div class="flex">
             <div class="w-full flex-shrink-0">
-                <canvas id="emotionRecordChart" class="w-full h-80 mb-4"></canvas>
+                <canvas id="emotionRecordChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
             </div>
         </div>
-        {{--        <div class="relative w-full">--}}
-        {{--            <canvas id="emotionRecordChart" class="w-full h-full"></canvas>--}}
-        {{--        </div>--}}
 
-        <flux:separator class="mt-4 mb-4"/>
+        <flux:separator class="my-4"/>
 
-        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
-            <div class="space-y-6">
+        <!-- Comment Modal -->
+        <flux:modal name="addComment" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-4 sm:space-y-6">
                 <form wire:submit="storeComment">
                     <div>
                         <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
-                        <flux:textarea rows="2" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
+                        <flux:textarea rows="3" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
                     </div>
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
                 </form>
             </div>
         </flux:modal>
 
-        <flux:select wire:model.live="selectedWeek" label="Pilih Minggu" class="flex items-center justify-end mb-4">
-            @foreach ($dropdownLabels as $index => $label)
-                <flux:select.option :value="$index + 1">{{$label}}</flux:select.option>
-            @endforeach
-        </flux:select>
-        {{--            <label for="week-select" class="mr-2 font-medium">Pilih Minggu:</label>--}}
-        {{--            <select id="week-select" wire:model.live="selectedWeek" class="border rounded p-2 dark:bg-zinc-700 dark:text-white">--}}
-        {{--                @for ($i = 1; $i <= 6; $i++)--}}
-        {{--                    <option value="{{ $i }}">Minggu {{ $i }}</option>--}}
-        {{--                @endfor--}}
-        {{--            </select>--}}
-
-        <div class="overflow-x-auto mt-4">
-            <table class="min-w-[800px] w-full text-sm text-left rounded-lg border overflow-hidden">
-                <thead class="bg-blue-400 dark:bg-blue-600 text-white">
-                <tr class="text-left">
-                    @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                    <th class="px-4 py-2 font-medium">Aksi Komentar</th>
-                    @endif
-                    <th class="px-4 py-2 font-medium">No</th>
-                    @foreach($questions as $question)
-                        <th class="px-4 py-2 font-medium">{{ $question }}</th>
+        <!-- Week Selector -->
+        <div class="flex justify-end mb-4">
+            <div class="w-full sm:w-64">
+                <flux:select wire:model.live="selectedWeek" label="Pilih Minggu">
+                    @foreach ($dropdownLabels as $index => $label)
+                        <flux:select.option :value="$index + 1">{{$label}}</flux:select.option>
                     @endforeach
-                    <th class="px-4 py-2 font-medium">Komentar</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y">
-                @forelse($answerRows as $index => $row)
+                </flux:select>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="overflow-x-auto mt-4">
+            <div class="min-w-[700px]">
+                <table class="w-full text-sm text-left rounded-lg border overflow-hidden">
+                    <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                     <tr class="text-left">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                            <td class="px-4 py-2 text-center">
-                                @php
-                                    $firstAnswer = $row->first(); // Get first item in pivot row
-                                    $pivotId = $firstAnswer?->id;
-                                    $comment = $firstAnswer?->comment;
-                                @endphp
-
-                                @if ($pivotId)
-                                    <div class="flex items-center space-x-1 justify-center">
-                                        @if ($comment)
-                                            {{-- Edit and Delete buttons if comment exists --}}
-                                            <flux:button
-                                                variant="primary"
-                                                size="xs"
-                                                icon="pencil-square"
-                                                wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
-                                            />
-                                            <flux:button
-                                                variant="danger"
-                                                size="xs"
-                                                icon="trash"
-                                                wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
-                                                wire:click="deleteComment({{ $pivotId }})"
-                                            />
-                                        @else
-                                            {{-- Plus button if no comment --}}
-                                            <flux:button
-                                                variant="primary"
-                                                size="xs"
-                                                icon="plus"
-                                                wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
-                                            />
-                                        @endif
-                                    </div>
-                                @endif
-                            </td>
+                            <th class="px-3 py-2 font-medium">Aksi</th>
                         @endif
-                        <td class="px-4 py-2 text-center">{{ $index + 1 }}</td>
+                        <th class="px-3 py-2 font-medium">No</th>
                         @foreach($questions as $question)
-                            @php
-                                $answerData = $row->firstWhere('question.question', $question)?->answer;
-                                $type = $answerData?->type ?? null;
-                                $value = $answerData?->answer ?? null;
-
-                                $formattedValue = match($type) {
-                                    QuestionType::DATE->value => $value ? Carbon::parse($value)->isoFormat('D MMMM') : '-',
-                                    QuestionType::TIME->value, QuestionType::NUMBER->value => $value ?? '-',
-                                    default => $value ?? '-',
-                                };
-
-                                $alignment = in_array($type, [QuestionType::DATE->value, QuestionType::TIME->value, QuestionType::NUMBER->value]) ? 'text-center' : 'text-left';
-                            @endphp
-                            <td class="px-4 py-2 {{ $alignment }}">
-                                {{ $formattedValue }}
-                            </td>
+                            <th class="px-3 py-2 font-medium">{{ $question }}</th>
                         @endforeach
-                        <td class="px-4 py-2">
-                            {{ $comment ?? '-'}}
-                        </td>
+                        <th class="px-3 py-2 font-medium">Komentar</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td class="px-4 py-2 text-center" colspan="11">
-                            <flux:heading class="mt-2">Belum ada catatan emosi</flux:heading>
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                    @forelse($answerRows as $index => $row)
+                        <tr class="text-left">
+                            @if($therapy->status === TherapyStatus::IN_PROGRESS)
+                                <td class="px-3 py-2 text-center">
+                                    @php
+                                        $firstAnswer = $row->first();
+                                        $pivotId = $firstAnswer?->id;
+                                        $comment = $firstAnswer?->comment;
+                                    @endphp
+
+                                    @if ($pivotId)
+                                        <div class="flex items-center space-x-1 justify-center">
+                                            @if ($comment)
+                                                <flux:button
+                                                    variant="primary"
+                                                    size="xs"
+                                                    icon="pencil-square"
+                                                    wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
+                                                />
+                                                <flux:button
+                                                    variant="danger"
+                                                    size="xs"
+                                                    icon="trash"
+                                                    wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
+                                                    wire:click="deleteComment({{ $pivotId }})"
+                                                />
+                                            @else
+                                                <flux:button
+                                                    variant="primary"
+                                                    size="xs"
+                                                    icon="plus"
+                                                    wire:click="createComment({{ $pivotId }}, {{ $loop->iteration }})"
+                                                />
+                                            @endif
+                                        </div>
+                                    @endif
+                                </td>
+                            @endif
+                            <td class="px-3 py-2 text-center">{{ $index + 1 }}</td>
+                            @foreach($questions as $question)
+                                @php
+                                    $answerData = $row->firstWhere('question.question', $question)?->answer;
+                                    $type = $answerData?->type ?? null;
+                                    $value = $answerData?->answer ?? null;
+
+                                    $formattedValue = match($type) {
+                                        QuestionType::DATE->value => $value ? Carbon::parse($value)->isoFormat('D MMMM') : '-',
+                                        QuestionType::TIME->value, QuestionType::NUMBER->value => $value ?? '-',
+                                        default => $value ?? '-',
+                                    };
+
+                                    $alignment = in_array($type, [QuestionType::DATE->value, QuestionType::TIME->value, QuestionType::NUMBER->value]) ? 'text-center' : 'text-left';
+                                @endphp
+                                <td class="px-3 py-2 {{ $alignment }} max-w-[150px]">
+                                    {{ $formattedValue }}
+                                </td>
+                            @endforeach
+                            <td class="px-3 py-2 max-w-[150px]">
+                                {{ $comment ?? '-'}}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-4 py-2 text-center" colspan="{{ count($questions) + ($therapy->status === TherapyStatus::IN_PROGRESS ? 2 : 1) }}">
+                                <flux:heading size="md" class="mt-2">Belum ada catatan emosi</flux:heading>
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </section>

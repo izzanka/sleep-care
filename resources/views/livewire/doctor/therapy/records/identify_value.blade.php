@@ -136,7 +136,7 @@ new class extends Component {
     }
 }; ?>
 
-<section>
+<section class="w-full">
     @include('partials.main-heading', ['title' => null])
 
     @if($therapy->status === TherapyStatus::IN_PROGRESS)
@@ -145,7 +145,6 @@ new class extends Component {
                       x-show="visible"
                       x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageValue', 'true'))">
             <flux:callout.heading>Catatan Nilai (Identify Value)</flux:callout.heading>
-
             <flux:callout.text>
                 Digunakan untuk membantu pasien mencatat dan mengenali hal-hal yang bermakna dalam hidup mereka dan menjadi arah dalam mengambil tindakan sesuai tujuan hidup.
                 <br><br>
@@ -154,75 +153,85 @@ new class extends Component {
         </flux:callout>
     @endif
 
-    <div class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+    <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
+        <!-- Chart Section -->
         <div class="flex" wire:ignore>
             <div class="w-full max-w-lg flex-shrink-0 mx-auto">
-                <canvas id="identifyValueChart" class="w-full h-80"></canvas>
+                <canvas id="identifyValueChart" class="w-full h-64 sm:h-80"></canvas>
             </div>
         </div>
-        <flux:separator class="mb-4"/>
-        <flux:modal name="addComment" class="w-full max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
-            <div class="space-y-6">
+
+        <flux:separator class="my-4"/>
+
+        <!-- Comment Modal -->
+        <flux:modal name="addComment" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
+            <div class="space-y-4 sm:space-y-6">
                 <form wire:submit="storeComment">
                     <div>
                         <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
-                        <flux:textarea rows="2" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
+                        <flux:textarea rows="3" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
                     </div>
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
                 </form>
             </div>
         </flux:modal>
+
+        <!-- Table Section -->
         <div class="overflow-x-auto">
-            <table class="min-w-full table-auto text-sm rounded-lg border overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600 text-sm rounded-lg border overflow-hidden">
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                 <tr class="text-left">
                     @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                    <th class="px-4 py-2 font-medium">Aksi Komentar</th>
+                        <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">Aksi</th>
                     @endif
-                    <th class="px-4 py-2 font-medium">No</th>
-                    <th class="px-4 py-2 font-medium">Area</th>
-                    <th class="px-4 py-2 font-medium">{{ $datasetLabels[0] }}</th>
-                    <th class="px-4 py-2 font-medium">{{ $datasetLabels[2] }}</th>
-                    <th class="px-4 py-2 font-medium">{{ $datasetLabels[1] }}</th>
-                    <th class="px-4 py-2 font-medium">Komentar</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">No</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">Area</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">{{ $datasetLabels[0] }}</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">{{ $datasetLabels[2] }}</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">{{ $datasetLabels[1] }}</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">Komentar</th>
                 </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                 @forelse($labels as $index => $label)
                     @php
                         $questionAnswer = $identifyValue->questionAnswers[$index] ?? null;
                     @endphp
                     <tr class="text-left" wire:key="{{$index}}">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                            <td class="px-4 py-2 text-center">
+                            <td class="px-3 py-2 sm:px-4 sm:py-2 text-center whitespace-nowrap">
                                 @if($identifyValue->questionAnswers[$index]->comment)
-                                    <div class="flex items-center space-x-1">
-                                        <flux:button variant="primary" size="xs" icon="pencil-square" wire:click="createComment({{ $questionAnswer->id }}, {{ $loop->iteration }})" />
-                                        <flux:button variant="danger" size="xs" icon="trash" wire:confirm="Apa anda yakin ingin menghapus komentar ini?" wire:click="deleteComment({{ $questionAnswer->id }})" />
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <flux:button variant="primary" size="xs" icon="pencil-square"
+                                                     wire:click="createComment({{ $questionAnswer->id }}, {{ $loop->iteration }})" />
+                                        <flux:button variant="danger" size="xs" icon="trash"
+                                                     wire:confirm="Apa anda yakin ingin menghapus komentar ini?"
+                                                     wire:click="deleteComment({{ $questionAnswer->id }})" />
                                     </div>
                                 @else
-                                    <flux:button variant="primary" size="xs" icon="plus" wire:click="createComment({{$questionAnswer->id}},{{$loop->iteration}})">
+                                    <flux:button variant="primary" size="xs" icon="plus"
+                                                 wire:click="createComment({{$questionAnswer->id}},{{$loop->iteration}})">
                                     </flux:button>
                                 @endif
                             </td>
                         @endif
-                        <td class="px-4 py-2 text-center">{{ $loop->iteration }}</td>
-                        <td class="px-4 py-2">{{ $label }}</td>
-                        <td class="px-4 py-2 text-center">{{ $numberAnswers['Skala Kepentingan'][$index] }}</td>
-                        <td class="px-4 py-2 text-center">{{ $numberAnswers['Skor Kesesuaian'][$index] }}</td>
-                        <td class="px-4 py-2">
+                        <td class="px-3 py-2 sm:px-4 sm:py-2 text-center">{{ $loop->iteration }}</td>
+                        <td class="px-3 py-2 sm:px-4 sm:py-2">{{ $label }}</td>
+                        <td class="px-3 py-2 sm:px-4 sm:py-2 text-center">{{ $numberAnswers['Skala Kepentingan'][$index] }}</td>
+                        <td class="px-3 py-2 sm:px-4 sm:py-2 text-center">{{ $numberAnswers['Skor Kesesuaian'][$index] }}</td>
+                        <td class="px-3 py-2 sm:px-4 sm:py-2 max-w-[120px] sm:max-w-none">
                             {{ $textAnswers[$datasetLabels[1]][$index] ?? '-' }}
                         </td>
-                        <td class="px-4 py-2">
+                        <td class="px-3 py-2 sm:px-4 sm:py-2 max-w-[120px] sm:max-w-none">
                             {{ $identifyValue->questionAnswers[$index]->comment ?? '-' }}
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="px-4 py-2 text-center" colspan="7">
-                            <flux:heading class="mt-2">Belum ada catatan nilai</flux:heading>
+                        <td class="px-4 py-2 text-center" colspan="{{ $therapy->status === TherapyStatus::IN_PROGRESS ? 7 : 6 }}">
+                            <flux:heading size="md" class="mt-2">Belum ada catatan nilai</flux:heading>
                         </td>
                     </tr>
                 @endforelse

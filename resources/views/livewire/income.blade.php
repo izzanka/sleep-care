@@ -1,7 +1,6 @@
 <?php
 
 use App\Enum\OrderStatus;
-use App\Enum\TherapyStatus;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -56,19 +55,20 @@ new class extends Component {
     }
 }; ?>
 
-<div>
+<div class="w-full">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
         <section class="w-full">
             @include('partials.main-heading', ['title' => 'Pendapatan'])
-            <div class="relative rounded-lg px-6 py-4 bg-zinc-100 dark:bg-zinc-700">
-                <flux:subheading>Total Pendapatan</flux:subheading>
-                <flux:heading size="xl" class="mb-2">@currency($total_income)</flux:heading>
+
+            <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-zinc-100 dark:bg-zinc-700">
+                <flux:subheading class="text-sm">Total Pendapatan</flux:subheading>
+                <flux:heading size="xl" class="mb-2 text-lg sm:text-xl md:text-2xl">@currency($total_income)</flux:heading>
             </div>
 
             @foreach($orders as $order)
-                <div class="mt-6 flex items-center justify-between">
-                    <div>
-                        <flux:heading size="lg" class="text-green-600">
+                <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="w-full">
+                        <flux:heading size="lg" class="text-green-600 text-base">
                             +
                             @can('isAdmin', Auth::user())
                                 @currency($order->therapy->application_fee)
@@ -76,40 +76,26 @@ new class extends Component {
                                 @currency($order->therapy->doctor_fee)
                             @endcan
                         </flux:heading>
-                        <flux:subheading> {{$order->created_at->isoFormat('D MMMM Y')}}
-                            @can('isAdmin', Auth::user())
-                                (Biaya Jasa Aplikasi #{{$order->id}})
-                            @elsecan('isDoctor', Auth::user())
-                                (Biaya Jasa Terapi Pasien {{$order->therapy->patient->name}})
-                            @endcan
+
+                        <flux:subheading class="text-sm">
+                            <span class="font-medium">{{$order->created_at->isoFormat('D MMMM Y')}}</span>
+                            <span class="block sm:inline mt-1 sm:mt-0">
+                                @can('isAdmin', Auth::user())
+                                    (Biaya Jasa Aplikasi, Transaksi ID: {{$order->id}})
+                                @elsecan('isDoctor', Auth::user())
+                                    (Biaya Jasa Terapi Pasien {{$order->therapy->patient->name}})
+                                @endcan
+                            </span>
                         </flux:subheading>
                     </div>
-
-{{--                    @can('isDoctor', Auth::user())--}}
-{{--                        <div class="ml-auto">--}}
-{{--                            <flux:button--}}
-{{--                                variant="primary"--}}
-{{--                                icon-trailing="arrow-up-right"--}}
-{{--                                wire:navigate :href="route('doctor.therapies.completed.detail', $order->therapy->id)">--}}
-{{--                                Detail--}}
-{{--                            </flux:button>--}}
-{{--                        </div>--}}
-{{--                    @endcan--}}
-{{--                    <flux:modal :name="'detail-order-'.$order->id" class="max-w-4xl w-full">--}}
-{{--                        <div class="space-y-6">--}}
-{{--                            <div>--}}
-{{--                                <flux:heading size="lg">Detail</flux:heading>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </flux:modal>--}}
                 </div>
-                <flux:separator class="mt-6"/>
+
+                <flux:separator class="mt-4 sm:mt-6 h-px sm:h-[2px]"/>
             @endforeach
 
-            <div class="mt-auto">
+            <div class="mt-6 sm:mt-8 flex justify-center sm:justify-start">
                 {{$orders->links()}}
             </div>
-
         </section>
     </div>
 </div>

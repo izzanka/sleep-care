@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enum\TherapyStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TherapyResource;
 use App\Service\DoctorService;
 use App\Service\GeneralService;
 use App\Service\RecordService;
@@ -40,36 +41,12 @@ class TherapyController extends Controller
             if ($validated['status'] === TherapyStatus::IN_PROGRESS->value) {
                 $therapy = $therapies->first();
 
-                return Response::success($therapy, 'Berhasil mendapatkan data terapi.');
+                return Response::success(new TherapyResource($therapy), 'Berhasil mendapatkan data terapi.');
             }
 
             return Response::success([
-                'therapies' => $therapies,
+                'therapies' => TherapyResource::collection($therapies),
             ], 'Berhasil mendapatkan data terapi.');
-
-        } catch (\Exception $exception) {
-            return Response::error($exception->getMessage(), 500);
-        }
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'status' => ['required', new Enum(TherapyStatus::class)],
-        ]);
-
-        try {
-
-            $therapies = $this->therapyService->get(patientId: auth()->id(), status: $validated['status']);
-            if (! $therapies) {
-                return Response::error('Terapi tidak ditemukan.', 404);
-            }
-
-            if ($validated['status'] == TherapyStatus::IN_PROGRESS) {
-                $therapies->first();
-            }
-
-            return Response::success($therapies, 'Berhasil mendapatkan data terapi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);
