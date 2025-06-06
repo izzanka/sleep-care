@@ -95,6 +95,7 @@ class RecordController extends Controller
                         return [
                             'question_id' => $qa->question_id,
                             'answer' => $qa->answer,
+                            'comment' => $qa->comment,
                             //                            'used_at' => $usedAt->toDateTimeString(),
                         ];
                     });
@@ -113,6 +114,7 @@ class RecordController extends Controller
                 $answers = collect($record->questionAnswers)->map(fn ($qa) => [
                     'question_id' => $qa->question_id,
                     'answer' => $qa->answer,
+                    'comment' => $qa->comment,
                 ]);
 
                 return Response::success([

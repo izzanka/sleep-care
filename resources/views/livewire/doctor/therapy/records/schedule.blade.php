@@ -121,7 +121,7 @@ new class extends Component {
             ]);
 
             if($this->therapy->doctor->therapies()->where('status', TherapyStatus::IN_PROGRESS->value)->count() === 0){
-                $this->therapy->doctor->update(['is_therapy_in_progress' => false]);
+                $this->therapy->doctor->user->update(['is_therapy_in_progress' => false]);
             }
 
             $this->therapy->patient->update(['is_therapy_in_progress' => false]);
@@ -268,7 +268,7 @@ new class extends Component {
                 </flux:heading>
                 <ul class="list-disc list-inside mt-1 sm:mt-2 space-y-1">
                     @foreach(json_decode($schedule->description) as $description)
-                        <flux:text size="sm" class="leading-snug">
+                        <flux:text class="leading-snug">
                             <li>
                                 {{$description}}
                             </li>
@@ -280,7 +280,7 @@ new class extends Component {
                 <flux:heading size="md">
                     Catatan hasil sesi terapi untuk pasien:
                 </flux:heading>
-                <flux:text size="sm" class="mt-1 sm:mt-2">
+                <flux:text class="mt-1 sm:mt-2">
                     {{$schedule->note}}
                 </flux:text>
             </div>

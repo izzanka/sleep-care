@@ -78,7 +78,7 @@ new class extends Component {
                         </flux:heading>
 
                         <flux:subheading class="text-sm">
-                            <span class="font-medium">{{$order->created_at->isoFormat('D MMMM Y')}}</span>
+                            <span>{{$order->created_at->isoFormat('D MMMM Y')}}</span>
                             <span class="block sm:inline mt-1 sm:mt-0">
                                 @can('isAdmin', Auth::user())
                                     (Biaya Jasa Aplikasi, Transaksi ID: {{$order->id}})
@@ -90,7 +90,7 @@ new class extends Component {
                     </div>
                 </div>
 
-                <flux:separator class="mt-4 sm:mt-6 h-px sm:h-[2px]"/>
+                <flux:separator class="mt-4 mb-4"/>
             @endforeach
 
             <div class="mt-6 sm:mt-8 flex justify-center sm:justify-start">

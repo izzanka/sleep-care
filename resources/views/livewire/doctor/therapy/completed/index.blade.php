@@ -86,7 +86,7 @@ new class extends Component {
                 <tr class="text-center">
                     <td colspan="8" class="px-4 py-2 text-dark dark:text-white">
                         <flux:heading class="mt-2">
-                            Tidak ada riwayat terapi.
+                            Riwayat terapi tidak ditemukan.
                         </flux:heading>
                     </td>
                 </tr>

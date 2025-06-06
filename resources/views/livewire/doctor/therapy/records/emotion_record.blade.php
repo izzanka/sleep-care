@@ -111,7 +111,7 @@ new class extends Component {
     public function storeComment()
     {
         $validated = $this->validate([
-            'comment' => ['nullable', 'string','max:225'],
+            'comment' => ['required', 'string','max:225'],
         ]);
 
         $questionAnswer = EmotionRecordQuestionAnswer::find($this->id);
@@ -122,8 +122,6 @@ new class extends Component {
         $questionAnswer->update([
             'comment' => $validated['comment'],
         ]);
-
-        dd($questionAnswer);
 
         session()->flash('status', ['message' => 'Komentar berhasil disimpan.', 'success' => true]);
         $this->reset('comment','id');
@@ -194,21 +192,23 @@ new class extends Component {
     @endif
 
     <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-        <!-- Chart Section -->
         <div class="flex">
-            <div class="w-full flex-shrink-0">
-                <canvas id="emotionRecordChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
+            <div class="w-full flex-shrink-0 px-2" wire:ignore>
+                <div class="relative w-full" style="height: min(80vh, 400px);">
+                    <canvas id="emotionRecordChart" class="w-full h-full"></canvas>
+                </div>
             </div>
         </div>
 
-        <flux:separator class="my-4"/>
+
+        <flux:separator class="mt-4 mb-4"/>
 
         <!-- Comment Modal -->
         <flux:modal name="addComment" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
             <div class="space-y-4 sm:space-y-6">
                 <form wire:submit="storeComment">
                     <div>
-                        <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
+                        <flux:heading size="lg">Tambah Komentar Untuk Catatan Emosi No {{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
                         <flux:textarea rows="3" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
@@ -236,7 +236,7 @@ new class extends Component {
                     <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                     <tr class="text-left">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                            <th class="px-3 py-2 font-medium">Aksi</th>
+                            <th class="px-3 py-2 font-medium">Aksi Komentar</th>
                         @endif
                         <th class="px-3 py-2 font-medium">No</th>
                         @foreach($questions as $question)
@@ -338,6 +338,7 @@ new class extends Component {
             data: data,
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,

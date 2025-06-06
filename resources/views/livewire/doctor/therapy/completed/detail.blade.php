@@ -106,7 +106,7 @@ new class extends Component {
                                 @if($rating > 0)
                                     <div class="flex mt-2 mb-3">
                                         @for ($i = 1; $i <= 5; $i++)
-                                            @if ($i <= 5)
+                                            @if ($i <= $rating)
                                                 <flux:icon.star variant="solid" class="text-blue-600"></flux:icon.star>
                                             @else
                                                 <flux:icon.star class="text-gray-300"></flux:icon.star>
@@ -133,7 +133,7 @@ new class extends Component {
         <div>
             <flux:radio.group variant="segmented" label="Menu:" wire:model="menu">
                 <flux:radio
-                    label="Jadwal"
+                    label="Jadwal Sesi Terapi"
                     value="schedule"
                     wire:click="setMenu('schedule')"
                 />
@@ -146,7 +146,7 @@ new class extends Component {
         </div>
 
         <div>
-            <flux:radio.group variant="segmented" label="Catatan:" wire:model="menu">
+            <flux:radio.group variant="segmented" label="Catatan:" wire:model="menu" size="sm">
                 <flux:radio
                     label="Nilai"
                     value="identify_value"

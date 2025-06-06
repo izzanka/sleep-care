@@ -87,7 +87,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             label="{{ __('Email') }}"
             type="email"
             name="email"
-            required
             autofocus
             autocomplete="email"
             placeholder="email@example.com"
@@ -99,7 +98,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 label="{{ __('Password') }}"
                 type="password"
                 name="password"
-                required
                 autocomplete="current-password"
                 placeholder="Password"
                 viewable

@@ -137,7 +137,7 @@ new class extends Component {
         <div>
             <flux:radio.group variant="segmented" label="Menu:" wire:model="menu">
                 <flux:radio
-                    label="Jadwal {{$uncompletedScheduleCount ? '('.$uncompletedScheduleCount.')' : ''}}"
+                    label="Jadwal Sesi Terapi {{$uncompletedScheduleCount ? '('.$uncompletedScheduleCount.')' : ''}}"
                     value="schedule"
                     wire:click="setMenu('schedule')"
                 />
@@ -150,7 +150,7 @@ new class extends Component {
         </div>
 
         <div>
-            <flux:radio.group variant="segmented" label="Catatan:" wire:model="menu">
+            <flux:radio.group variant="segmented" label="Catatan:" wire:model="menu" size="sm">
                 <flux:radio
                     label="Nilai {{$unreadIdentifyValue ? '(Baru)' : ''}}"
                     value="identify_value"

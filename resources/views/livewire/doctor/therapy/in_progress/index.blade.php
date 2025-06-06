@@ -45,7 +45,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Daftar Terapi Berlangsung'])
+    @include('partials.main-heading', ['title' => 'Daftar Terapi'])
 
     <div class="mb-4">
         <div class="flex items-center">
@@ -88,7 +88,7 @@ new class extends Component {
                 <tr class="text-center">
                     <td colspan="8" class="px-4 py-2 text-dark dark:text-white">
                         <flux:heading class="mt-2">
-                            Tidak ada terapi.
+                            Terapi tidak ditemukan.
                         </flux:heading>
                     </td>
                 </tr>

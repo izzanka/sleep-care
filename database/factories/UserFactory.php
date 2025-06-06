@@ -58,6 +58,7 @@ class UserFactory extends Factory
             'role' => UserRole::ADMIN->value,
             'email_verified_at' => now(),
             'balance' => 40000,
+            'password' => Hash::make('smkn24jkt'),
         ]);
     }
 

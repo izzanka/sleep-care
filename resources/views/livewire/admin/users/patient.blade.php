@@ -192,7 +192,7 @@ new class extends Component {
                 @empty
                     <tr class="text-center">
                         <td colspan="11" class=" px-4 py-2 text-gray-500 dark:text-gray-400">
-                            Kosong
+                           Pasien tidak ditemukan.
                         </td>
                     </tr>
                 @endforelse

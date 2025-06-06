@@ -78,7 +78,7 @@ new class extends Component {
     public function storeComment()
     {
         $validated = $this->validate([
-            'comment' => ['nullable', 'string', 'max:225'],
+            'comment' => ['required', 'string', 'max:225'],
         ]);
 
         $questionAnswer = SleepDiary::find($this->id);
@@ -179,12 +179,16 @@ new class extends Component {
              class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
             <div class="relative w-full overflow-hidden">
                 <div class="flex transition-transform duration-500 ease-in-out"
-                     :style="`transform: translateX(-${activeSlide * 100}%);`">
-                    <div class="w-full flex-shrink-0">
-                        <canvas id="lineChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
+                     :style="`transform: translateX(-${activeSlide * 100}%);`" wire:ignore>
+                    <div class="w-full flex-shrink-0 px-2">
+                        <div class="relative w-full" style="height: min(80vh, 400px);">
+                            <canvas id="lineChart" class="w-full h-full"></canvas>
+                        </div>
                     </div>
-                    <div class="w-full flex-shrink-0">
-                        <canvas id="barChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
+                    <div class="w-full flex-shrink-0 px-2">
+                        <div class="relative w-full" style="height: min(80vh, 400px);">
+                            <canvas id="barChart" class="w-full h-full"></canvas>
+                        </div>
                     </div>
                 </div>
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
@@ -215,7 +219,7 @@ new class extends Component {
             <div class="space-y-6">
                 <form wire:submit="storeComment">
                     <div>
-                        <flux:heading size="lg">Tambah Komentar Untuk Catatan Minggu ke-{{$no}}</flux:heading>
+                        <flux:heading size="lg">Tambah Komentar Untuk Catatan Tidur Minggu ke-{{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
                         <flux:textarea rows="2" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
@@ -230,12 +234,12 @@ new class extends Component {
                 class="relative rounded-lg px-6 py-4 bg-white border dark:bg-zinc-700 mb-5 dark:border-transparent"
                 x-ref="card{{ $index }}"
             >
-                <div class="flex items-center w-full">
-                    <flux:icon.calendar/>
+                <div class="flex items-center w-full gap-2">
+                    <flux:icon.calendar class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5"/>
 
                     <flux:button
                         variant="ghost"
-                        class="w-full"
+                        class="w-full min-w-0"
                         @click="
                             openIndex = (openIndex === {{ $index }}) ? null : {{ $index }};
                             if (openIndex === {{ $index }}) {
@@ -248,14 +252,16 @@ new class extends Component {
                             }
                         "
                     >
-                        <div class="flex items-center justify-between w-full">
-                            Catatan Tidur {{ $dropdownLabels[$index - 1]}}
+                        <div class="flex items-center justify-between w-full min-w-0">
+            <span class="text-xs sm:text-sm truncate text-left">
+                Catatan Tidur {{ $dropdownLabels[$index - 1] }}
+            </span>
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  fill="none"
                                  viewBox="0 0 24 24"
                                  stroke-width="1.5"
                                  stroke="currentColor"
-                                 class="w-4 h-4 transition-transform duration-300"
+                                 class="flex-shrink-0 w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 ml-2"
                                  :class="openIndex === {{ $index }} ? 'rotate-180' : ''">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                       d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
@@ -354,7 +360,7 @@ new class extends Component {
                                 <tr>
                                     <td class="px-4 py-2 text-center font-bold">
                                         Komentar
-                                        @if($sleepDiary->first()->comment)
+                                        @if($sleepDiary->first()->comment && $therapy->status === TherapyStatus::IN_PROGRESS->value)
                                         <div class="flex justify-center items-center space-x-1 mt-2">
                                             <flux:button variant="primary" size="xs" icon="pencil-square" wire:click="createComment({{$sleepDiary->first()->id}},{{$index}})"/>
                                             <flux:button variant="danger" size="xs" icon="trash" wire:confirm="Apa anda yakin ingin menghapus komentar ini?" wire:click="deleteComment({{ $sleepDiary->first()->id}})"/>
@@ -425,6 +431,7 @@ new class extends Component {
             data: dataLine,
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -488,6 +495,7 @@ new class extends Component {
             data: dataBar,
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,

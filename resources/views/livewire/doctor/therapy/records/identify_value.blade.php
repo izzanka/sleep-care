@@ -88,7 +88,7 @@ new class extends Component {
     public function storeComment()
     {
         $validated = $this->validate([
-            'comment' => ['nullable', 'string','max:225'],
+            'comment' => ['required', 'string','max:225'],
         ]);
 
         $questionAnswer = IdentifyValueQuestionAnswer::find($this->id);
@@ -154,21 +154,19 @@ new class extends Component {
     @endif
 
     <div class="relative rounded-lg px-4 sm:px-6 py-4 bg-white border dark:bg-zinc-700 dark:border-transparent mb-5">
-        <!-- Chart Section -->
-        <div class="flex" wire:ignore>
-            <div class="w-full max-w-lg flex-shrink-0 mx-auto">
+        <div class="flex">
+            <div class="w-full max-w-lg flex-shrink-0 mx-auto" wire:ignore>
                 <canvas id="identifyValueChart" class="w-full h-64 sm:h-80"></canvas>
             </div>
         </div>
 
-        <flux:separator class="my-4"/>
+        <flux:separator class="mt-4 mb-4"/>
 
-        <!-- Comment Modal -->
         <flux:modal name="addComment" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
             <div class="space-y-4 sm:space-y-6">
                 <form wire:submit="storeComment">
                     <div>
-                        <flux:heading size="lg">Tambah Komentar Untuk Catatan No {{$no}}</flux:heading>
+                        <flux:heading size="lg">Tambah Komentar Untuk Catatan Nilai No {{$no}}</flux:heading>
                     </div>
                     <div class="mb-4 mt-4">
                         <flux:textarea rows="3" label="Komentar" wire:model="comment" placeholder="Tambahkan sebuah komentar"/>
@@ -184,14 +182,14 @@ new class extends Component {
                 <thead class="bg-blue-400 dark:bg-blue-600 text-white">
                 <tr class="text-left">
                     @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                        <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">Aksi</th>
+                        <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium">Aksi Komentar</th>
                     @endif
-                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">No</th>
-                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">Area</th>
-                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">{{ $datasetLabels[0] }}</th>
-                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">{{ $datasetLabels[2] }}</th>
-                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">{{ $datasetLabels[1] }}</th>
-                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium whitespace-nowrap">Komentar</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium ">No</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium ">Area</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium">{{ $datasetLabels[0] }}</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium">{{ $datasetLabels[2] }}</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium">{{ $datasetLabels[1] }}</th>
+                    <th class="px-3 py-2 sm:px-4 sm:py-2 font-medium">Komentar</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
@@ -201,7 +199,7 @@ new class extends Component {
                     @endphp
                     <tr class="text-left" wire:key="{{$index}}">
                         @if($therapy->status === TherapyStatus::IN_PROGRESS)
-                            <td class="px-3 py-2 sm:px-4 sm:py-2 text-center whitespace-nowrap">
+                            <td class="px-3 py-2 sm:px-4 sm:py-2 text-center">
                                 @if($identifyValue->questionAnswers[$index]->comment)
                                     <div class="flex items-center justify-center space-x-1">
                                         <flux:button variant="primary" size="xs" icon="pencil-square"
@@ -267,6 +265,7 @@ new class extends Component {
         data: data,
         options: {
             responsive: true,
+            // maintainAspectRatio: false,
             plugins: {
                 title: {
                     display: true,

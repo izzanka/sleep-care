@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             QuestionSeeder::class,
             TherapySeeder::class,
-            TherapyScheduleSeeder::class,
-            AnswerSeeder::class,
+//            TherapyScheduleSeeder::class,
+//            AnswerSeeder::class,
         ]);
     }
 }

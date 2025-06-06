@@ -258,7 +258,7 @@ new class extends Component {
                 @empty
                     <tr>
                         <td class="px-4 py-2 text-center" colspan="13">
-                            <flux:heading>Belum ada catatan</flux:heading>
+                            <flux:heading>Psikolog tidak ditemukan.</flux:heading>
                         </td>
                     </tr>
                 @endforelse
