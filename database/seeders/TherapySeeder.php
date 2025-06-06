@@ -113,7 +113,7 @@ class TherapySeeder extends Seeder
             foreach ($therapyScheduleDescriptions as $week => $descriptions) {
                 TherapySchedule::create([
                     'therapy_id' => $therapy->id,
-                    'title' => 'Jadwal Sesi Terapi Minggu ke-' . ($week + 1),
+                    'title' => 'Jadwal Sesi Terapi Minggu ke-'.($week + 1),
                     'description' => json_encode($descriptions),
                     'note' => 'Kamu sudah melakukan kemajuan dengan mulai mengenali pikiran negatif. Terus lanjutkan latihan yang sudah kita bahas.',
                     'date' => now()->addWeeks($week),
@@ -176,7 +176,7 @@ class TherapySeeder extends Seeder
             foreach ($therapyScheduleDescriptions as $week => $descriptions) {
                 TherapySchedule::create([
                     'therapy_id' => $therapy->id,
-                    'title' => 'Jadwal Sesi Terapi Minggu ke-' . ($week + 1),
+                    'title' => 'Jadwal Sesi Terapi Minggu ke-'.($week + 1),
                     'description' => json_encode($descriptions),
                     'note' => 'Kamu sudah melakukan kemajuan dengan mulai mengenali pikiran negatif. Terus lanjutkan latihan yang sudah kita bahas.',
                     'date' => now()->addWeeks($week),
@@ -200,7 +200,7 @@ class TherapySeeder extends Seeder
                 $currentDate = $therapy->start_date->addDays((($week - 1) * 7) + ($day - 1));
                 $sleepDiaryTimestamp = $currentDate->setTime(rand(8, 22), rand(0, 59));
 
-                $comment = $day == 1 ? 'Komentar dari psikolog untuk sleep diary minggu ke-' . $week : null;
+                $comment = $day == 1 ? 'Komentar dari psikolog untuk sleep diary minggu ke-'.$week : null;
 
                 $sleepDiary = SleepDiary::create([
                     'therapy_id' => $therapy->id,
