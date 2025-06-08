@@ -19,12 +19,12 @@ class Therapy extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class)->withTrashed();
+        return $this->belongsTo(Doctor::class);
     }
 
     public function patient()
     {
-        return $this->belongsTo(User::class, 'patient_id')->withTrashed();
+        return $this->belongsTo(User::class, 'patient_id');
     }
 
     public function schedules()

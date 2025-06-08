@@ -30,10 +30,14 @@ class AuthController extends Controller
         ]);
 
         try {
-            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: true, is_active: true)->first();
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value)->first();
 
             if (! $user || ! Hash::check($validated['password'], $user->password)) {
                 return Response::error('Email atau password yang anda masukan salah.', 401);
+            }
+
+            if (! $user->is_active) {
+                return Response::error('Akun anda telah dinonaktifkan oleh admin.', 400);
             }
 
             if (is_null($user->email_verified_at)) {

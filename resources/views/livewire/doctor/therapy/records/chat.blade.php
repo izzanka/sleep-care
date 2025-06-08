@@ -105,13 +105,18 @@ new class extends Component {
 
             <!-- Chat Input -->
             <div class="p-3 flex items-center gap-2 bg-white dark:bg-zinc-700 border-t dark:border-transparent">
-                <input
-                    type="text"
-                    class="flex-1 p-2 border rounded-lg text-sm outline-none focus:ring"
-                    placeholder="Tulis sebuah pesan..."
-                    wire:model="message"
-                    wire:keydown.enter="send"
-                >
+{{--                <input--}}
+{{--                    type="text"--}}
+{{--                    class="flex-1 p-2 border rounded-lg text-sm outline-none focus:ring"--}}
+{{--                    placeholder="Tulis sebuah pesan..."--}}
+{{--                    wire:model="message"--}}
+{{--                    wire:keydown.enter="send"--}}
+{{--                >--}}
+                <div class="w-full">
+                    <flux:input placeholder="Tulis sebuah pesan..." wire:model="message"
+                                wire:keydown.enter="send">
+                    </flux:input>
+                </div>
             </div>
         </div>
     @else

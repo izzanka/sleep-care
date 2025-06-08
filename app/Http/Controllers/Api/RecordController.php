@@ -96,7 +96,6 @@ class RecordController extends Controller
                             'question_id' => $qa->question_id,
                             'answer' => $qa->answer,
                             'comment' => $qa->comment,
-                            //                            'used_at' => $usedAt->toDateTimeString(),
                         ];
                     });
                 })->values();

@@ -47,12 +47,15 @@ new class extends Component {
 
 <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
     <section class="w-full">
-        @include('partials.main-heading', ['title' => 'Umum'])
+        @include('partials.main-heading', ['title' => 'Pengaturan Umum'])
         <form wire:submit="updateSetting">
             <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-                <flux:input wire:model="application_fee" label="Biaya Jasa Aplikasi" type="text" name="application_fee"
-                            required/>
-                <flux:input wire:model="doctor_fee" label="Biaya Jasa Psikolog" type="text" name="doctor_fee" required/>
+                <div>
+                    <flux:input wire:model="application_fee" label="Biaya Jasa Aplikasi" type="text" name="application_fee"/>
+                </div>
+                <div>
+                    <flux:input wire:model="doctor_fee" label="Biaya Jasa Psikolog" type="text" name="doctor_fee"/>
+                </div>
             </div>
             <div class="w-full mt-4">
                 <flux:checkbox wire:model="is_himpsi" label="Aktifkan verifikasi HIMPSI"

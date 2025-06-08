@@ -45,7 +45,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Daftar Terapi'])
+    @include('partials.main-heading', ['title' => 'Daftar Terapi Berlangsung'])
 
     <div class="mb-4">
         <div class="flex items-center">

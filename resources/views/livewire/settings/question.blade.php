@@ -271,7 +271,7 @@ new class extends Component {
                 @empty
                     <tr class="text-center">
                         <td colspan="10" class="px-4 py-2 text-dark dark:text-white">
-                            Tidak ada pertanyaan.
+                            Pertanyaan tidak dapat ditemukan.
                         </td>
                     </tr>
                 @endforelse

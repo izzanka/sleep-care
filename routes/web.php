@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+Route::get('/download', [HomeController::class, 'download'])->name('download');
 
 Route::prefix('payment')->group(function () {
     Route::get('finish', function () {
@@ -43,21 +45,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Volt::route('completed', 'doctor.therapy.completed.index')->name('therapies.completed.index');
             Volt::route('completed/{therapyId}', 'doctor.therapy.completed.detail')->name('therapies.completed.detail');
-            //            Volt::route('{status}', 'doctor.therapy.index')->name('therapies.index');
-            //            Volt::route('records/{therapyId}/{status}', 'doctor.therapy.detail')->name('therapies.records.detail');
-            //
-            //            Volt::route('history/{status}', 'doctor.therapy.index')->name('therapies.completed.index');
-            //            Volt::route('history/records/{therapyId}/{status}', 'doctor.therapy.detail')->name('therapies.completed.detail');
-
-            //            Volt::route('in-progress', 'doctor.therapy.in_progress.index')->name('therapies.in_progress.index');
-            //            Volt::route('in-progress/chat', 'doctor.therapy.in_progress.chat')->name('therapies.in_progress.chat');
-            //            Volt::route('in-progress/schedule', 'doctor.therapy.in_progress.schedule')->name('therapies.in_progress.schedule');
-            //
-            //            Volt::route('in-progress/records/sleep-diary', 'doctor.therapy.records.sleep_diary')->name('therapies.records.sleep_diary');
-            //            Volt::route('in-progress/records/identify-value', 'doctor.therapy.records.identify_value')->name('therapies.records.identify_value');
-            //            Volt::route('in-progress/records/thought-record', 'doctor.therapy.records.thought_record')->name('therapies.records.thought_record');
-            //            Volt::route('in-progress/records/emotion-record', 'doctor.therapy.records.emotion_record')->name('therapies.records.emotion_record');
-            //            Volt::route('in-progress/records/committed-action', 'doctor.therapy.records.committed_action')->name('therapies.records.committed_action');
         });
     });
 });

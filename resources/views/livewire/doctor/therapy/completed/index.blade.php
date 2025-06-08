@@ -44,7 +44,7 @@ new class extends Component {
 }; ?>
 
 <section>
-    @include('partials.main-heading', ['title' => 'Daftar Riwayat Terapi'])
+    @include('partials.main-heading', ['title' => 'Daftar Terapi Selesai'])
     <div class="mb-4">
         <div class="flex items-center">
             <flux:input icon="magnifying-glass" placeholder="Cari riwayat terapi berdasarkan nama pasien"
@@ -75,7 +75,7 @@ new class extends Component {
                         </flux:button>
                     </td>
                     <td class="px-4 py-2 text-center">{{ $loop->iteration }}</td>
-                    <td class="px-4 py-2">{{ $therapy->patient->name }}</td>
+                    <td class="px-4 py-2">{{ $therapy->patient?->name ?? '-' }}</td>
                     <td class="px-4 py-2">{{ $therapy->start_date->format('d/m/Y') }}</td>
                     <td class="px-4 py-2">{{ $therapy->end_date->format('d/m/Y') }}</td>
                     <td class="px-4 py-2">@currency($therapy->doctor_fee)</td>

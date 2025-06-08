@@ -31,11 +31,10 @@ new class extends Component {
     public function getPatients()
     {
         $query = User::query();
-        $query->withTrashed();
 
         if ($this->search !== '') {
             $this->resetPage();
-            $query = User::search($this->search)->where('role', UserRole::PATIENT->value);
+            $query = User::search($this->search)->where('role', UserRole::PATIENT->value)   ;
         } else {
             $query->where('role', UserRole::PATIENT->value);
         }
@@ -77,11 +76,16 @@ new class extends Component {
             return;
         }
 
-        $patient->update($validated);
+        if($patient->is_therapy_in_progress){
+            session()->flash('status', ['message' => 'Pasien sedang menjalani terapi.', 'success' => false]);
+            $this->modal('editPatient')->close();
+        }else{
+            $patient->update($validated);
 
-        session()->flash('status', ['message' => 'Data pasien berhasil diubah.', 'success' => true]);
+            session()->flash('status', ['message' => 'Data pasien berhasil diubah.', 'success' => true]);
 
-        $this->redirectRoute('admin.users.patient');
+            $this->redirectRoute('admin.users.patient');
+        }
     }
 
     public function deletePatient(int $patientId)
@@ -90,6 +94,11 @@ new class extends Component {
 
         if (!$patient) {
             session()->flash('status', ['message' => 'Pasien tidak dapat ditemukan.', 'success' => false]);
+            return;
+        }
+
+        if($patient->is_therapy_in_progress){
+            session()->flash('status', ['message' => 'Pasien sedang menjalani terapi.', 'success' => false]);
             return;
         }
 
@@ -153,6 +162,7 @@ new class extends Component {
                     <th class=" px-4 py-2 text-left font-medium">Aksi</th>
                     <th class=" px-4 py-2 text-left font-medium">No</th>
                     <th class=" px-4 py-2 text-left font-medium">Aktif</th>
+                    <th class=" px-4 py-2 text-left font-medium">Sedang Menjalani Terapi</th>
                     <th class=" px-4 py-2 text-left font-medium">Nama</th>
                     <th class=" px-4 py-2 text-left font-medium">Email</th>
                     <th class=" px-4 py-2 text-left font-medium">Usia</th>
@@ -160,7 +170,6 @@ new class extends Component {
                     <th class=" px-4 py-2 text-left font-medium">Gangguan Lainnya</th>
                     <th class=" px-4 py-2 text-left font-medium">Dibuat Pada</th>
                     <th class=" px-4 py-2 text-left font-medium">Diperbarui Pada</th>
-                    <th class=" px-4 py-2 text-left font-medium">Dihapus Pada</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -174,6 +183,7 @@ new class extends Component {
                         </td>
                         <td class=" px-4 py-2 text-center">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
                         <td class=" px-4 py-2 text-center">{{$user->is_active ? 'Ya' : 'Tidak'}}</td>
+                        <td class=" px-4 py-2 text-center">{{$user->is_therapy_in_progress ? 'Ya' : 'Tidak'}}</td>
                         <td class=" px-4 py-2">{{$user->name}}</td>
                         <td class=" px-4 py-2">{{$user->email}}</td>
                         <td class=" px-4 py-2 text-center">{{$user->age}}</td>
@@ -187,7 +197,6 @@ new class extends Component {
                         </td>
                         <td class="px-4 py-2">{{$user->created_at->format('d/m/Y H:i')}}</td>
                         <td class="px-4 py-2">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>
-                        <td class="px-4 py-2">{{$user->deleted_at ? $user->deleted_at->format('d/m/Y H:i') : '-'}}</td>
                     </tr>
                 @empty
                     <tr class="text-center">

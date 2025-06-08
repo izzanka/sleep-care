@@ -195,9 +195,13 @@ class MidtransController extends Controller
                 return Response::error('Order tidak ditemukan.', 404);
             }
 
-            $response = Transaction::cancel($validated['order_id']);
+            $response = null;
 
-            $order->payment_id = $response->transaction_id ?? null;
+            if ($order->payment_id) {
+                $response = Transaction::cancel($validated['order_id']);
+                $order->payment_id = $response->transaction_id ?? $order->payment_id;
+            }
+
             $order->payment_status = OrderStatus::CANCEL->value;
             $order->status = OrderStatus::FAILURE->value;
             $order->save();

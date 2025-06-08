@@ -5,7 +5,10 @@
             <flux:navlist.item icon="inbox" badge="{{ $unreadNotificationsCount }}" :href="route('notification')" wire:navigate :current="request()->routeIs('notification')">Notifikasi</flux:navlist.item>
             <flux:navlist.item icon="banknotes" :href="route('income')" :current="request()->routeIs('income')" wire:navigate>Pendapatan</flux:navlist.item>
             @can('isDoctor', $user)
-                <flux:navlist.item icon="user-group" :href="route('doctor.therapies.in_progress.index')" badge="{{$inProgressTherapiesCount}}" :current="request()->routeIs('doctor.therapies.in_progress.index') || request()->routeIs('doctor.therapies.in_progress.detail')" wire:navigate>Terapi</flux:navlist.item>
+                <flux:navlist.group expandable heading="Terapi">
+                    <flux:navlist.item icon="user-group" :href="route('doctor.therapies.in_progress.index')" badge="{{$inProgressTherapiesCount}}" :current="request()->routeIs('doctor.therapies.in_progress.index') || request()->routeIs('doctor.therapies.in_progress.detail')" wire:navigate>Berlangsung</flux:navlist.item>
+                    <flux:navlist.item icon="clipboard-document-list" :href="route('doctor.therapies.completed.index')" badge="{{ $completedTherapiesCount }}" :current="request()->routeIs('doctor.therapies.completed.index') || request()->routeIs('doctor.therapies.completed.detail')" wire:navigate>Selesai</flux:navlist.item>
+                </flux:navlist.group>
                 {{--                <flux:navlist.group expandable heading="Terapi">--}}
 {{--                    <flux:navlist.group expandable heading="Berlangsung">--}}
 {{--                        <flux:navlist.item :href="route('doctor.therapies.in_progress.index')" :current="request()->routeIs('doctor.therapies.in_progress.index')" wire:navigate>Informasi</flux:navlist.item>--}}
@@ -21,7 +24,6 @@
 {{--                            </flux:navlist.group>--}}
 {{--                        @endif--}}
 {{--                    </flux:navlist.group>--}}
-                    <flux:navlist.item icon="clipboard-document-list" :href="route('doctor.therapies.completed.index')" badge="{{ $completedTherapiesCount }}" :current="request()->routeIs('doctor.therapies.completed.index') || request()->routeIs('doctor.therapies.completed.detail')" wire:navigate>Riwayat</flux:navlist.item>
 {{--                </flux:navlist.group>--}}
             @endcan
             @can('isAdmin', $user)

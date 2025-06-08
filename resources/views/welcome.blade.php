@@ -53,7 +53,7 @@
         <h2 class="text-2xl md:text-3xl font-bold mb-4">
             Aplikasi Terapi Insomnia Terlengkap di Indonesia
         </h2>
-        <a href="#" class="px-5 py-2 border border-[#155DFCFF] text-[#155DFCFF] rounded hover:bg-[#155DFCFF] hover:text-white transition">
+        <a href="{{route('download')}}" class="px-5 py-2 border border-[#155DFCFF] text-[#155DFCFF] rounded hover:bg-[#155DFCFF] hover:text-white transition">
             Unduh Sekarang
         </a>
     </div>
@@ -96,7 +96,7 @@
         <div class="space-y-4">
             <div>
                 <h3 class="font-bold mb-2">Download App di</h3>
-                <a href="#" class="inline-block px-4 py-2 border border-[#155DFCFF] text-[#155DFCFF] rounded hover:bg-[#155DFCFF] hover:text-white transition">
+                <a href="{{route('download')}}" class="inline-block px-4 py-2 border border-[#155DFCFF] text-[#155DFCFF] rounded hover:bg-[#155DFCFF] hover:text-white transition">
                     Unduh Sekarang
                 </a>
             </div>

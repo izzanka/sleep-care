@@ -29,7 +29,7 @@ new class extends Component {
             session()->flash('status', ['message' => 'Terapi tidak ditemukan.', 'success' => false]);
             return $this->redirectRoute('doctor.therapies.in_progress.index');
         }
-        $this->problems = $this->formatPatientProblems($this->therapy->patient->problems);
+        $this->problems = $this->formatPatientProblems($this->therapy->patient?->problems);
         $this->rating = $this->therapy->doctor->ratings()->where('user_id', $this->therapy->patient_id)->value('rating') ?? 0;
     }
 
@@ -52,7 +52,7 @@ new class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.main-heading', ['title' => 'Detail Riwayat Terapi'])
+    @include('partials.main-heading', ['title' => 'Detail Terapi'])
 
     <flux:heading class="mb-2">
         Informasi Pasien:
@@ -63,7 +63,7 @@ new class extends Component {
             <flux:callout.heading class="flex flex-col xs:flex-row xs:items-center justify-between gap-2 w-full">
                 <div class="flex items-center flex-wrap gap-2">
                     <span class="text-base font-medium truncate max-w-[180px] sm:max-w-none">
-                        {{ $therapy->patient->name }}
+                        {{ $therapy->patient?->name ?? '-' }}
                     </span>
                 </div>
                     <button
@@ -81,19 +81,19 @@ new class extends Component {
                             <div>
                                 <flux:heading>Jenis Kelamin:</flux:heading>
                                 <flux:text>
-                                    {{ $therapy->patient->gender->label() }}
+                                    {{ $therapy->patient?->gender->label() ?? '-' }}
                                 </flux:text>
                             </div>
                             <div class="mt-2 mb-2">
                                 <flux:heading>Usia:</flux:heading>
                                 <flux:text>
-                                    {{ $therapy->patient->age }}
+                                    {{ $therapy->patient?->age ?? '-' }}
                                 </flux:text>
                             </div>
                             <div>
                                 <flux:heading>Masalah Lainnya:</flux:heading>
                                 <flux:text>
-                                    {{ $problems }}
+                                    {{ $problems ?? '-' }}
                                 </flux:text>
                             </div>
                             <flux:separator variant="subtle" class="mt-4 mb-4"/>
