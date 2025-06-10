@@ -110,10 +110,10 @@ new class extends Component {
             return;
         }
 
-        if($doctor->is_therapy_in_progress) {
+        if ($doctor->is_therapy_in_progress && !$validated['is_active']) {
             session()->flash('status', ['message' => 'Psikolog sedang melakukan terapi.', 'success' => false]);
             $this->modal('editDoctor')->close();
-        }else{
+        } else {
             $doctor->update([
                 'is_active' => $validated['is_active']
             ]);
@@ -140,7 +140,7 @@ new class extends Component {
             return;
         }
 
-        if($doctor->is_therapy_in_progress){
+        if ($doctor->is_therapy_in_progress) {
             session()->flash('status', ['message' => 'Psikolog sedang melakukan terapi.', 'success' => false]);
             return;
         }
@@ -208,12 +208,14 @@ new class extends Component {
                         </flux:button>
                     @endif
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                        <flux:field>
-                            <flux:label>Aktif</flux:label>
-                            <flux:switch wire:model="is_active"/>
-                            <flux:error name="is_active"/>
-                        </flux:field>
+                    <div class="mt-4 mb-4">
+                        {{--                        <flux:field>--}}
+                        {{--                            <flux:label>Aktif</flux:label>--}}
+                        {{--                            <flux:switch wire:model="is_active" description="Jika dinonaktifkan, akun psikolog tidak akan dapat digunakan untuk login."/>--}}
+                        {{--                            <flux:error name="is_active"/>--}}
+                        {{--                        </flux:field>--}}
+                        <flux:switch wire:model="is_active" label="Aktif"
+                                     description="Jika dinonaktifkan, akun psikolog tidak akan dapat digunakan untuk login."/>
                     </div>
 
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
@@ -257,10 +259,10 @@ new class extends Component {
                         <td class="px-4 py-2 text-center">{{$user->is_therapy_in_progress ? 'Ya' : 'Tidak'}}</td>
                         <td class="px-4 py-2">{{$user->name}}</td>
                         <td class="px-4 py-2">{{$user->email}}</td>
-                        <td class="px-4 py-2">{{$user->doctor->phone ?? '-'}}</td>
+                        <td class="px-4 py-2">{{$user->doctor->phone ?: '-'}}</td>
                         <td class="px-4 py-2 text-center">{{$user->age ?? '-'}}</td>
                         <td class="px-4 py-2">{{$user->gender->label()}}</td>
-                        <td class="px-4 py-2">{{$user->doctor->graduated_from ?? '-'}}</td>
+                        <td class="px-4 py-2">{{$user->doctor->graduated_from ?: '-'}}</td>
                         <td class="px-4 py-2 text-center">{{$user->doctor->registered_year}}</td>
                         <td class="px-4 py-2">{{$user->created_at->format('d/m/Y H:i')}}</td>
                         <td class="px-4 py-2">{{ $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : '-' }}</td>

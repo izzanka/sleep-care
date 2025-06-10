@@ -37,7 +37,7 @@ class AuthController extends Controller
             }
 
             if (! $user->is_active) {
-                return Response::error('Akun anda telah dinonaktifkan oleh admin.', 400);
+                return Response::error('Akun ini telah dinonaktifkan oleh admin.', 400);
             }
 
             if (is_null($user->email_verified_at)) {

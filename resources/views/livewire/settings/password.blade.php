@@ -34,8 +34,7 @@ new class extends Component {
 
         $this->reset('current_password', 'password', 'password_confirmation');
 
-        session()->flash('status', 'Profile berhasil diubah.');
-//        $this->dispatch('password-updated');
+        session()->flash('status', ['message' => 'Password berhasil diubah.', 'success' => true]);
     }
 }; ?>
 
@@ -47,7 +46,7 @@ new class extends Component {
         <form wire:submit="updatePassword" class="space-y-6">
             <flux:input
                     wire:model="current_password"
-                    id="update_password_current_passwordpassword"
+                    id="update_password_current_password"
                     label="{{ __('Password saat ini') }}"
                     type="password"
                     name="current_password"

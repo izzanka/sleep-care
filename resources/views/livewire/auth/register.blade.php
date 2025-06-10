@@ -28,7 +28,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->is_himpsi = General::value('is_himpsi');
     }
 
-    public function register(): void
+    public function register()
     {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],

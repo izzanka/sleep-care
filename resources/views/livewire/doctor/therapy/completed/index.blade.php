@@ -29,7 +29,7 @@ new class extends Component {
                     $q->where('name', 'like', '%' . $this->search . '%');
                 });
             })
-            ->latest()
+            ->latest('updated_at')
             ->paginate(15);
     }
 

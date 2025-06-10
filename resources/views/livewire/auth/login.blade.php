@@ -1,8 +1,8 @@
 <?php
 
+use App\Enum\UserRole;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -34,14 +34,20 @@ new #[Layout('components.layouts.auth')] class extends Component {
             ]);
         }
 
-        if (Gate::allows('isPatient', Auth::user() || !Auth::user()->is_active)) {
+        if (Auth::user()->role == UserRole::PATIENT->value) {
             Auth::guard('web')->logout();
 
             Session::invalidate();
             Session::regenerateToken();
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => 'Akun ini hanya bisa digunakan di aplikasi mobile.',
+            ]);
+        }
+
+        if(!Auth::user()->is_active){
+            throw ValidationException::withMessages([
+                'email' => 'Akun ini telah dinonaktifkan oleh admin',
             ]);
         }
 

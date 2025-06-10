@@ -262,7 +262,7 @@ new class extends Component {
                         </td>
                         <td class=" px-4 py-2">{{$question->type->label()}}</td>
                         <td class=" px-4 py-2">{{$question->record_type->label()}}</td>
-                        <td class=" px-4 py-2">{{$question->note ?? '-'}}</td>
+                        <td class=" px-4 py-2">{{$question->note ?: '-'}}</td>
                         <td class=" px-4 py-2">{{$question->created_at->format('d/m/Y H:i')}}</td>
                         <td class=" px-4 py-2">
                             {{ $question->updated_at ? $question->updated_at->format('d/m/Y H:i') : '-' }}

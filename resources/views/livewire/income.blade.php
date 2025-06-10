@@ -93,7 +93,7 @@ new class extends Component {
                 <flux:separator class="mt-4 mb-4"/>
             @endforeach
 
-            <div class="mt-6 sm:mt-8 flex justify-center sm:justify-start">
+            <div class="mt-6">
                 {{$orders->links()}}
             </div>
         </section>

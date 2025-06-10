@@ -142,12 +142,14 @@ new class extends Component {
 
                     <flux:separator class="mt-4 mb-4"></flux:separator>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 mb-4">
-                        <flux:field>
-                            <flux:label>Aktif</flux:label>
-                            <flux:switch wire:model="is_active" />
-                            <flux:error name="is_active" />
-                        </flux:field>
+                    <div class="mt-4 mb-4">
+{{--                        <flux:field>--}}
+{{--                            <flux:label>Aktif</flux:label>--}}
+{{--                            <flux:switch wire:model="is_active" description="Jika dinonaktifkan, akun pasien tidak akan dapat digunakan untuk login." />--}}
+{{--                            <flux:error name="is_active" />--}}
+{{--                        </flux:field>--}}
+                        <flux:switch wire:model="is_active" label="Aktif" description="Jika dinonaktifkan, akun pasien tidak akan dapat digunakan untuk login." />
+
                     </div>
 
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>

@@ -79,9 +79,15 @@ new class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.main-heading', ['title' => 'Detail Terapi'])
+{{--    @include('partials.main-heading', ['title' => 'Detail Terapi'])--}}
 
-    <flux:heading class="mb-2">
+    <div class="flex justify-between items-center">
+        <flux:heading size="xl" level="1">Detail Terapi</flux:heading>
+    </div>
+    <flux:subheading size="lg" class="mb-6"></flux:subheading>
+    <flux:separator variant="subtle"/>
+
+    <flux:heading class="mb-2 mt-4">
         Informasi Pasien:
     </flux:heading>
 
@@ -89,19 +95,19 @@ new class extends Component {
         <flux:callout color="zink" inline class="w-full">
             <flux:callout.heading class="flex flex-col xs:flex-row xs:items-center justify-between gap-2 w-full">
                 <div class="flex items-center flex-wrap gap-2">
-                <span class="text-base font-medium truncate max-w-[180px] sm:max-w-none">
-                    {{ $therapy->patient->name }}
-                </span>
-                    <flux:badge size="sm" :color="$isOnline ? 'blue' : 'zinc'" class="shrink-0">
-                        {{ $isOnline ? 'Online' : 'Offline' }}
-                    </flux:badge>
-                </div>
-                <button
-                    @click="showDetails = !showDetails"
-                    class="text-sm hover:underline text-blue-600 whitespace-nowrap px-2 py-1 -mr-2"
-                >
-                    <flux:text x-text="showDetails ? 'Sembunyikan' : 'Tampilkan'" class="text-blue-600"></flux:text>
-                </button>
+                    <span class="text-base font-medium truncate max-w-[180px] sm:max-w-none">
+                        {{ $therapy->patient->name }}
+                    </span>
+                        <flux:badge size="sm" :color="$isOnline ? 'blue' : 'zinc'" class="shrink-0">
+                            {{ $isOnline ? 'Online' : 'Offline' }}
+                        </flux:badge>
+                        </div>
+                    <button
+                        @click="showDetails = !showDetails"
+                        class="text-sm hover:underline text-blue-600 whitespace-nowrap px-2 py-1 -mr-2"
+                    >
+                        <flux:text x-text="showDetails ? 'Sembunyikan' : 'Tampilkan'" class="text-blue-600"></flux:text>
+                    </button>
             </flux:callout.heading>
 
             <template x-if="showDetails">
