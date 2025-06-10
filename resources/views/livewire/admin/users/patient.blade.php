@@ -34,7 +34,7 @@ new class extends Component {
 
         if ($this->search !== '') {
             $this->resetPage();
-            $query = User::search($this->search)->where('role', UserRole::PATIENT->value)   ;
+            $query = User::search($this->search)->where('role', UserRole::PATIENT->value);
         } else {
             $query->where('role', UserRole::PATIENT->value);
         }
@@ -149,7 +149,6 @@ new class extends Component {
 {{--                            <flux:error name="is_active" />--}}
 {{--                        </flux:field>--}}
                         <flux:switch wire:model="is_active" label="Aktif" description="Jika dinonaktifkan, akun pasien tidak akan dapat digunakan untuk login." />
-
                     </div>
 
                     <flux:button type="submit" variant="primary" class="w-full">Simpan</flux:button>
@@ -191,8 +190,15 @@ new class extends Component {
                         <td class=" px-4 py-2 text-center">{{$user->age}}</td>
                         <td class=" px-4 py-2">{{$user->gender->label()}}</td>
                         <td class=" px-4 py-2">
-                            @forelse(json_decode($user->problems) as $problem)
-                                {{ Problem::tryFrom($problem)->label() }},
+                            @php
+                                $problems = json_decode($user->problems ?? '[]');
+                            @endphp
+
+                            @forelse ($problems as $problem)
+                                @php $enum = Problem::tryFrom($problem); @endphp
+                                @if ($enum)
+                                    {{ $loop->first ? '' : ', ' }}{{ $enum->label() }}
+                                @endif
                             @empty
                                 -
                             @endforelse
@@ -210,7 +216,6 @@ new class extends Component {
                 </tbody>
             </table>
         </div>
-
 
         <div class="mt-6">
             {{$users->links()}}

@@ -76,7 +76,7 @@ class TherapyController extends Controller
                 ]);
             }
 
-            return Response::success($validated, 'Berhasil memberikan rating.');
+            return Response::success($validated, 'Berhasil memberikan ulasan.');
 
         } catch (Exception $exception) {
             return Response::error($exception->getMessage(), 500);

@@ -36,7 +36,7 @@ class OrderController extends Controller
                 return Response::error('Order tidak ditemukan', 404);
             }
 
-            return Response::success(new OrderResource($order), 'Berhasil mendapatkan order terapi.');
+            return Response::success(new OrderResource($order), 'Berhasil mendapatkan data order terapi.');
 
         } catch (\Exception $exception) {
             return Response::error($exception->getMessage(), 500);

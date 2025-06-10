@@ -79,6 +79,7 @@ class AuthController extends Controller
                 'age' => $validated['age'],
                 'gender' => $validated['gender'],
                 'problems' => json_encode($validated['problems']),
+                'role' => UserRole::PATIENT->value,
             ]);
 
             return Response::success([
@@ -145,6 +146,11 @@ class AuthController extends Controller
         ]);
 
         try {
+
+            $user = $this->userService->get(email: $validated['email'], role: UserRole::PATIENT->value, verified: true, is_active: true)->first();
+            if (! $user) {
+                return Response::error('Akun tidak ditemukan.', 404);
+            }
 
             $otpRecord = $this->otpService->get($validated['email'], $validated['token']);
             if (! $otpRecord || now()->greaterThan($otpRecord->expired_at)) {

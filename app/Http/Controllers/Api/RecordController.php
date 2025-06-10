@@ -106,7 +106,7 @@ class RecordController extends Controller
                     'week' => $week,
                     'questions' => QuestionResource::collection($questions),
                     'answers' => $filteredAnswers,
-                ], "Berhasil mendapatkan data {$validated['record_type']} untuk minggu ke-{$week}.");
+                ], "Berhasil mendapatkan data jawaban {$validated['record_type']} untuk minggu ke-{$week}.");
 
             } else {
 
