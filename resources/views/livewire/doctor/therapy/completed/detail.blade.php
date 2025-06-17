@@ -52,7 +52,7 @@ new class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.main-heading', ['title' => 'Detail Terapi'])
+    @include('partials.main-heading', ['title' => 'Detail Terapi Selesai'])
 
     <flux:heading class="mb-2">
         Informasi Pasien:

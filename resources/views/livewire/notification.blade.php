@@ -9,6 +9,9 @@ new class extends Component {
         DB::table('notifications')
             ->where('id', $notification_id)
             ->update(['read_at' => now()]);
+
+        session()->flash('status', ['message' => 'Berhasil mengubah status notifikasi.', 'success' => true]);
+        $this->redirectRoute('notification');
     }
 
     public function with()

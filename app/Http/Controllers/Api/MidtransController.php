@@ -108,8 +108,10 @@ class MidtransController extends Controller
                 return Response::error('Order tidak ditemukan.', 400);
             }
 
-            $this->updateOrderStatus($order, $status, $paymentType, $paymentId);
-            DB::commit();
+            if (! $order->therapy->patient->is_therapy_in_progress) {
+                $this->updateOrderStatus($order, $status, $paymentType, $paymentId);
+                DB::commit();
+            }
 
             return Response::success($notification, 'Notifikasi midtrans berhasil.');
         } catch (\Exception $e) {
@@ -251,7 +253,7 @@ class MidtransController extends Controller
             $this->updateOrderStatus($order, $status, $paymentType, $paymentId);
             DB::commit();
 
-            return Response::success($order, 'Update midtrans berhasil.');
+            return Response::success(null, 'Update midtrans berhasil.');
         } catch (Exception $exception) {
             DB::rollBack();
 

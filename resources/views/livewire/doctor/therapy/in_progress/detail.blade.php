@@ -82,7 +82,7 @@ new class extends Component {
 {{--    @include('partials.main-heading', ['title' => 'Detail Terapi'])--}}
 
     <div class="flex justify-between items-center">
-        <flux:heading size="xl" level="1">Detail Terapi</flux:heading>
+        <flux:heading size="xl" level="1">Detail Terapi Berlangsung</flux:heading>
     </div>
     <flux:subheading size="lg" class="mb-6"></flux:subheading>
     <flux:separator variant="subtle"/>

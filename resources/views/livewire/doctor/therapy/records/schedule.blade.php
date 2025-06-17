@@ -141,20 +141,23 @@ new class extends Component {
 <section class="w-full">
     @include('partials.main-heading', ['title' => null])
 
+    @if($therapy->status === TherapyStatus::IN_PROGRESS)
+        <flux:callout icon="information-circle" class="mb-4" color="blue"
+                      x-data="{ visible: localStorage.getItem('hideMessageSchedule') !== 'true' }"
+                      x-show="visible"
+                      x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageSchedule', 'true'))">
+            <flux:callout.heading>Diskusi Jadwal Sesi Terapi</flux:callout.heading>
+            <flux:callout.text>
+                Anda dapat berdiskusi dengan pasien mengenai waktu jadwal sesi terapi melalui fitur percakapan.
+                <br><br>
+                <flux:callout.link href="#" @click="visible = false">
+                    Jangan tampilkan lagi.
+                </flux:callout.link>
+            </flux:callout.text>
+        </flux:callout>
+    @endif
     <!-- Callout Message -->
-    <flux:callout icon="information-circle" class="mb-4" color="blue"
-                  x-data="{ visible: localStorage.getItem('hideMessageSchedule') !== 'true' }"
-                  x-show="visible"
-                  x-init="$watch('visible', value => !value && localStorage.setItem('hideMessageSchedule', 'true'))">
-        <flux:callout.heading>Diskusi Jadwal Sesi Terapi</flux:callout.heading>
-        <flux:callout.text>
-            Anda dapat berdiskusi dengan pasien mengenai waktu jadwal sesi terapi melalui fitur percakapan.
-            <br><br>
-            <flux:callout.link href="#" @click="visible = false">
-                Jangan tampilkan lagi.
-            </flux:callout.link>
-        </flux:callout.text>
-    </flux:callout>
+
 
     <!-- Edit Schedule Modal -->
     <flux:modal name="editSchedule" class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl p-4 md:p-6">
@@ -168,7 +171,7 @@ new class extends Component {
                         <flux:input wire:model="date" label="Tanggal" type="date"/>
                     </div>
                     <div>
-                        <flux:input wire:model="time" label="Waktu (1 Jam)" type="time"/>
+                        <flux:input wire:model="time" label="Waktu Mulai (Durasi 1 Jam)" type="time"/>
                     </div>
                 </div>
 
@@ -222,7 +225,7 @@ new class extends Component {
                         - {{Carbon::parse($schedule->time)->addHour()->format('H:i')}})
                     </flux:text>
                 @else
-                    <flux:text class="text-sm sm:text-base">
+                    <flux:text>
                         Tanggal dan waktu belum ditentukan.
                     </flux:text>
                 @endif
