@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('generals', function (Blueprint $table) {
             $table->id();
-            $table->integer('doctor_fee')->default(350000);
+            $table->integer('doctor_fee')->default(480000);
             $table->integer('application_fee')->default(20000);
             $table->boolean('is_himpsi')->default(true);
             $table->timestamps();

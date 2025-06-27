@@ -106,12 +106,22 @@ new class extends Component {
         $questionLabels = $this->questionService->get('committed_action')->pluck('question');
         $tableRows = $questionAnswers->sortByDesc('answer.created_at')->chunk($questionLabels->count());
         $chart = $this->prepareChartData();
+        $executionAnswers = $questionAnswers->filter(fn($qa) => $qa->question_id === 39);
+        $totalActions = $executionAnswers->count();
+        $doneActions = $executionAnswers->where('answer.answer', true)->count();
+        $undoneActions = $executionAnswers->where('answer.answer', false)->count();
+        $successPercentage = $totalActions > 0 ? round(($doneActions / $totalActions) * 100, 1) : 0;
+
 
         CommittedActionQuestionAnswer::where('committed_action_id', $this->committedAction->id)->whereNull('is_read')->update(['is_read' => true]);
 
         return [
             'questions' => $questionLabels,
             'rows' => $tableRows,
+            'totalActions' => $totalActions,
+            'doneActions' => $doneActions,
+            'undoneActions' => $undoneActions,
+            'successPercentage' => $successPercentage,
             ...$chart,
         ];
     }
@@ -142,6 +152,16 @@ new class extends Component {
                 <canvas id="committedActionChart" class="w-full h-64 sm:h-80 mb-4"></canvas>
             </div>
         </div>
+        <flux:callout color="yellow" class="mt-2">
+            <flux:callout.heading>Hasil Analisis Status Tindakan</flux:callout.heading>
+            <flux:callout.text>
+                <ul class="list-disc ml-4">
+                    <li>Total tindakan terlaksana: <strong>{{ $doneActions }}</strong><br></li>
+                    <li>Total tindakan tidak terlaksana: <strong>{{$undoneActions}}</strong><br></li>
+                    <li>Persentase keberhasilan tindakan: <strong>{{ $successPercentage}}%</strong><br></li>
+                </ul>
+            </flux:callout.text>
+        </flux:callout>
 
         <flux:separator class="mt-4 mb-4"></flux:separator>
 

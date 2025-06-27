@@ -37,33 +37,38 @@ class TherapySeeder extends Seeder
 
         $therapyScheduleDescriptions = [
             [
-                'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan pendekatan ACT.',
+                'Psikolog dan pasien saling memperkenalkan diri',
+                'Psikolog memberikan penjelasan mengenai gambaran terapi, insomnia, sleep hygiene, dan ACT.',
                 'Psikolog menyusun kesepakatan bersama dengan pasien',
-                'Psikolog mengingatkan pasien untuk mengisi catatan tidur (sleep diary) setiap hari selama terapi berlangsung.',
-                'Psikolog meminta pasien untuk menyampaikan permasalahan insomnia yang dialami.',
+                'Psikolog meminta pasien untuk menyampaikan masalah insomnia yang dialami.',
+                'Psikolog meminta pasien untuk mengisi catatan tidur (sleep diary) setiap hari selama terapi berlangsung.',
             ],
             [
-                'Psikolog mengingatkan pasien untuk mengisi catatan identifikasi nilai (identify value).',
-                'Psikolog mengajarkan teknik pernapasan kepada pasien dan membimbing latihan praktiknya.',
+                'Psikolog meminta pasien untuk mengenali dan mengeksplorasi nilai - nilai (value) pribadi',
+                'Psikolog meminta pasien untuk mengidentifikasi value yang terdampak dengan adanya insomnia',
+                'Psikolog mengajarkan teknik pernapasan kepada pasien.',
+                'Psikolog meminta pasien untuk mengisi catatan identifikasi nilai (identify value).',
             ],
             [
-                'Psikolog menjelaskan berbagai bentuk pikiran yang mengganggu.',
-                'Psikolog mengingatkan pasien untuk mengisi catatan emosi (emotion record) dan catatan pikiran (thought record).',
-                'Psikolog membimbing pasien untuk mempraktikkan cara-cara mengatasi pikiran yang mengganggu.',
-                'Psikolog mengarahkan pasien untuk melakukan latihan observasi diri sebagai konteks (self-as-context).',
+                'Psikolog menjelaskan bentuk-bentuk pikiran yang mengganggu.',
+                'Psikolog meminta pasien untuk mengidentifikasi pikiran menggangu yang menghambat tidur',
+                'Psikolog meminta pasien untuk mempraktikkan cara-cara mengatasi pikiran yang mengganggu',
+                'Psikolog meminta pasien untuk melakukan latihan observasi diri sebagai konteks (self-as-context).',
+                'Psikolog meminta pasien untuk mengisi catatan pikiran (thought record) dan catatan emosi (emotion record).',
             ],
             [
-                'Psikolog menjelaskan penerapan mindfulness dalam kehidupan sehari-hari.',
-                'Psikolog membimbing pasien dalam mempraktikkan teknik acceptance dan mindfulness.',
+                'Psikolog menjelaskan konsep penerimaan (acceptance)',
+                'Psikolog menjelaskan penerimaan mindfulness di kehidupan sehari-hari',
+                'Psikolog meminta pasien untuk mempraktikkan teknik acceptance dan mindfulness.',
             ],
             [
+                'Psikolog meminta pasien mengevaluasi kesesuaian tindakan dengan value yang dimiliki',
                 'Psikolog menjelaskan konsep tindakan berkomitmen (committed action).',
-                'Psikolog mengingatkan pasien untuk mengisi catatan tindakan berkomitmen (committed action) berdasarkan nilai-nilai (value) yang pasien miliki.',
+                'Psikolog meminta pasien untuk mengisi catatan tindakan berkomitmen (committed action) sesuai value yang dimiliki',
             ],
             [
-                'Psikolog dan pasien mendiskusikan hasil dari catatan tindakan berkomitmen (committed action) yang telah dilakukan.',
-                'Psikolog meminta pasien untuk merangkum keseluruhan sesi terapi',
-                'Psikolog meminta pasien untuk memberikan ulasan kepada psikolog dan terhadap proses terapi.',
+                'Psikolog meminta pasien mengevaluasi tindakan berkomitmen yang telah dilaksanakan, serta menganalisis hambatan dan cara mengatasinya',
+                'Psikolog meminta pasien untuk merangkum keseluruhan sesi terapi dan memberikan ulasan terhadap psikolog dan sesi terapi.',
             ],
         ];
 
@@ -219,17 +224,17 @@ class TherapySeeder extends Seeder
                     ['id' => 5, 'type' => QuestionType::BOOLEAN->value, 'answer' => 'Penenang', 'note' => 'Siang'],
                     ['id' => 6, 'type' => QuestionType::NUMBER->value, 'answer' => 1, 'note' => 'Siang'],
                     ['id' => 7, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Siang'],
-                    ['id' => 8, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 9, 'type' => QuestionType::BOOLEAN->value, 'answer' => false, 'note' => 'Siang'],
-                    ['id' => 10, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 11, 'type' => QuestionType::BOOLEAN->value, 'answer' => false, 'note' => 'Siang'],
-                    ['id' => 12, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
-                    ['id' => 13, 'type' => QuestionType::BOOLEAN->value, 'answer' => true, 'note' => 'Siang'],
+                    ['id' => 8, 'type' => QuestionType::BOOLEAN->value, 'answer' => fake()->boolean, 'note' => 'Siang'],
+                    ['id' => 9, 'type' => QuestionType::BOOLEAN->value, 'answer' => fake()->boolean, 'note' => 'Siang'],
+                    ['id' => 10, 'type' => QuestionType::BOOLEAN->value, 'answer' => fake()->boolean, 'note' => 'Siang'],
+                    ['id' => 11, 'type' => QuestionType::BOOLEAN->value, 'answer' => fake()->boolean, 'note' => 'Siang'],
+                    ['id' => 12, 'type' => QuestionType::BOOLEAN->value, 'answer' => fake()->boolean, 'note' => 'Siang'],
+                    ['id' => 13, 'type' => QuestionType::BOOLEAN->value, 'answer' => fake()->boolean, 'note' => 'Siang'],
                     ['id' => 14, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
                     ['id' => 15, 'type' => QuestionType::TIME->value, 'answer' => fake()->time('H:i'), 'note' => 'Malam'],
                     ['id' => 16, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 10), 'note' => 'Malam'],
                     ['id' => 17, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(0, 5), 'note' => 'Malam'],
-                    ['id' => 18, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(1, 5), 'note' => 'Malam'],
+                    ['id' => 18, 'type' => QuestionType::NUMBER->value, 'answer' => fake()->numberBetween(4, 10), 'note' => 'Malam'],
                     ['id' => 19, 'type' => QuestionType::BOOLEAN->value, 'answer' => false, 'note' => 'Malam'],
                 ];
 
@@ -331,7 +336,11 @@ class TherapySeeder extends Seeder
         foreach ($categories as $category) {
             foreach ($questions as $index => $question) {
                 $randomAnswer = match ($question['type']) {
-                    QuestionType::NUMBER->value => fake()->numberBetween(1, 10),
+                    QuestionType::NUMBER->value => match ($question['id']) {
+                        20 => $answer20 = fake()->numberBetween(5, 10), // Save value for ID 20
+                        22 => fake()->numberBetween(1, $answer20 ?? 10), // Use saved value for upper bound
+                        default => fake()->numberBetween(1, 10),
+                    },
                     QuestionType::TEXT->value => $realSentences[$category][array_rand($realSentences[$category])],
                     default => null,
                 };

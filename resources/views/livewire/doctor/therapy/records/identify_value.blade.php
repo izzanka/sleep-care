@@ -39,6 +39,16 @@ new class extends Component {
         $this->labels = $this->getUniqueComments();
     }
 
+    protected function getGapAnalysis()
+    {
+        $importance = $this->getNumberAnswers()['Skala Kepentingan'] ?? [];
+        $alignment = $this->getNumberAnswers()['Skor Kesesuaian'] ?? [];
+
+        return collect($importance)->map(function ($value, $index) use ($alignment) {
+            return $value - ($alignment[$index] ?? 0);
+        });
+    }
+
     protected function getDatasetLabels()
     {
         return $this->questionService->get('identify_value')->pluck('question')
@@ -125,6 +135,15 @@ new class extends Component {
         $dataset = $this->getDatasetLabels();
         $numberAnswers = $this->getNumberAnswers();
         $textAnswers = $this->getTextAnswers();
+        $gapAnalysis = $this->getGapAnalysis();
+
+
+        // Cari area dengan gap terbesar dan terkecil
+        $maxGapIndex = $gapAnalysis->search($gapAnalysis->max());
+        $minGapIndex = $gapAnalysis->search($gapAnalysis->min());
+
+        $areaTerburuk = $this->identifyValue->questionAnswers[$maxGapIndex*3]->answer->note ?? '-';
+        $areaTerbaik = $this->identifyValue->questionAnswers[$minGapIndex*3]->answer->note ?? '-';
 
         IdentifyValueQuestionAnswer::where('identify_value_id', $this->identifyValue->id)->whereNull('is_read')->update(['is_read' => true]);
 
@@ -132,6 +151,10 @@ new class extends Component {
             'datasetLabels' => $dataset,
             'numberAnswers' => $numberAnswers,
             'textAnswers' => $textAnswers,
+            'gapAnalysis' => $gapAnalysis,
+            'areaTerburuk' => $areaTerburuk,
+            'areaTerbaik' => $areaTerbaik,
+            'jumlah_gap_besar' => $gapAnalysis->filter(fn($gap) => $gap >= 3)->count(),
         ];
     }
 }; ?>
@@ -159,6 +182,16 @@ new class extends Component {
                 <canvas id="identifyValueChart" class="w-full h-64 sm:h-80"></canvas>
             </div>
         </div>
+        <flux:callout color="yellow">
+            <flux:callout.heading>Hasil Analisis Perbandingan Kepentingan dan Kesesuaian</flux:callout.heading>
+            <flux:callout.text>
+                <ul class="list-disc ml-4">
+                    <li><strong>{{ $jumlah_gap_besar }}</strong> area memiliki kesenjangan tinggi (selisih antara kepentingan dan kesesuaian ≥ 3)</li>
+                    <li>Area dengan kesesuaian tertinggi: <strong>{{ $areaTerbaik }}</strong></li>
+                    <li>Area dengan kesenjangan tertinggi: <strong>{{ $areaTerburuk }}</strong></li>
+                </ul>
+            </flux:callout.text>
+        </flux:callout>
 
         <flux:separator class="mt-4 mb-4"/>
 

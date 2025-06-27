@@ -145,9 +145,52 @@ new class extends Component {
 
         $structuredQuestions = $this->getQuestions($sleepDiaries);
 
+        $dataSleepQuality = $resultData['dataSleepQuality'] ?? [];
+
+        $maxQualityIndex = collect($dataSleepQuality)->search(max($dataSleepQuality));
+        $minQualityIndex = collect($dataSleepQuality)->search(min($dataSleepQuality));
+
+        $mingguTidurTerbaik = $this->dropdownLabels[$maxQualityIndex] ?? '-';
+        $mingguTidurTerburuk = $this->dropdownLabels[$minQualityIndex] ?? '-';
+        $jumlahTidurBuruk = collect($dataSleepQuality)->filter(fn($score) => $score <= 42)->count();
+
+        $dataCaffeine = $resultData['dataCaffeine'];
+        $dataAlcohol = $resultData['dataAlcohol'];
+        $dataNicotine = $resultData['dataNicotine'];
+        $dataFood = $resultData['dataFood'];
+
+        $weeklyTotals = collect($dataCaffeine)
+            ->map(function ($_, $i) use ($dataCaffeine, $dataAlcohol, $dataNicotine, $dataFood) {
+                return ($dataCaffeine[$i] ?? 0)
+                    + ($dataAlcohol[$i] ?? 0)
+                    + ($dataNicotine[$i] ?? 0)
+                    + ($dataFood[$i] ?? 0);
+            });
+
+        $averageConsumption = round($weeklyTotals->avg(), 1);
+        $maxConsumptionIndex = $weeklyTotals->search($weeklyTotals->max());
+        $minConsumptionIndex = $weeklyTotals->search($weeklyTotals->min());
+
+        $totalConsumptionByType = [
+            'Kafein' => array_sum($dataCaffeine),
+            'Alkohol' => array_sum($dataAlcohol),
+            'Nikotin' => array_sum($dataNicotine),
+            'Makanan Berat' => array_sum($dataFood),
+        ];
+
+        $mostConsumedSubstance = collect($totalConsumptionByType)->sortDesc()->keys()->first();
+
         return array_merge([
             'sleepDiaries' => $sleepDiaries,
             'structuredQuestions' => $structuredQuestions,
+            'mingguTidurTerbaik' => $mingguTidurTerbaik,
+            'mingguTidurTerburuk' => $mingguTidurTerburuk,
+            'jumlahTidurBuruk' => $jumlahTidurBuruk,
+            'totalConsumptionPerWeek' => $weeklyTotals,
+            'averageConsumption' => $averageConsumption,
+            'maxConsumptionIndex' => $maxConsumptionIndex,
+            'minConsumptionIndex' => $minConsumptionIndex,
+            'mostConsumedSubstance' => $mostConsumedSubstance,
         ], $resultData);
     }
 
@@ -184,11 +227,33 @@ new class extends Component {
                         <div class="relative w-full" style="height: min(80vh, 400px);">
                             <canvas id="lineChart" class="w-full h-full"></canvas>
                         </div>
+                        <flux:callout color="yellow" class="mt-4">
+                            <flux:callout.heading>Hasil Analisis Tren Tidur</flux:callout.heading>
+                            <flux:callout.text>
+                                <ul class="list-disc ml-4">
+                                    <li><strong>{{ $jumlahTidurBuruk }}</strong> minggu memiliki kualitas tidur yang rendah (total skor kualitas tidur ≤ 42)</li>
+                                    <li>Minggu dengan kualitas tidur terbaik: <strong>{{ $mingguTidurTerbaik }}</strong></li>
+                                    <li>Minggu dengan kualitas tidur terburuk: <strong>{{ $mingguTidurTerburuk }}</strong></li>
+                                </ul>
+                            </flux:callout.text>
+                        </flux:callout>
                     </div>
                     <div class="w-full flex-shrink-0 px-2">
                         <div class="relative w-full" style="height: min(80vh, 400px);">
                             <canvas id="barChart" class="w-full h-full"></canvas>
                         </div>
+                            <flux:callout color="yellow" class="mt-4">
+                                <flux:callout.heading>Hasil Analisis Total Konsumsi</flux:callout.heading>
+                                <flux:callout.text>
+                                    <ul class="list-disc ml-4">
+{{--                                        <li>Rata-rata total konsumsi perminggu berjumlah: <strong>{{ round($averageConsumption, 0) }}</strong>. <br></li>--}}
+                                        <li>Paling banyak dikonsumsi: <strong>{{ $mostConsumedSubstance }}</strong><br></li>
+                                        <li>Konsumsi tertinggi terjadi pada minggu ke-<strong>{{ $maxConsumptionIndex + 1 }}</strong> <br></li>
+                                        <li>Konsumsi terendah terjadi pada minggu ke-<strong>{{ $minConsumptionIndex + 1 }}</strong></li>
+                                    </ul>
+                                </flux:callout.text>
+                            </flux:callout>
+
                     </div>
                 </div>
                 <button @click="activeSlide = (activeSlide === 0 ? 1 : 0)"
@@ -212,6 +277,8 @@ new class extends Component {
                 </div>
             </div>
         </div>
+
+
 
         <flux:separator class="mt-4 mb-4"/>
 

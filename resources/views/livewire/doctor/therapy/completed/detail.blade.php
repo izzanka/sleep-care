@@ -52,9 +52,15 @@ new class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.main-heading', ['title' => 'Detail Terapi Selesai'])
+{{--    @include('partials.main-heading', ['title' => 'Detail Terapi Selesai'])--}}
+    <div class="flex justify-between items-center">
+        <flux:heading size="xl" level="1">Detail Terapi Selesai</flux:heading>
+        <flux:button variant="primary" icon="arrow-left" :href="route('doctor.therapies.completed.index')" size="sm">Kembali</flux:button>
+    </div>
+    <flux:subheading size="lg" class="mb-6"></flux:subheading>
+    <flux:separator variant="subtle"/>
 
-    <flux:heading class="mb-2">
+    <flux:heading class="mb-2 mt-4">
         Informasi Pasien:
     </flux:heading>
 

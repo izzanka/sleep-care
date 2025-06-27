@@ -50,7 +50,7 @@ new class extends Component {
         $this->labels = $this->chartService->labels;
         $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
-        $this->text = 'Total Frekuensi Kemunculan Pikiran';
+        $this->text = 'Frekuensi Kemunculan Pikiran';
     }
 
     private function extractQuestions()
@@ -154,11 +154,20 @@ new class extends Component {
 
         ThoughtRecordQuestionAnswer::where('thought_record_id', $this->thoughtRecord->id)->whereNull('is_read')->update(['is_read' => true]);
 
+        $maxWeek = $weeklyData->search($weeklyData->max());
+        $minWeek = $weeklyData->search($weeklyData->min());
+        $totalThoughts = $weeklyData->sum();
+        $averagePerWeek = round($totalThoughts / 6, 1);
+
         return [
             'thoughtRecordQuestions' => $questions,
             'chunks' => $filteredRows,
             'data' => $weeklyData->values()->toArray(),
             'maxValue' => $maxValue,
+            'maxWeek' => $maxWeek,
+            'minWeek' => $minWeek,
+            'averagePerWeek' => $averagePerWeek,
+            'totalThoughts' => $totalThoughts,
         ];
     }
 
@@ -187,6 +196,16 @@ new class extends Component {
                 <div class="relative w-full" style="height: min(80vh, 400px);">
                     <canvas id="thoughtRecordChart" class="w-full h-full"></canvas>
                 </div>
+                <flux:callout color="yellow" class="mt-2">
+                    <flux:callout.heading>Hasil Analisis Frekuensi Kemunculan Pikiran</flux:callout.heading>
+                    <flux:callout.text>
+                        <ul class="list-disc ml-4">
+                            <li>Rata-rata frekuensi kemunculan pikiran per minggu: <strong>{{ round($averagePerWeek, 0) }}</strong><br></li>
+                            <li>Frekuensi kemunculan pikiran tertinggi terjadi pada: <strong>{{ $maxWeek }}</strong><br></li>
+                            <li>Frekuensi kemunculan pikiran terendah terjadi pada: <strong>{{ $minWeek}}</strong><br></li>
+                        </ul>
+                    </flux:callout.text>
+                </flux:callout>
             </div>
         </div>
 

@@ -48,7 +48,7 @@ new class extends Component {
         $this->labels = $this->chartService->labels;
         $this->dropdownLabels = $this->chartService->labeling($this->therapy->start_date);
         $this->selectedWeek = min((int)$this->therapy->start_date->diffInWeeks(now()) + 1, 6);
-        $this->chartTitle = 'Total Frekuensi Kemunculan Emosi';
+        $this->chartTitle = 'Frekuensi Kemunculan Emosi';
     }
 
     private function extractAnswerData($rows)
@@ -163,6 +163,33 @@ new class extends Component {
         $flattened = $emotionFrequencies->flatten()->toArray();
         $maxValue = empty($flattened) ? 0 : $this->chartService->calculateMaxValue($flattened);
 
+        // Hitung total dan rata-rata emosi
+        $totalEmotions = $emotionFrequencies->flatten()->sum();
+        $averagePerWeek = $totalEmotions > 0 ? round($totalEmotions / 6, 1) : 0;
+
+// Minggu dengan frekuensi tertinggi dan terendah
+        $weeklyTotals = collect(array_fill(1, 6, 0));
+        foreach ($emotionFrequencies as $emotion => $counts) {
+            foreach ($counts as $index => $count) {
+                $weeklyTotals[$index + 1] += $count;
+            }
+        }
+
+        $maxWeek = $weeklyTotals->search($weeklyTotals->max()) ?? 0;
+        $minWeek = $weeklyTotals->search($weeklyTotals->min()) ?? 0;
+
+        $emotionTotalCounts = $emotionFrequencies->map(fn($counts) => $counts->sum());
+
+// Dapatkan emosi paling sering dan paling jarang
+        $mostFrequentEmotion = $emotionTotalCounts->sortDesc()->keys()->first();
+        $leastFrequentEmotion = $emotionTotalCounts
+            ->filter(fn($total) => $total > 0) // hanya yang pernah muncul
+            ->sort()
+            ->keys()
+            ->first();
+
+//        $leastFrequentEmotion = $emotionTotalCounts->filter()->sort()->keys()->first(); // abaikan yang 0
+
         EmotionRecordQuestionAnswer::where('emotion_record_id', $this->emotionRecord->id)->whereNull('is_read')->update(['is_read' => true]);
 
         return [
@@ -170,6 +197,12 @@ new class extends Component {
             'answerRows' => $filteredRows,
             'datasets' => $chartDatasets,
             'maxValue' => $maxValue,
+            'totalEmotions' => $totalEmotions,
+            'averagePerWeek' => $averagePerWeek,
+            'maxWeek' => $maxWeek,
+            'minWeek' => $minWeek,
+            'mostFrequentEmotion' => $mostFrequentEmotion,
+            'leastFrequentEmotion' => $leastFrequentEmotion,
         ];
     }
 }; ?>
@@ -197,6 +230,17 @@ new class extends Component {
                 <div class="relative w-full" style="height: min(80vh, 400px);">
                     <canvas id="emotionRecordChart" class="w-full h-full"></canvas>
                 </div>
+                <flux:callout color="yellow" class="mt-2">
+                    <flux:callout.heading>Hasil Analisis Frekuensi Kemunculan Emosi</flux:callout.heading>
+                    <flux:callout.text>
+                        <ul class="list-disc ml-4">
+                            <li>Rata-rata frekuensi kemunculan emosi per minggu: <strong>{{ round($averagePerWeek, 0) }}</strong><br></li>
+                            <li>Frekuensi kemunculan emosi tertinggi terjadi pada: <strong>Minggu {{ $maxWeek }}</strong><br></li>
+                            <li>Frekuensi kemunculan emosi terendah terjadi pada: <strong>Minggu {{ $minWeek}}</strong><br></li>
+                            <li>Emosi yang paling sering muncul: <strong>{{$mostFrequentEmotion ?? '-'}}</strong><br></li>
+                        </ul>
+                    </flux:callout.text>
+                </flux:callout>
             </div>
         </div>
 

@@ -53,8 +53,15 @@ new class extends Component {
             ],
         ]);
 
+//        if ($this->avatar) {
+//            $validated['avatar'] = $this->avatar->store('img/avatars', 'public');
+//        }
+
         if ($this->avatar) {
             $validated['avatar'] = $this->avatar->store('img/avatars', 'public');
+        } else {
+            // Preserve old avatar if no new one is uploaded
+            $validated['avatar'] = $this->user->avatar;
         }
 
         $this->user->fill($validated);
@@ -88,9 +95,17 @@ new class extends Component {
         $this->is_available = (bool) $this->user->doctor->is_available;
     }
 
+//    protected function shouldUpdateDoctorInfo()
+//    {
+//        return $this->phone !== '' || $this->about !== '' || $this->graduated_from != '' || $this->is_available;
+//    }
+
     protected function shouldUpdateDoctorInfo()
     {
-        return $this->phone !== '' || $this->about !== '' || $this->graduated_from != '' || $this->is_available;
+        return filled($this->phone)
+            || filled($this->about)
+            || filled($this->graduated_from)
+            || !is_null($this->is_available);
     }
 
     public function updateDoctorInformation()

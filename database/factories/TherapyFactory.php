@@ -19,7 +19,7 @@ class TherapyFactory extends Factory
         return [
             'start_date' => now()->subDays(42)->toDateString(),
             'end_date' => now()->subDay()->toDateString(),
-            'doctor_fee' => 350000,
+            'doctor_fee' => 480000,
             'application_fee' => 20000,
             'created_at' => now(),
         ];

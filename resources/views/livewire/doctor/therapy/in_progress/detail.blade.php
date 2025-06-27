@@ -83,6 +83,7 @@ new class extends Component {
 
     <div class="flex justify-between items-center">
         <flux:heading size="xl" level="1">Detail Terapi Berlangsung</flux:heading>
+        <flux:button variant="primary" icon="arrow-left" :href="route('doctor.therapies.in_progress.index')" size="sm">Kembali</flux:button>
     </div>
     <flux:subheading size="lg" class="mb-6"></flux:subheading>
     <flux:separator variant="subtle"/>

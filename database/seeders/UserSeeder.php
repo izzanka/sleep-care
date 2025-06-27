@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         General::create([
-            'doctor_fee' => 350000,
+            'doctor_fee' => 480000,
             'application_fee' => 20000,
         ]);
 
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         $userDoctor = User::factory()->doctor()->create([
             'name' => 'psikolog',
             'email' => 'info@sleepcares.xyz',
-            'balance' => 1400000,
+            'balance' => 1920000,
         ]);
 
         Doctor::factory()->create([
