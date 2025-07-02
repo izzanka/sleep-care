@@ -170,6 +170,11 @@ new class extends Component {
         $averageConsumption = round($weeklyTotals->avg(), 1);
         $maxConsumptionIndex = $weeklyTotals->search($weeklyTotals->max());
         $minConsumptionIndex = $weeklyTotals->search($weeklyTotals->min());
+        $totalSleepPerWeek = $resultData['dataTotalSleep'] ?? [];
+        $averageSleepHoursPerWeek = count($totalSleepPerWeek) > 0
+            ? round(array_sum($totalSleepPerWeek) / count($totalSleepPerWeek), 1)
+            : 0;
+
 
         $totalConsumptionByType = [
             'Kafein' => array_sum($dataCaffeine),
@@ -191,6 +196,7 @@ new class extends Component {
             'maxConsumptionIndex' => $maxConsumptionIndex,
             'minConsumptionIndex' => $minConsumptionIndex,
             'mostConsumedSubstance' => $mostConsumedSubstance,
+            'averageSleepHoursPerWeek' => $averageSleepHoursPerWeek,
         ], $resultData);
     }
 
@@ -232,6 +238,7 @@ new class extends Component {
                             <flux:callout.text>
                                 <ul class="list-disc ml-4">
                                     <li><strong>{{ $jumlahTidurBuruk }}</strong> minggu memiliki kualitas tidur yang rendah (total skor kualitas tidur ≤ 42)</li>
+                                    <li>Rata-rata waktu tidur per minggu: <strong>{{ $averageSleepHoursPerWeek }} jam</strong> (normal ≥ 49 jam)</li>
                                     <li>Minggu dengan kualitas tidur terbaik: <strong>{{ $mingguTidurTerbaik }}</strong></li>
                                     <li>Minggu dengan kualitas tidur terburuk: <strong>{{ $mingguTidurTerburuk }}</strong></li>
                                 </ul>
@@ -246,7 +253,7 @@ new class extends Component {
                                 <flux:callout.heading>Hasil Analisis Total Konsumsi</flux:callout.heading>
                                 <flux:callout.text>
                                     <ul class="list-disc ml-4">
-{{--                                        <li>Rata-rata total konsumsi perminggu berjumlah: <strong>{{ round($averageConsumption, 0) }}</strong>. <br></li>--}}
+                                        <li>Rata-rata total konsumsi per minggu berjumlah: <strong>{{ round($averageConsumption, 0) }}</strong><br></li>
                                         <li>Paling banyak dikonsumsi: <strong>{{ $mostConsumedSubstance }}</strong><br></li>
                                         <li>Konsumsi tertinggi terjadi pada minggu ke-<strong>{{ $maxConsumptionIndex + 1 }}</strong> <br></li>
                                         <li>Konsumsi terendah terjadi pada minggu ke-<strong>{{ $minConsumptionIndex + 1 }}</strong></li>
